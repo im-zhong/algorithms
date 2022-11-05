@@ -10,8 +10,10 @@
 #include "array.h"
 #include "btree.h"
 #include <cassert>
+#include <chrono>
 #include <fstream>
 #include <iostream>
+#include <random>
 #include <string>
 
 std::string btree_node_to_string(btree_node_t *node) {
@@ -155,8 +157,33 @@ void test_btree() {
   btree_check(&btree);
   btree_insert(&btree, 12);
   btree_check(&btree);
-  // btree_insert(&btree, 13);
+  btree_insert(&btree, 13);
   gen_btree_dot(&btree);
+
+  btree_free(&btree);
 }
 
-int main(int argc, char *argv[]) { test_btree(); }
+void test_random_btree() {
+  // 我们会随机生成 btree
+  // 不断增加数据并且每增加一次数据都会执行 btree_check
+  std::default_random_engine e(
+      std::chrono::system_clock::now().time_since_epoch().count());
+  std::uniform_int_distribution<int> ui(0, 100);
+
+  btree_t btree;
+  btree_init(&btree);
+
+  for (size_t i = 0; i < 50; ++i) {
+    btree_insert(&btree, ui(e));
+    btree_check(&btree);
+  }
+
+  btree_free(&btree);
+}
+
+int main(int argc, char *argv[]) {
+  test_btree();
+  for (int i = 0; i < 1000000; ++i) {
+    test_random_btree();
+  }
+}
