@@ -160,6 +160,10 @@ void test_btree() {
   btree_insert(&btree, 13);
   gen_btree_dot(&btree);
 
+  assert(btree_search(&btree, 5));
+  assert(!btree_search(&btree, 0));
+  assert(!btree_search(&btree, 15));
+
   btree_free(&btree);
 }
 
@@ -174,8 +178,10 @@ void test_random_btree() {
   btree_init(&btree);
 
   for (size_t i = 0; i < 50; ++i) {
-    btree_insert(&btree, ui(e));
+    int key = ui(e);
+    btree_insert(&btree, key);
     btree_check(&btree);
+    assert(btree_search(&btree, key));
   }
 
   btree_free(&btree);
