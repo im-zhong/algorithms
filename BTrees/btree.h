@@ -4,6 +4,7 @@
 #ifndef _BTREE_H_
 #define _BTREE_H_
 
+#include "array.h"
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -18,7 +19,7 @@ typedef struct btree_node {
   // 当前节点存储的关键字个数
   size_t size;
   // key 我们使用数字作为关键字 毕竟不是要用的 只是用来学习的
-  int keys[MINIMUM_DEGREE * 2 - 1];
+  value_t keys[MINIMUM_DEGREE * 2 - 1];
   struct btree_node *childs[MINIMUM_DEGREE * 2];
 } btree_node_t;
 
@@ -27,16 +28,16 @@ typedef struct btree {
   struct btree_node *root;
 } btree_t;
 
-bool btree_search(btree_t *root, int key);
+bool btree_search(btree_t *root, value_t key);
 
 // 创建一个空的b树
 void btree_init(btree_t *root);
 
-void btree_insert(btree_t *btree, int key);
+void btree_insert(btree_t *btree, value_t key);
 
 void btree_free(btree_t *root);
 
-void btree_delete(btree_t *btree, int key);
+void btree_delete(btree_t *btree, value_t key);
 
 bool btree_is_empty(btree_t *btree);
 
@@ -116,11 +117,11 @@ bool btree_is_empty(btree_t *btree);
 //     // 这些应该是保存在数组里面的
 
 //     // 最多有 2t - 1 个关键字
-//     int keys[2 * btree_minimum_degree - 1];
+//     value_t keys[2 * btree_minimum_degree - 1];
 //     struct btree_node *childs[2 * btree_minimum_degree];
 
 //     // 虽然capacity是 2t, 但是实际的元素数目还是需要额外保存的
-//     int size;
+//     value_t size;
 
 // }btree_node;
 
@@ -132,7 +133,7 @@ bool btree_is_empty(btree_t *btree);
 // // 除非，我们认为key是一个void*
 
 // // b tree search
-// void btree_find(btree_node *head, int key)
+// void btree_find(btree_node *head, value_t key)
 // {
 //     // 相比二叉树，在每一层进行双路选择
 //     // 这里其实就是进行一个多路选择而已
@@ -140,7 +141,7 @@ bool btree_is_empty(btree_t *btree);
 //     while (head)
 //     {
 //         // 在每一层中找到对应的下标
-//         int i = 0;
+//         value_t i = 0;
 //         for (; i < head->size && key < head->keys[i]; ++i);
 
 //         // 通过这个下标，我们可以找到对应的child

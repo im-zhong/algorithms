@@ -167,6 +167,43 @@ void test_btree() {
   btree_free(&btree);
 }
 
+void test_btree_delete() {
+  btree_t btree;
+  btree_init(&btree);
+  btree_insert(&btree, 1);
+  btree_check(&btree);
+  btree_insert(&btree, 2);
+  btree_check(&btree);
+  btree_insert(&btree, 3);
+  btree_check(&btree);
+  btree_insert(&btree, 4);
+  btree_check(&btree);
+  btree_insert(&btree, 5);
+  btree_check(&btree);
+  btree_insert(&btree, 6);
+  btree_check(&btree);
+  btree_insert(&btree, 7);
+  btree_check(&btree);
+  btree_insert(&btree, 8);
+  btree_check(&btree);
+  btree_insert(&btree, 9);
+  btree_check(&btree);
+  btree_insert(&btree, 10);
+  btree_check(&btree);
+  btree_insert(&btree, 11);
+  btree_check(&btree);
+  btree_insert(&btree, 12);
+  btree_check(&btree);
+  btree_insert(&btree, 13);
+  btree_check(&btree);
+
+  btree_delete(&btree, 5);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+
+  btree_free(&btree);
+}
+
 void test_random_btree() {
   // 我们会随机生成 btree
   // 不断增加数据并且每增加一次数据都会执行 btree_check
@@ -188,8 +225,9 @@ void test_random_btree() {
 }
 
 int main(int argc, char *argv[]) {
-  test_btree();
-  for (int i = 0; i < 1000000; ++i) {
-    test_random_btree();
-  }
+  // test_btree();
+  // for (int i = 0; i < 1000000; ++i) {
+  //   test_random_btree();
+  // }
+  test_btree_delete();
 }
