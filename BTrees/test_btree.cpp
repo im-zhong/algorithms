@@ -196,10 +196,56 @@ void test_btree_delete() {
   btree_check(&btree);
   btree_insert(&btree, 13);
   btree_check(&btree);
+  gen_btree_dot(&btree);
 
   btree_delete(&btree, 5);
   btree_check(&btree);
   gen_btree_dot(&btree);
+
+  btree_delete(&btree, 4);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+
+  btree_delete(&btree, 1);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 2);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 3);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 4);
+  btree_check(&btree);
+  btree_delete(&btree, 5);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 6);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 7);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 8);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 9);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 10);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 11);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 12);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 13);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+
+  assert(!btree_search(&btree, 13));
 
   btree_free(&btree);
 }

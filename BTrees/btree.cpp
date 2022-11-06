@@ -306,6 +306,7 @@ void btree_delete_impl(btree_node_t *root, value_t key) {
   if (r && root->is_leaf) {
     // 那么我们直接将之从叶子节点里面删除即可
     array_delete(root->keys, root->size, pos);
+    root->size--;
     return;
   }
 
@@ -314,7 +315,7 @@ void btree_delete_impl(btree_node_t *root, value_t key) {
     // 给定任意一个关键字的下标 我们一定有前面和后面两个孩子
     // 首先查看前面的孩子
     btree_node_t *left_child = root->childs[pos];
-    btree_node_t *right_child = root->childs[pos];
+    btree_node_t *right_child = root->childs[pos + 1];
     // 如果我们的左孩子至少包含t个关键字
     if (left_child && left_child->size >= MINIMUM_DEGREE) {
       // 在左孩子中找到当前key的前驱key'
@@ -431,7 +432,14 @@ void btree_delete_impl(btree_node_t *root, value_t key) {
       // 将兄弟合并 关键字放下去
       // 然后再递归的遍历就好了
       btree_merge(root, pos);
+      // merge之后 应该重新从root开始递归删除过程
+      // 而不是child 因为我们的root的结构已经改变了
+      child = root;
     }
+
+    // 在所有的这三种情况中 root的结构都会改变
+    // 所以都应该从root重新开始递归删除过程
+    child = root;
   }
   // 最后就是递归的删除key
   btree_delete_impl(child, key);
@@ -441,6 +449,42 @@ void btree_delete(btree_t *btree, value_t key) {
   if (!btree->root) {
     return;
   }
+
+  // 考虑特殊的情况 也就是我们只有一个元素的时候
+  btree_node_t *root = btree->root;
+
+  if (root->size == 1 && root->is_leaf) {
+    if (root->keys[0] != key) {
+      return;
+    }
+    // 如果就删除最后这一个元素
+    // 那么直接把根释放掉就可以了
+    btree->root = nullptr;
+    free(root);
+    return;
+  }
+
+  // 和insert类似 我们需要验证root是可以merge的
+  // 在这种情况下 我们需要换根
+  // 如果我们发生了 merge 那么根就没有了呀
+  // 所以 第一个条件就是 根只有一个关键字
+  // 两个孩子的关键字个数都只有 t - 1个
+
+  if (root->size == 1) {
+    btree_node_t *left_child = root->childs[0];
+    btree_node_t *right_child = root->childs[1];
+    if (left_child && right_child) {
+      if (left_child->size == MINIMUM_DEGREE - 1 &&
+          right_child->size == MINIMUM_DEGREE - 1) {
+        btree_merge(root, 0);
+        // 新的root应该是left_child
+        btree->root = left_child;
+        // 释放旧的root
+        free(root);
+      }
+    }
+  }
+
   btree_delete_impl(btree->root, key);
 }
 
