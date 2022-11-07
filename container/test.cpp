@@ -5,8 +5,13 @@
 // to test git restore
 // i add some thing i do not want to commit
 
+#include "heap.h"
 #include "queue.h"
 #include "stack.h"
+#include <cassert>
+#include <chrono>
+#include <malloc.h>
+#include <random>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -79,7 +84,62 @@ typedef struct {
 } int_queue_t;
 
 // test binary heap
-void test_heap() {}
+void test_heap() {
+  // 测试heap的创建和删除
+  // 测试make_heap
+  // 测试heap的pop insert
+
+  heap_t heap;
+  size_t capacity = 128;
+  // 先测最大堆
+  heap_init(&heap, capacity);
+  heap.data[0] = 0;
+  std::default_random_engine e(
+      std::chrono::system_clock::now().time_since_epoch().count());
+  std::uniform_int_distribution<int> ui(0, 100);
+  for (size_t i = 1; i < heap.capacity; ++i) {
+    heap.data[i] = ui(e);
+    heap.size++;
+  }
+
+  // 测试make_heap
+  make_max_heap(&heap);
+  max_heap_check(&heap);
+
+  make_min_heap(&heap);
+  min_heap_check(&heap);
+
+  // 测试heap insert
+  heap_clean(&heap);
+  assert(heap.size == 0);
+  // 因为下标从1开始 所以实际能使用的大小是 capacity - 1
+  for (size_t i = 0; i < capacity - 1; ++i) {
+    max_heap_insert(&heap, ui(e));
+  }
+  max_heap_check(&heap);
+
+  // 测试heap pop
+  while (!heap_is_empty(&heap)) {
+    max_heap_pop(&heap);
+    max_heap_check(&heap);
+  }
+
+  heap_clean(&heap);
+  assert(heap.size == 0);
+  // 因为下标从1开始 所以实际能使用的大小是 capacity - 1
+  for (size_t i = 0; i < capacity - 1; ++i) {
+    min_heap_insert(&heap, ui(e));
+  }
+  min_heap_check(&heap);
+
+  // 测试heap pop
+  while (!heap_is_empty(&heap)) {
+    min_heap_pop(&heap);
+    min_heap_check(&heap);
+  }
+
+  heap_free(&heap);
+}
 
 int main(int argc, char *argv[]) {
   test_containe_of();

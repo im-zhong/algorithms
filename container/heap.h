@@ -37,6 +37,12 @@ void heap_clean(heap_t *heap) { heap->size = 0; }
 
 void heap_free(heap_t *heap) { free(heap->data); }
 
+static inline bool heap_is_empty(heap_t *heap) { return heap->size == 0; }
+
+static inline bool heap_is_full(heap_t *heap) {
+  return heap->size == heap->capacity;
+}
+
 // 二叉堆实际上是一个数组
 // 用来表示一颗近似的完全二叉树
 // 什么是完全二叉树呢？？
@@ -121,23 +127,6 @@ static void heap_fixup(heap_t *heap, size_t child, cmp_fn cmp) {
   }
 }
 
-static inline bool less_equal(value_t left, value_t right) {
-  return left <= right;
-}
-static inline bool greater_equal(value_t left, value_t right) {
-  return left >= right;
-}
-
-static void max_heapify(heap_t *heap, size_t parent) {
-  heap_fixdown(heap, parent, greater_equal);
-}
-
-// min_heapfiy和max_hepify不能说特别相似 只能说一摸一样
-// 就是比较函数从 >= 换成 <=
-static void min_heapify(heap_t *heap, size_t parent) {
-  heap_fixdown(heap, parent, less_equal);
-}
-
 value_t heap_top(heap_t *heap) { return heap->data[heap_root()]; }
 
 // heap_pop
@@ -147,7 +136,7 @@ value_t heap_top(heap_t *heap) { return heap->data[heap_root()]; }
 // 那就选择用size表示实际的元素数量，然后我们实际占用的数组长度是size + 1,
 // 因为0未使用 数组下标是从 [1, size] 所以第一个元素是data[1],
 // 而最后一个元素是data[size]
-value_t max_heap_pop(heap_t *heap) {
+value_t heap_pop(heap_t *heap, cmp_fn cmp) {
   // 其实left一定是小于right，我们可以削减判断的次数
 
   // 这个函数最好可以和fixdown结合起来，思考一下
@@ -159,28 +148,12 @@ value_t max_heap_pop(heap_t *heap) {
   // 那么什么是一个正确的位置呢
   // 其实就是把最后一个元素放到root的位置
   // 然后启动一个向下过滤的过程而已
+  value_t value = heap->data[heap_root()];
   heap->data[heap_root()] = heap->data[heap->size];
   --heap->size;
   // 然后启动一次下滤
-  max_heapify(heap, heap_root());
-}
-
-value_t min_heap_pop(heap_t *heap) {
-  // 其实left一定是小于right，我们可以削减判断的次数
-
-  // 这个函数最好可以和fixdown结合起来，思考一下
-  // 我这个其实相当于
-  // bheap_fixdown(heap, bheap_root())
-
-  // 不对不对，我又理解错了
-  // pop之后，我们需要将最后一个位置的元素放到一个正确的位置中
-  // 那么什么是一个正确的位置呢
-  // 其实就是把最后一个元素放到root的位置
-  // 然后启动一个向下过滤的过程而已
-  heap->data[heap->size] = heap->data[heap_root()];
-  --heap->size;
-  // 然后启动一次下滤
-  min_heapify(heap, heap_root());
+  heap_fixdown(heap, heap_root(), cmp);
+  return value;
 }
 
 static void heap_insert(heap_t *heap, value_t key, cmp_fn cmp) {
@@ -188,29 +161,17 @@ static void heap_insert(heap_t *heap, value_t key, cmp_fn cmp) {
   // 就是把值放到最后一个位置
   // 然后从最后一个位置执行一次上修
   // size不能超过capacity
-  assert(heap->size < heap->capacity);
+  assert(!heap_is_full(heap));
   heap->data[heap->size + 1] = key;
   ++heap->size;
   heap_fixup(heap, heap->size, cmp);
 }
 
-value_t max_heap_insert(heap_t *heap, value_t key) {
-  heap_insert(heap, key, greater_equal);
-}
-
-value_t min_heap_insert(heap_t *heap, value_t key) {
-  heap_insert(heap, key, less_equal);
-}
-
 static void make_heap(heap_t *heap, cmp_fn cmp) {
-  for (size_t i = heap_parent(heap->size); i > heap_root(); --i) {
+  for (size_t i = heap_parent(heap->size); i >= heap_root(); --i) {
     heap_fixdown(heap, i, cmp);
   }
 }
-
-// 修改heap里面的数据
-void max_heap_init(heap_t *heap) { make_heap(heap, greater_equal); }
-void min_heap_init(heap_t *heap) { make_heap(heap, less_equal); }
 
 // heap_sort 非常简单
 
@@ -233,8 +194,40 @@ void heap_check(heap_t *heap, cmp_fn cmp) {
   }
 }
 
+// 下面是最大堆和最小堆的实现
+// 其实就是调用上面的实现 只不过比较函数不同而已
+static inline bool less_equal(value_t left, value_t right) {
+  return left <= right;
+}
+static inline bool greater_equal(value_t left, value_t right) {
+  return left >= right;
+}
+static void max_fixdown(heap_t *heap, size_t parent) {
+  heap_fixdown(heap, parent, greater_equal);
+}
+// min_heapfiy和max_hepify不能说特别相似 只能说一摸一样
+// 就是比较函数从 >= 换成 <=
+static void min_fixdown(heap_t *heap, size_t parent) {
+  heap_fixdown(heap, parent, less_equal);
+}
+static void max_fixup(heap_t *heap, size_t child) {
+  heap_fixup(heap, child, greater_equal);
+}
+static void min_fixup(heap_t *heap, size_t child) {
+  heap_fixup(heap, child, less_equal);
+}
+// 修改heap里面的数据
+void max_heap_insert(heap_t *heap, value_t key) {
+  heap_insert(heap, key, greater_equal);
+}
+void min_heap_insert(heap_t *heap, value_t key) {
+  heap_insert(heap, key, less_equal);
+}
+void make_max_heap(heap_t *heap) { make_heap(heap, greater_equal); }
+void make_min_heap(heap_t *heap) { make_heap(heap, less_equal); }
 void max_heap_check(heap_t *heap) { heap_check(heap, greater_equal); }
-
 void min_heap_check(heap_t *heap) { heap_check(heap, less_equal); }
+value_t max_heap_pop(heap_t *heap) { return heap_pop(heap, greater_equal); }
+value_t min_heap_pop(heap_t *heap) { return heap_pop(heap, less_equal); }
 
 #endif // __REFACTOR_HEAP_H__
