@@ -49,6 +49,7 @@
 #include <cstdlib>
 #include <float.h>
 #include <limits.h>
+#include <queue>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -431,84 +432,164 @@ void toposort(spare_graph_t *graph) {
   // 最后从前到后输出链表就是拓扑排序
 }
 
-// // -------------------------------------------
-// // 这些实现应该放在一个单独的.c文件里面
-// // 最小生成树 mst
-// // minimal spanning tree
-// // 如果采取kruskal实现的话，我可以使用disjoint_set
-// // 而且最终的最小生成树应该就是一个disjoint_set
-// //
-// // #include "disjoint_set.c"
+// -------------------------------------------
+// 这些实现应该放在一个单独的.c文件里面
+// 最小生成树 mst
+// minimal spanning tree
+// 如果采取kruskal实现的话，我可以使用disjoint_set
+// 而且最终的最小生成树应该就是一个disjoint_set
+// 重要的提示：这两个最小生成树算法都是无向连通图的
 
-// typedef struct {
-//   vertex_t v1;
-//   vertex_t v2;
-//   weight_t weight;
-// } edge_t;
+typedef struct {
+  vertex_t v1;
+  vertex_t v2;
+  weight_t weight;
+  list_node_t node;
+} edge_t;
 
-// void mst_kruskal(spare_graph_t *graph) {
-//   // 声明一个空的MST集合
-//   // 这个东西应该是一个edge的集合
+edge_t *make_edge(vertex_t from, vertex_t to, weight_t weight) {
+  edge_t *edge = (edge_t *)malloc(sizeof(edge_t));
+  edge->v1 = from;
+  edge->v2 = to;
+  edge->weight = weight;
+  return edge;
+}
 
-//   // 首先制造一个disjoint_set,
-//   // 此时，每个节点都是独立的
-//   disjoint_set djs;
-//   disjoint_set_init(&djs, graph->size);
+list_node_t edge_list;
+void mst_kruskal_handle(vertex_t from, vertex_t to, weight_t weight) {
+  list_node_t *work = NULL;
+  edge_t *edge = NULL;
+  list_for_each(work, &edge_list) {
+    edge = container_of(work, edge_t, node);
+    if (edge->weight >= weight) {
+      break;
+    }
+  }
+  edge = make_edge(from, to, weight);
+  list_insert_before(work, &edge->node);
+}
 
-//   // sort the edges of G.E by weight in decreasing order
-//   // 我要按照weight进行排序
-//   // 然后根据排序结果, 按照顺序遍历
-//   // 这要怎么实现呢？？
-//   // 我要维护一个边的数组？？
-//   // 这一部分实现起来应该也是比较简单, 准备一个数组，
-//   // 存储所有的边，然后进行一个快速排序，即可
-//   // 假设我这里已经获得了一个这样的数组
-//   edge_t *edges = NULL;
-//   size_t edge_size = 0;
-//   for (size_t i = 0; i < edge_size; ++i) {
-//     if (disjoint_set_find(&djs, edges[i].v1) !=
-//         disjoint_set_find(&djs, edges[i].v2)) {
-//       // 最小生成树是边的集合
-//       // MST = MST union {edge(v1, v2)}
-//       disjoint_set_union(&djs, edges[i].v1, edges[i].v2);
-//     }
-//   }
+// 返回一个edge list head 最小生成树是边的集合
+void mst_kruskal(spare_graph_t *graph, list_node_t *mst) {
+  // 声明一个空的MST集合
+  // 这个东西应该是一个edge的集合
 
-//   // 最终可以返回MST
-// }
+  // 首先制造一个disjoint_set,
+  // 此时，每个节点都是独立的
+  disjoint_set djs;
+  disjoint_set_init(&djs, graph->size);
 
-// // 这个实现是真的简单，就是感觉不太适合邻接链表
+  // sort the edges of G.E by weight in decreasing order
+  // 我要按照weight进行排序
+  // 然后根据排序结果, 按照顺序遍历
+  // 这要怎么实现呢？？
+  // 我要维护一个边的数组？？
+  // 这一部分实现起来应该也是比较简单, 准备一个数组，
+  // 存储所有的边，然后进行一个快速排序，即可
+  // 假设我这里已经获得了一个这样的数组
+  list_init_head(&edge_list);
+  spare_graph_for_each_edge(graph, mst_kruskal_handle);
 
-// // prim算法依赖一个最小堆
-// // #include "heap.c"
+  edge_t *edge = NULL;
+  list_node_t *work = NULL;
+  list_for_each_entry(edge, &edge_list, edge_t, node) {
+    if (disjoint_set_find(&djs, edge->v1) !=
+        disjoint_set_find(&djs, edge->v2)) {
+      // 最小生成树是边的集合
+      // MST = MST union {edge(v1, v2)}
+      edge_t *safe_edge = make_edge(edge->v1, edge->v2, edge->weight);
+      list_insert_after(mst, &safe_edge->node);
+      disjoint_set_union(&djs, edge->v1, edge->v2);
+    }
+  }
 
-// void mst_prim(spare_graph_t *graph) {
-//   bheap heap;
-//   // heap_init
+  // todo: free_list
+  // 最终可以返回MST
+  // 只能用一个链表来表示MST
+}
 
-//   // 算法的一开始，任选一个节点，我们选择0
-//   vertex_t vertex = 0;
+// 这个实现是真的简单，就是感觉不太适合邻接链表
 
-//   vertex_t minimal_vertex = 0;
-//   // Q = G.V
-//   // Q是全体顶点形成的一个最小堆
-//   // 这个堆是怎么构建的？？
-//   // 每个节点有一个key属性，一开始vertex是0，其余是-1
-//   // 最小堆根据这个key进行构建
+// prim算法依赖一个最小堆
+// #include "heap.c"
 
-//   while (!bheap_is_empty(&heap)) {
-//     minimal_vertex = bheap_top(&bheap);
-//     // 遍历minimal_vertex的所有邻接节点
-//   }
-// }
+// 这个算法也非常的简单
+// 有两个集合
+// 一个是 mst
+// 另一个是图的点集V
+// 两者是不相交的
+// 算法维护一个最小堆:
+// 保存的是V中顶点，排序的依据是V顶点到mst中任意顶点的最短边权重
+// 每次从堆中取出最小的顶点，从V中删除，加入mst中
+// 同时更新此节点的所有邻接节点的权重，如果变小了的话
+// 重复这个过程 直到V变成空集
 
-// // 这个算法理解起来就比kruskal要稍微复杂一些
-// // 然后也需要很多额外的数组来保存一些中间信息
-// // 还是算了，不实现了
-// // 只要领会了思想就可以了
+struct mst_prim_cmp {
+  bool operator()(edge_t left, edge_t right) {
+    return left.weight < right.weight;
+  }
+};
 
-// // 还有一个问题，就是验证是否是最小生成树的问题
-// // 在一篇论文中有所描述
+void mst_prim(spare_graph_t *graph, list_node_t *mst) {
+  // 直接用C++的优先队列了 不自己写了
+  std::priority_queue<edge_t, std::vector<edge_t>, mst_prim_cmp> V;
+  for (size_t v = 0; v < graph->size; ++v) {
+    edge_t edge;
+    // 用v1表示我们自己
+    edge.v1 = v;
+    // 用v2表示我们的pred
+    edge.v2 = -1;
+    // 最开始的权重是无穷大 因为mst中还没有任何点
+    edge.weight = DBL_MAX;
+    V.push(edge);
+  }
+
+  // 还需要一个数组来表示某个节点是在V中还是在mst中
+  // 当然在最开始的时候 所有的节点都在V中 所以初始化所有元素为false
+  bool *in_mst = (bool *)malloc(graph->size * sizeof(bool));
+  for (size_t i = 0; i < graph->size; ++i) {
+    in_mst[i] = false;
+  }
+
+  // 算法的一开始，任选一个节点，我们选择0
+  // 这里不用任选，因为上面在构建堆的时候，权重都是一样的
+  // 所以top出来的就挺随机的
+
+  while (!V.empty()) {
+    edge_t edge = V.top();
+    // 我要要将edge->v1 加入mst中
+    // 如果此时 edge->v2 == -1 那么表示这是第一个点 没法把边加入mst
+    // 遍历v1的邻接节点
+    graph_entry_t *adjacency = NULL;
+    list_for_each_entry(adjacency, &(graph->adjacency[edge->v1]), graph_entry_t,
+                        node) {
+      // C++ 的优先队列没有修改值的操作呀
+      // 没有这个操作是不行的 只能自己写
+      adjacency->vertex;
+      adjacency->weight;
+    }
+  }
+
+  vertex_t minimal_vertex = 0;
+  // Q = G.V
+  // Q是全体顶点形成的一个最小堆
+  // 这个堆是怎么构建的？？
+  // 每个节点有一个key属性，一开始vertex是0，其余是-1
+  // 最小堆根据这个key进行构建
+
+  // while (!bheap_is_empty(&heap)) {
+  //   minimal_vertex = bheap_top(&bheap);
+  //   // 遍历minimal_vertex的所有邻接节点
+  // }
+}
+
+// 这个算法理解起来就比kruskal要稍微复杂一些
+// 然后也需要很多额外的数组来保存一些中间信息
+// 还是算了，不实现了
+// 只要领会了思想就可以了
+
+// 还有一个问题，就是验证是否是最小生成树的问题
+// 在一篇论文中有所描述
 
 // // ---------------------------------------
 // // 单源最短路径 Single-Source Shortest Paths

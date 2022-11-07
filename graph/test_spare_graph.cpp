@@ -95,7 +95,58 @@ void test_spare_graph() {
   spare_graph_free(&graph);
 }
 
+void test_mst() {
+
+  std::ofstream fout;
+
+  spare_graph_t graph;
+  spare_graph_init(&graph, 8);
+
+  // 说明一点
+  // 虽然这里是有向图 但是我们的算法内部会生成一个无向图
+  // 就是将单项的边看成双向的边
+  // 然后这个weight就得随机一下了
+  spare_graph_insert_edge(&graph, 0, 1, 8);
+  spare_graph_insert_edge(&graph, 0, 2, 9);
+  spare_graph_insert_edge(&graph, 0, 3, 3);
+  spare_graph_insert_edge(&graph, 1, 2, 10);
+  spare_graph_insert_edge(&graph, 1, 4, 4);
+  spare_graph_insert_edge(&graph, 2, 5, 7);
+  spare_graph_insert_edge(&graph, 2, 6, 6);
+  spare_graph_insert_edge(&graph, 3, 6, 2);
+  spare_graph_insert_edge(&graph, 6, 7, 5);
+  assert(spare_graph_edge(&graph) == 9);
+
+  spare_graph_delete_edge(&graph, 0, 1);
+  spare_graph_delete_edge(&graph, 3, 6);
+  assert(spare_graph_edge(&graph) == 7);
+  // 这样这张无向图就是无环的了
+
+  list_node_t mst;
+  list_init_head(&mst);
+  // 测试 最小生成树
+  mst_kruskal(&graph, &mst);
+  edge_t *edge = NULL;
+  dot.clear();
+  // 这次是无向图了
+  // a -- b [label = "lable"]
+  dot += "graph {\n";
+  list_for_each_entry(edge, &mst, edge_t, node) {
+    dot += (" " + std::to_string(edge->v1) + " -- " + std::to_string(edge->v2) +
+            " [label=\"" + std::to_string(edge->weight) + "\"]\n");
+  }
+  dot += "}\n";
+
+  fout.open("mst_kruskal.dot");
+  fout << dot;
+  fout.close();
+
+  // todo: free list
+  spare_graph_free(&graph);
+}
+
 int main(int argc, char *argv[]) {
   test_spare_graph();
+  test_mst();
   return 0;
 }

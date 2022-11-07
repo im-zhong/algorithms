@@ -61,7 +61,11 @@ typedef struct {
 //   0 0 0 0 0 5 0 0 0
 
 void disjoint_set_init(disjoint_set *djs, size_t size) {
-  // 将所有的元素初始化为-1
+  // 将所有的元素初始化为-1 表示他是这个集合的树的根
+  // 根的数值一定小于零 这样才能表示根
+  // 根的数值的绝对值表示这个集合的元素数量
+  // 根的下标表示集合的名字
+  // 孩子节点的值是其父节点的下标
   djs->set_forest = (long *)malloc(size * sizeof(long));
   djs->size = size;
   for (size_t i = 0; i < size; ++i)
@@ -78,10 +82,13 @@ void disjoint_set_free(disjoint_set *djs) {
 // 路径压缩, 尽可能减少树的深度
 // find(x)， 从x到根路径上的每一个节点，都使他的父节点变成根
 // 这个find必须用递归实现
+// O(logN)
 long disjoint_set_find(disjoint_set *djs, long set) {
+  // 说明这个集合的根 直接返回
   if (djs->set_forest[set] < 0)
     return set;
   else
+    // 因为最终递归结果会返回结合的根 所以这里就可以路径压缩 让子节点直接指向根
     return djs->set_forest[set] = disjoint_set_find(djs, djs->set_forest[set]);
 }
 
@@ -95,10 +102,17 @@ void disjoint_set_union(disjoint_set *djs, long lhs, long rhs) {
   if (lhs == rhs)
     return;
 
+  // 就是把小的集合合并到大的集合里面
+  // 修改小的集合的根指向大的结合的根
+  // 大的集合的元素数量加起来 就可以了
+  // lhs = -1
+  // rhs = -2
   if (djs->set_forest[lhs] < djs->set_forest[rhs]) {
     djs->set_forest[lhs] += djs->set_forest[rhs];
     djs->set_forest[rhs] = lhs;
   } else {
+    // -1 >= -2
+    //
     djs->set_forest[rhs] += djs->set_forest[lhs];
     djs->set_forest[lhs] = rhs;
   }
