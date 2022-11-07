@@ -78,8 +78,12 @@ typedef struct {
   INHERIT_QUEUE;
 } int_queue_t;
 
+// test binary heap
+void test_heap() {}
+
 int main(int argc, char *argv[]) {
   test_containe_of();
+  test_heap();
 
   stack_init(stack);
 

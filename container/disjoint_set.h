@@ -3,7 +3,7 @@
 // 不相交集
 // disjolong set
 // 等价问题，什么是等价问题??
-// 
+//
 // (a, b), a, b 属于 S,
 // a R b is true or false
 // 在集合S上定义关系 reletion R
@@ -31,92 +31,87 @@
 //
 // 不进行任何比较操作，而只需要知道他们的位置
 // 假设所有元素已经从1 - N 进行排列
-// 
+//
 // 集合的名字是相当随意的
 // 只需要让 find(a) == find(b)即可
 //
 
+#ifndef __DISJOINT_SET_H__
+#define __DISJOINT_SET_H__
+
 #include <stddef.h>
 #include <stdlib.h>
 // 这个的具体处理方法可以参考heap的实现
-typedef struct
-{
-    // 树的集合，也就是一个森林
-    // 这里的下标最好还是用long
-    long *set_forest;
-    size_t size;
+typedef struct {
+  // 树的集合，也就是一个森林
+  // 这里的下标最好还是用long
+  long *set_forest;
+  size_t size;
 } disjoint_set;
 
 // 还是按照 秩 rank 来union，感觉会好一点
 // 通常来说，我是不需要获得某个类的大小的
 // 如果你需要获得更多的信息，建议直接使用红黑树来表示集合
 
-
 // 不对啊，这里面0这个位置是可以使用的
 // 因为我表示的是子类的大小，
 // 0 1 2 3 4 5 6 7 8 9
-//   0 0 0 0 0 0 0 0 0 
+//   0 0 0 0 0 0 0 0 0
 // union(5, 6)
 //   0 0 0 0 0 5 0 0 0
 
-void disjoint_set_init(disjoint_set *djs, size_t size)
-{
-    // 将所有的元素初始化为-1
-    djs->set_forest = malloc(size * sizeof(long));
-    djs->size = size;
-    for (size_t i = 0; i < size; ++i)
-        djs->set_forest[i] = -1;
+void disjoint_set_init(disjoint_set *djs, size_t size) {
+  // 将所有的元素初始化为-1
+  djs->set_forest = malloc(size * sizeof(long));
+  djs->size = size;
+  for (size_t i = 0; i < size; ++i)
+    djs->set_forest[i] = -1;
 }
 
-void disjoint_set_free(disjoint_set *djs)
-{
-    free(djs->set_forest);
-    djs->set_forest = NULL;
-    djs->size = 0;
+void disjoint_set_free(disjoint_set *djs) {
+  free(djs->set_forest);
+  djs->set_forest = NULL;
+  djs->size = 0;
 }
 
 // path compression
 // 路径压缩, 尽可能减少树的深度
 // find(x)， 从x到根路径上的每一个节点，都使他的父节点变成根
 // 这个find必须用递归实现
-long disjoint_set_find(disjoint_set *djs, long set)
-{
-    if (djs->set_forest[set] < 0)
-        return set;
-    else
-        return djs->set_forest[set] = disjoint_set_find(djs, djs->set_forest[set]);
+long disjoint_set_find(disjoint_set *djs, long set) {
+  if (djs->set_forest[set] < 0)
+    return set;
+  else
+    return djs->set_forest[set] = disjoint_set_find(djs, djs->set_forest[set]);
 }
 
 // union by size
 // 数组的根保存的不是零，而是一个负数，表示的是子类的大小
 // O(log N)
-void disjoint_set_union(disjoint_set *djs, long lhs, long rhs)
-{
-    lhs = disjoint_set_find(djs, lhs);
-    rhs = disjoint_set_find(djs, rhs);
+void disjoint_set_union(disjoint_set *djs, long lhs, long rhs) {
+  lhs = disjoint_set_find(djs, lhs);
+  rhs = disjoint_set_find(djs, rhs);
 
-    if (lhs == rhs)
-        return;
+  if (lhs == rhs)
+    return;
 
-    if (djs->set_forest[lhs] < djs->set_forest[rhs])
-    {
-        djs->set_forest[lhs] += djs->set_forest[rhs];
-        djs->set_forest[rhs] = lhs;
-    }
-    else
-    {
-        djs->set_forest[rhs] += djs->set_forest[lhs];
-        djs->set_forest[lhs] = rhs;
-    }
+  if (djs->set_forest[lhs] < djs->set_forest[rhs]) {
+    djs->set_forest[lhs] += djs->set_forest[rhs];
+    djs->set_forest[rhs] = lhs;
+  } else {
+    djs->set_forest[rhs] += djs->set_forest[lhs];
+    djs->set_forest[lhs] = rhs;
+  }
 }
 
+// int main(int argc, char* argv[])
+// {
+//     disjoint_set djs;
+//     disjoint_set_init(&djs, 1024);
 
-int main(int argc, char* argv[])
-{
-    disjoint_set djs;
-    disjoint_set_init(&djs, 1024);
+//     disjoint_set_find(&djs, 100);
+//     disjoint_set_union(&djs, 4, 60);
 
-    disjoint_set_find(&djs, 100);
-    disjoint_set_union(&djs, 4, 60);
+// }
 
-}
+#endif // __DISJOINT_SET_H__
