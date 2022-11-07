@@ -5,6 +5,7 @@
 // to test git restore
 // i add some thing i do not want to commit
 
+#include "bheap.h"
 #include "heap.h"
 #include "queue.h"
 #include "stack.h"
@@ -141,9 +142,81 @@ void test_heap() {
   heap_free(&heap);
 }
 
+// for test_bheap
+bool less_equal_int(const void *lhs, const void *rhs) {
+  return *(int *)lhs <= *(int *)rhs;
+}
+
+// test binary heap
+void test_bheap() {
+  // 测试heap的创建和删除
+  // 测试make_heap
+  // 测试heap的pop insert
+
+  bheap_t heap;
+  size_t capacity = 128;
+  // 声明一个数组 这样容易拿到int*
+  int *numbers = (int *)malloc(capacity * sizeof(int));
+  // 先测最大堆
+  bheap_init(&heap, capacity, less_equal_int);
+  heap.data[0] = 0;
+  std::default_random_engine e(
+      std::chrono::system_clock::now().time_since_epoch().count());
+  std::uniform_int_distribution<int> ui(0, 100);
+  for (size_t i = 1; i < heap.capacity; ++i) {
+    numbers[i] = ui(e);
+    heap.data[i] = &numbers[i];
+    heap.size++;
+  }
+
+  // 测试make_heap
+  make_bheap(&heap);
+  bheap_check(&heap);
+
+  // 测试heap insert
+  bheap_clear(&heap);
+  assert(heap.size == 0);
+  // 因为下标从1开始 所以实际能使用的大小是 capacity - 1
+  for (size_t i = 0; i < capacity - 1; ++i) {
+    bheap_push(&heap, &numbers[i]);
+  }
+  bheap_check(&heap);
+
+  // 测试heap pop
+  while (!bheap_is_empty(&heap)) {
+    bheap_pop(&heap);
+    bheap_check(&heap);
+  }
+
+  // 解下来就要测heap_update
+  // 首先重新填充heap
+  bheap_clear(&heap);
+  assert(heap.size == 0);
+  // 因为下标从1开始 所以实际能使用的大小是 capacity - 1
+  for (size_t i = 0; i < capacity - 1; ++i) {
+    bheap_push(&heap, &numbers[i]);
+  }
+  bheap_check(&heap);
+  for (size_t i = 0; i < capacity; ++i) {
+    // 对于每一个值 我们都随机切换成新的值
+    numbers[i] = ui(e);
+    // 然后我们在heap中找到这个值
+    for (size_t j = 1; j <= heap.size; ++j) {
+      if (heap.data[j] == &numbers[i]) {
+        size_t index = bheap_update(&heap, j);
+        assert(heap.data[index] == &numbers[i]);
+      }
+    }
+    bheap_check(&heap);
+  }
+
+  bheap_free(&heap);
+}
+
 int main(int argc, char *argv[]) {
   test_containe_of();
   test_heap();
+  test_bheap();
 
   stack_init(stack);
 
