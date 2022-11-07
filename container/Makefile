@@ -9,6 +9,13 @@ container_of: container_of.out
 container_of.out: container_of.o
 	$(CXX) -o $@ $^
 
+.PHONY: test
+test: test.out
+test.out: test.o
+	$(CXX) -o $@ $^
+
+test.o:
+
 .PHONY: clean
 clean:
-	rm *.o *.out *.dot *.png
+	rm *.o *.out
