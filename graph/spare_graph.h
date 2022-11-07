@@ -103,8 +103,11 @@ static inline graph_entry_t *make_graph_entry(vertex_t vertex,
 // 然后调用 insert_edge 和 delete_edge 来改变图
 // 但是图的节点数量一经初始化就不能在改变了
 void spare_graph_init(spare_graph_t *graph, size_t size) {
-  graph->size = 0;
-  graph->adjacency = NULL;
+  graph->size = size;
+  graph->adjacency = (list_node_t *)malloc(size * sizeof(list_node_t));
+  for (size_t i = 0; i < size; ++i) {
+    list_init_head(&graph->adjacency[i]);
+  }
 }
 
 void spare_graph_free(spare_graph_t *graph) {
@@ -124,8 +127,25 @@ size_t spare_graph_edge(spare_graph_t *graph) {
     // 遍历该顶点所有的邻接顶点
     size_t adjacency_size = 0;
     list_node_t *node = NULL;
-    list_for_each(node, graph->adjacency[vertex]) { adjacency_size++; }
+    list_for_each(node, &graph->adjacency[vertex]) { adjacency_size++; }
     edge += adjacency_size;
+  }
+  return edge;
+}
+
+typedef void (*handle)(vertex_t from, vertex_t to, weight_t weight);
+
+// 这实际上是遍历所有的边
+void spare_graph_for_each(spare_graph_t *graph, handle handle) {
+  graph_entry_t *entry;
+  for (size_t vertex = 0; vertex < graph->size; ++vertex) {
+    // 遍历该顶点所有的邻接顶点
+    size_t adjacency_size = 0;
+    list_node_t *work = NULL;
+    list_for_each(work, &graph->adjacency[vertex]) {
+      entry = container_of(work, graph_entry_t, node);
+      handle(vertex, entry->vertex, entry->weight);
+    }
   }
 }
 
@@ -133,7 +153,7 @@ size_t spare_graph_edge(spare_graph_t *graph) {
 weight_t spare_graph_weight(spare_graph_t *graph, vertex_t from, vertex_t to) {
   graph_entry_t *entry;
   list_node_t *work;
-  list_for_each(work, graph->adjacency[from]) {
+  list_for_each(work, &graph->adjacency[from]) {
     entry = container_of(work, graph_entry_t, node);
     if (entry->vertex == to) {
       return entry->weight;
@@ -152,7 +172,7 @@ void spare_graph_insert_edge(spare_graph_t *graph, vertex_t from, vertex_t to,
   assert(to < graph->size);
   // 我们的entry是 {vertex_t vertex; weight_t weight;};
   graph_entry_t *entry = make_graph_entry(to, weight);
-  list_insert_before(graph->adjacency[from], &entry->node);
+  list_insert_before(&graph->adjacency[from], &entry->node);
 }
 
 void spare_graph_delete_edge(spare_graph_t *graph, vertex_t from, vertex_t to) {
@@ -160,7 +180,7 @@ void spare_graph_delete_edge(spare_graph_t *graph, vertex_t from, vertex_t to) {
   assert(to < graph->size);
   graph_entry_t *entry = NULL;
   list_node_t *work;
-  list_for_each(work, graph->adjacency[from]) {
+  list_for_each(work, &graph->adjacency[from]) {
     entry = container_of(work, graph_entry_t, node);
     if (entry->vertex == to) {
       // 我们找到了

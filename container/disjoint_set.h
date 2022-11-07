@@ -62,7 +62,7 @@ typedef struct {
 
 void disjoint_set_init(disjoint_set *djs, size_t size) {
   // 将所有的元素初始化为-1
-  djs->set_forest = malloc(size * sizeof(long));
+  djs->set_forest = (long *)malloc(size * sizeof(long));
   djs->size = size;
   for (size_t i = 0; i < size; ++i)
     djs->set_forest[i] = -1;
