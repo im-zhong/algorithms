@@ -377,6 +377,7 @@ void btree_delete_impl(btree_node_t *root, value_t key) {
     // 检查是否有左兄弟, 检查左兄第是否存在，检查左兄弟的关键字数量至少为t
     if (pos > 0 && root->childs[pos - 1] &&
         root->childs[pos - 1]->size >= MINIMUM_DEGREE) {
+      // 其实是完成一次右旋操作
       // 将root中的一个关键字降至child中，将兄弟节点的一个关键字升至root中
       // 将兄弟中的相应的孩子指针移动到child中，
       // 这样child就获得了一个额外的关键字
@@ -386,20 +387,24 @@ void btree_delete_impl(btree_node_t *root, value_t key) {
       // 需要兄弟把最右边的关键字提升到root 替换pos对应的关键字
       // 然后把最右边的孩子给child放到最左边
 
-      // 将root中的pos对应的关键字放到child中
-      array_insert(child->keys, child->size, root->keys[pos]);
-      // 将兄弟的孩子拿过来
-      for (size_t i = child->size + 1; i > 0; --i) {
-        child->childs[i] = child->childs[i - 1];
-      }
-      child->childs[0] = left_sibling->childs[left_sibling->size];
+      // 将root中的pos-1对应的关键字放到child开头
+      array_insert(child->keys, child->size, root->keys[pos - 1]);
+      // 将左兄弟的最右边孩子拿过来 放到最左边
+      // for (size_t i = child->size + 1; i > 0; --i) {
+      //   child->childs[i] = child->childs[i - 1];
+      // }
+      // child->childs[0] = left_sibling->childs[left_sibling->size];
+      array_insert_array((value_t *)child->childs, child->size + 1,
+                         (value_t *)&left_sibling->childs[left_sibling->size],
+                         1, 0);
       // 一定要在更新完keys和childs之后再更新size
       child->size++;
 
-      // 替换root的关键字
-      root->keys[pos] = left_sibling->keys[left_sibling->size - 1];
+      // 用左兄弟最右边的关键字替换root的pos-1处的关键字
+      root->keys[pos - 1] = left_sibling->keys[left_sibling->size - 1];
 
-      // 删除兄弟节点的一个关键字
+      // 删除左兄弟节点的最后一个关键字和最后一个孩子
+      // 因为数组按照从小到大排列 所以直接size--就行了
       left_sibling->size--;
 
     } else if (pos < root->size && root->childs[pos + 1] &&
@@ -431,6 +436,18 @@ void btree_delete_impl(btree_node_t *root, value_t key) {
       // case 3.2 左右兄弟都只有t-1个关键字
       // 将兄弟合并 关键字放下去
       // 然后再递归的遍历就好了
+      // 这里错了 这里pos可能越界
+      // 考虑这种情况
+      //        [24    49]
+      // [12 13]   [40]   [89]
+      // delete 67
+      // 在第一层 array_search 会返回 Pos = 2
+      // 然后会找到case3 并且左右兄弟都不能借
+      // 所以逻辑会走到这里 但是pos = 2 是越界的
+      // 真正应该做的是 btree_merge(root, 1);
+      if (pos >= root->size) {
+        pos = root->size - 1;
+      }
       btree_merge(root, pos);
       // merge之后 应该重新从root开始递归删除过程
       // 而不是child 因为我们的root的结构已经改变了

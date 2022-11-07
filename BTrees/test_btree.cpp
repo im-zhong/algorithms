@@ -11,9 +11,11 @@
 #include "btree.h"
 #include <cassert>
 #include <chrono>
+#include <cstdio>
 #include <fstream>
 #include <iostream>
 #include <random>
+#include <set>
 #include <string>
 
 std::string btree_node_to_string(btree_node_t *node) {
@@ -250,30 +252,286 @@ void test_btree_delete() {
   btree_free(&btree);
 }
 
+// 右旋没写对
+void test_random_btree_bug1() {
+  btree_t btree;
+  btree_init(&btree);
+
+  btree_search(&btree, 59);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 86);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 91);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_insert(&btree, 28);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_insert(&btree, 47);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 34);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 52);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 63);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 54);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 71);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_insert(&btree, 11);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 38);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 73);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 22);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_insert(&btree, 29);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_insert(&btree, 20);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 91);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 28);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 68);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 18);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 59);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 64);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 91);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 96);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 75);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 39);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 88);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 37);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 44);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 24);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_insert(&btree, 58);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 83);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 45);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 61);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 68);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_insert(&btree, 94);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 6);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 66);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_insert(&btree, 1);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 31);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 40);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+
+  btree_free(&btree);
+}
+
+void test_random_btree_bug2() {
+  btree_t btree;
+  btree_init(&btree);
+
+  btree_search(&btree, 84);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 23);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_insert(&btree, 49);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_insert(&btree, 24);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_insert(&btree, 7);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 53);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 94);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 8);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 16);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 56);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 79);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 78);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 96);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_insert(&btree, 89);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 7);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_insert(&btree, 13);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 40);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 69);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 3);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_insert(&btree, 40);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_search(&btree, 17);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_insert(&btree, 12);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+  btree_delete(&btree, 67);
+  btree_check(&btree);
+  gen_btree_dot(&btree);
+
+  btree_free(&btree);
+}
+
 void test_random_btree() {
   // 我们会随机生成 btree
   // 不断增加数据并且每增加一次数据都会执行 btree_check
+  // 随机的增加数据 随机的删除数据 随机的search数据
+  // 我们会使用一个 std::set 作为测试基准 行为要求一致时 才会通过测试
   std::default_random_engine e(
       std::chrono::system_clock::now().time_since_epoch().count());
   std::uniform_int_distribution<int> ui(0, 100);
+  // 0 表示 search
+  // 1 insert
+  // 2 delete
+  std::uniform_int_distribution<int> uop(0, 2);
+
+  std::set<value_t> baseline_set;
 
   btree_t btree;
   btree_init(&btree);
 
-  for (size_t i = 0; i < 50; ++i) {
+  // 每次动作都写成函数代码
+  // 如果出错了 直接复制输出 可以作为新的测试用例 复现这个bug
+  // 不愧是我
+  // 输出是可以控制的 可以设置一个debug标志
+  for (size_t i = 0; i < 100; ++i) {
     int key = ui(e);
-    btree_insert(&btree, key);
-    btree_check(&btree);
-    assert(btree_search(&btree, key));
+    int op = uop(e);
+
+    if (op == 0) {
+      printf("btree_search(&btree, %d);\n", key);
+      printf("btree_check(&btree);\n");
+      printf("gen_btree_dot(&btree);\n");
+      bool baseline_r = baseline_set.find(key) != baseline_set.end();
+      bool r = btree_search(&btree, key);
+      btree_check(&btree);
+      // 每次操作成功之后都生成dot
+      // 这样如果测试失败了 使用dot命令就可以看到最后一次测试成功的b树的样子
+      // 再结合输出 就知道是什么操作导致的bug了
+      gen_btree_dot(&btree);
+      assert(baseline_r == r);
+    } else if (op == 1) {
+      printf("btree_insert(&btree, %d);\n", key);
+      printf("btree_check(&btree);\n");
+      printf("gen_btree_dot(&btree);\n");
+      baseline_set.insert(key);
+      btree_insert(&btree, key);
+      btree_check(&btree);
+      gen_btree_dot(&btree);
+      assert(btree_search(&btree, key));
+    } else if (op == 2) {
+      printf("btree_delete(&btree, %d);\n", key);
+      printf("btree_check(&btree);\n");
+      printf("gen_btree_dot(&btree);\n");
+      baseline_set.erase(key);
+      btree_delete(&btree, key);
+      btree_check(&btree);
+      gen_btree_dot(&btree);
+      assert(!btree_search(&btree, key));
+    } else {
+      assert(false);
+    }
   }
 
   btree_free(&btree);
 }
 
 int main(int argc, char *argv[]) {
-  // test_btree();
-  // for (int i = 0; i < 1000000; ++i) {
-  //   test_random_btree();
-  // }
+  test_btree();
   test_btree_delete();
+  test_random_btree_bug1();
+  test_random_btree_bug2();
+  for (int i = 0; i < 100000; ++i) {
+    printf("\n\n");
+    test_random_btree();
+  }
 }
