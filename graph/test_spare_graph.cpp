@@ -33,7 +33,7 @@ void test_spare_graph() {
   // 遍历整张图
   dot.clear();
   dot += "digraph {\n";
-  spare_graph_for_each(&graph, gen_graph_dot_handle);
+  spare_graph_for_each_edge(&graph, gen_graph_dot_handle);
   dot += "}\n";
 
   std::ofstream fout;
@@ -41,6 +41,28 @@ void test_spare_graph() {
   fout << dot;
   fout.close();
 
+  // test bfs
+  vertex_t source = 0;
+  bfs_t *bfstree = bfs(&graph, source);
+  bfs_path(&graph, source, bfstree);
+
+  // 生成广度优先树
+  // 非常简单 只需要遍历一遍bfstree 把所有visited的前驱打印一下就可以了
+  dot.clear();
+  dot += "digraph {\n";
+  for (size_t v = 0; v < graph.size; ++v) {
+    if (bfstree[v].visited && bfstree[v].prev >= 0) {
+      dot += ("  " + std::to_string(bfstree[v].prev) + " -> " +
+              std::to_string(v) + "\n");
+    }
+  }
+  dot += "}\n";
+
+  fout.open("bfstree.dot");
+  fout << dot;
+  fout.close();
+
+  free(bfstree);
   spare_graph_free(&graph);
 }
 

@@ -46,9 +46,11 @@
 #include <container/disjoint_set.h>
 #include <container/heap.h>
 #include <container/queue.h>
+#include <cstdlib>
 #include <float.h>
 #include <limits.h>
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 // 但是，我们的entry是什么呢？？
@@ -125,10 +127,8 @@ size_t spare_graph_edge(spare_graph_t *graph) {
   size_t edge = 0;
   for (size_t vertex = 0; vertex < graph->size; ++vertex) {
     // 遍历该顶点所有的邻接顶点
-    size_t adjacency_size = 0;
     list_node_t *node = NULL;
-    list_for_each(node, &graph->adjacency[vertex]) { adjacency_size++; }
-    edge += adjacency_size;
+    list_for_each(node, &graph->adjacency[vertex]) { edge++; }
   }
   return edge;
 }
@@ -136,7 +136,7 @@ size_t spare_graph_edge(spare_graph_t *graph) {
 typedef void (*handle)(vertex_t from, vertex_t to, weight_t weight);
 
 // 这实际上是遍历所有的边
-void spare_graph_for_each(spare_graph_t *graph, handle handle) {
+void spare_graph_for_each_edge(spare_graph_t *graph, handle handle) {
   graph_entry_t *entry;
   for (size_t vertex = 0; vertex < graph->size; ++vertex) {
     // 遍历该顶点所有的邻接顶点
@@ -191,102 +191,138 @@ void spare_graph_delete_edge(spare_graph_t *graph, vertex_t from, vertex_t to) {
   }
 }
 
-// enum graph_color { white, black, gray };
+// 咱们不要这个color了 实际实现是不需要的
+// enum vertex_color { white, black, gray };
 
-// typedef struct {
-//   // 这里的color可以变成一个bool，其实就是有没有访问的区别
-//   int color;
-//   vertex_t prev;
-//   size_t distance;
-// } graph_bfs;
+typedef struct {
+  // 这里的color可以变成一个bool，其实就是有没有访问的区别
+  bool visited;
+  // prev用于生成广度优先搜索树
+  vertex_t prev;
+  // distance用于生成最短路径
+  size_t distance;
+} bfs_t;
 
-// // breadth-first search
-// // bfs
-// void bfs(spare_graph_t *graph, vertex_t vertex) {
+// vertex queue
+// 没有模板就是这么恶心
+typedef struct {
+  vertex_t vertex;
+  INHERIT_QUEUE;
+} vqueue_entry_t;
 
-//   // 在遍历的过程中，我还需要一个数组来记录每个节点的各种属性
-//   // 颜色，树的指针等等
+vqueue_entry_t *make_vqueue_entry(vertex_t vertex) {
+  vqueue_entry_t *entry = (vqueue_entry_t *)malloc(sizeof(vqueue_entry_t));
+  entry->vertex = vertex;
+  return entry;
+}
 
-//   // 在实际的环境中，我们需要根据vertex找到对应的节点
-//   // 这里假设我们可以直接使用下标，如果有特殊的需要
-//   // 直接替换这里即可
-//   // graph->vertex[vertex];
-//   // 我们可以像上面这样直接访问一个节点
+// breadth-first search
+// bfs
+// bfs会生成一个bfs 结果
+// 包含最短路径和最小生成树
+// 内部malloc 调用者应该free
+bfs_t *bfs(spare_graph_t *graph, vertex_t vertex) {
+  // 在遍历的过程中，我还需要一个数组来记录每个节点的各种属性
+  // 颜色，树的指针等等
+  // 在实际的环境中，我们需要根据vertex找到对应的节点
+  // 这里假设我们可以直接使用下标，如果有特殊的需要
+  // 直接替换这里即可
+  // graph->vertex[vertex];
+  // 我们可以像上面这样直接访问一个节点
 
-//   // 创建一个辅助实现bfs的数组，并初始化一下
-//   graph_bfs *vertex_property = malloc(graph->size * sizeof(graph_bfs));
-//   for (size_t i = 0; i < graph->size; ++i) {
-//     vertex_property[i].color = white;
-//     vertex_property[i].prev = -1;
-//     vertex_property[i].distance = -1;
-//   }
-//   vertex_property[vertex].color = gray;
-//   vertex_property[vertex].prev = -1;
-//   vertex_property[vertex].distance = 0;
+  // 创建一个辅助实现bfs的数组，并初始化一下
+  bfs_t *bfstree = (bfs_t *)malloc(graph->size * sizeof(bfs_t));
+  for (size_t i = 0; i < graph->size; ++i) {
+    bfstree[i].visited = false;
+    bfstree[i].prev = -1;
+    bfstree[i].distance = -1;
+  }
 
-//   // 定义一个队列
-//   // 将源点放到队列中
-//   graph_entry_t *entry = NULL;
-//   // 我需要定义一个简单的函数来定义一个entry
-//   entry = malloc(sizeof(graph_entry_t));
-//   entry->vertex = vertex;
+  // 访问源点
+  bfstree[vertex].visited = true;
+  // -1表示该源点是广度优先搜索树的根
+  bfstree[vertex].prev = -1;
+  // 源点到自身的距离为0
+  bfstree[vertex].distance = 0;
 
-//   queue_init(queue);
-//   queue_push(&queue, entry);
+  // 定义一个队列
+  // 将源点放到队列中
+  // 必须顶一个一个struct 专门用于这个队列 卧槽是真的麻烦 真不如用C++
+  queue_init(queue);
+  queue_push(&queue, make_vqueue_entry(vertex));
 
-//   // 这个队列的内存管理需要我自己来动手啊,,,烦内
-//   while (!queue_is_empty(&queue)) {
-//     entry = queue_top(&queue, graph_entry_t);
-//     queue_pop(&queue);
-//     // 我需要遍历entry->vertex对应的链表
-//     // 其实遍历的就是所有的邻接节点
-//     graph_entry_t *adjacency_entry = NULL;
-//     list_for_each_entry(adjacency_entry, &(graph->vertex[vertex]),
-//                         graph_entry_t, queue_) {
-//       // 判断，当前节点是否被遍历过了
-//       if (vertex_property[adjacency_entry->vertex].color == white) {
-//         // 白色就表示没有被遍历过
-//         // 让他的颜色变成gray
-//         // 他的距离是当前entry.distance + 1
-//         vertex_property[adjacency_entry->vertex].color = gray;
-//         vertex_property[adjacency_entry->vertex].distance =
-//             vertex_property[entry->vertex].distance + 1;
-//         vertex_property[adjacency_entry->vertex].prev = entry->vertex;
+  // 这个队列的内存管理需要我自己来动手啊,,,烦内
+  // 从队列中取出节点，访问它的所有的邻接节点 将所有还没有被visited都加入队列
+  // 直到队列为空
+  while (!queue_is_empty(&queue)) {
+    // 从队列中取出第一个节点
+    vqueue_entry_t *entry = queue_top(&queue, vqueue_entry_t);
+    queue_pop(&queue);
 
-//         // 我们需要将这个节点入队，这样就可以继续遍历下去
-//         queue_push(&queue, make_graph_entry(adjacency_entry->vertex,
-//                                             adjacency_entry->weight));
-//       }
-//     }
+    // 我需要遍历entry->vertex对应的链表
+    // 其实遍历的就是所有的邻接节点
+    graph_entry_t *adjacency_entry = NULL;
+    list_for_each_entry(adjacency_entry, &(graph->adjacency[entry->vertex]),
+                        graph_entry_t, node) {
+      // 判断，当前节点是否被遍历过了
+      if (!bfstree[adjacency_entry->vertex].visited) {
+        // 没有被visited就visit
+        bfstree[adjacency_entry->vertex].visited = true;
+        // 他的距离是当前entry.distance + 1
+        bfstree[adjacency_entry->vertex].distance =
+            bfstree[entry->vertex].distance + 1;
+        // 他的前驱就是当前节点
+        bfstree[adjacency_entry->vertex].prev = entry->vertex;
 
-//     // 遍历完entry的所有邻接节点之后，将entry的颜色置位黑色
-//     vertex_property[entry->vertex].color = black;
-//     free(entry);
-//   }
+        // 我们需要将这个节点入队，这样就可以继续遍历下去
+        queue_push(&queue, make_vqueue_entry(adjacency_entry->vertex));
+      }
+    }
 
-//   // 在理解了算法导论 图22-3 之后，你就会发现，颜色是不需要的
-//   // 其实gray和black都可以看作一个状态，就是我们访问了这个节点
-//   //
-//   gray的意思是，我们将来要访问这个节点，他已经在队列里面了，但是我们还没有实际去访问
-//   // 而黑色就是，我们实际上访问了这个节点
-//   // 因此这个颜色可以使用一个bool来代替
-// }
+    // 释放掉这个entry
+    free(entry);
+  }
+  // 在理解了算法导论 图22-3 之后，你就会发现，颜色是不需要的
+  // 其实gray和black都可以看作一个状态，就是我们访问了这个节点
+  //
+  // gray的意思是，我们将来要访问这个节点，他已经在队列里面了，但是我们还没有实际去访问
+  // 而黑色就是，我们实际上访问了这个节点
+  // 因此这个颜色可以使用一个bool来代替
+  return bfstree;
+}
 
-// // 广度优先搜索，可以给出从源节点s到所有可以到达的节点之间的距离
-// // 这个结果会记录在一个数组里面
+// 广度优先搜索，可以给出从源节点s到所有可以到达的节点之间的距离
+// 这个结果会记录在一个数组里面
+// 广度优先树
+// 如果生成了广度优先数，我们可以给出从s到v的最短路径
+// 这非常简单，从v开始不断向前查找前驱即可，直到找到s
+// 这个过程可以借助一个递归简单的完成
+// shortest_path
+// 我们的这个深度优先搜索，应该在遍历的时候，做一些事情吧
+// 其实入队出队的节点顺序就是深度优先顺序，可以有两种方式
+// 用户可以提供一个函数，在深度优先搜索的时候干
+// 我们会针对每一个entry调用该函数
+// 然后，我们可以返回一个广度优先树，其实就是那个vertex_property数组
+// 不如就把他的名字改成 广度优先树 bftree， 就酱~~~
+// 根据bfs_t 你可以很快直到源点到所有其他节点的最短路径 已经最短路径上的节点
+void bfs_path_impl(spare_graph_t *graph, vertex_t from, vertex_t to,
+                   bfs_t *bfs) {
+  if (from != to && from != bfs[to].prev) {
+    bfs_path_impl(graph, from, bfs[to].prev, bfs);
+  }
+  printf("%ld ", to);
+}
 
-// // 广度优先树
-// // 如果生成了广度优先数，我们可以给出从s到v的最短路径
-// // 这非常简单，从v开始不断向前查找前驱即可，直到找到s
-// // 这个过程可以借助一个递归简单的完成
-// // shortest_path
-
-// // 我们的这个深度优先搜索，应该在遍历的时候，做一些事情吧
-// // 其实入队出队的节点顺序就是深度优先顺序，可以有两种方式
-// // 用户可以提供一个函数，在深度优先搜索的时候干
-// // 我们会针对每一个entry调用该函数
-// // 然后，我们可以返回一个广度优先树，其实就是那个vertex_property数组
-// // 不如就把他的名字改成 广度优先树 bftree， 就酱~~~
+void bfs_path(spare_graph_t *graph, vertex_t from, bfs_t *bfs) {
+  for (size_t v = 0; v < graph->size; ++v) {
+    // 我们可能有多个连通分量 可能没有被visited到
+    if (v != from && bfs[v].visited) {
+      printf("bfs path: %ld ", from);
+      bfs_path_impl(graph, from, v, bfs);
+      printf("\n");
+    }
+  }
+}
 
 // // -------------------------------------------------------
 
