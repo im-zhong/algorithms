@@ -11,6 +11,15 @@ void gen_graph_dot_handle(vertex_t from, vertex_t to, weight_t weight) {
   dot += ("  " + std::to_string(from) + " -> " + std::to_string(to)) + "\n";
 }
 
+// [vertex visit_time/finish_time]
+// 这里需要一个辅助函数 提供dfsforest 和 vertex
+// 你给我生成上面这个东西
+std::string dfsforest_node(dfsforest_t *dfs_forest, vertex_t vertex) {
+  return "\"" + std::to_string(vertex) + " " +
+         std::to_string(dfs_forest[vertex].visit_time) + "/" +
+         std::to_string(dfs_forest[vertex].finish_time) + "\"";
+}
+
 void test_spare_graph() {
   spare_graph_t graph;
   spare_graph_init(&graph, 8);
@@ -62,6 +71,26 @@ void test_spare_graph() {
   fout << dot;
   fout.close();
 
+  // test dfs
+  dfsforest_t *dfsforest = dfs(&graph);
+  dot.clear();
+  dot += "digraph {\n";
+  for (size_t v = 0; v < graph.size; ++v) {
+    // 深度优先搜索会访问所有节点
+    assert(dfsforest[v].color == black);
+    if (dfsforest[v].prev != -1) {
+      // from -> to
+      // prev(v) -> v
+      dot += "  " + dfsforest_node(dfsforest, dfsforest[v].prev) + " -> " +
+             dfsforest_node(dfsforest, v) + "\n";
+    }
+  }
+  dot += "}\n";
+  fout.open("dfsforest.dot");
+  fout << dot;
+  fout.close();
+
+  free(dfsforest);
   free(bfstree);
   spare_graph_free(&graph);
 }

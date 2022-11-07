@@ -324,88 +324,103 @@ void bfs_path(spare_graph_t *graph, vertex_t from, bfs_t *bfs) {
   }
 }
 
-// // -------------------------------------------------------
+// -------------------------------------------------------
 
-// // 深度优先搜索
-// // 只要可能，就在图中尽量深入
-// // 递归，很容易实现，特别类似二叉树的根序遍历
+// 深度优先搜索
+// 只要可能，就在图中尽量深入
+// 递归，很容易实现，特别类似二叉树的根序遍历
 
-// // ?? 深度优先搜索有多个源节点？？？ how to
-// // 深度优先同样可以记录前驱节点
-// // 不过，广度优先是一颗 广度优先树
-// // 而，深度优先前驱子图，是一颗由多颗深度优先树构成的深度优先森林
-// // 可以使用颜色来防止重复访问
-// // 所有的深度优先树是不相交的
+// ?? 深度优先搜索有多个源节点？？？ how to
+// 深度优先同样可以记录前驱节点
+// 不过，广度优先是一颗 广度优先树
+// 而，深度优先前驱子图，是一颗由多颗深度优先树构成的深度优先森林
+// 可以使用颜色来防止重复访问
+// 所有的深度优先树是不相交的
 
-// // 时间戳？？
+// 时间戳？？
+enum graph_color { white, gray, black };
 
-// typedef struct {
-//   // 不对啊，我为什么要在这里面记录vertex
-//   // 数组的下标就是vertex啊
-//   // vertex_t vertex;
-//   vertex_t prev;
-//   // 这里是两个时间戳,一个是入队的时间戳
-//   // 我傻逼了，dfs哪有队列。。。
-//   // 第一个时间就是visit时间，也就是第一次访问到这个节点的时间
-//   size_t visit_time;
-//   // 因为是递归实现的，所以他需要回溯，第二个时间就会回溯回来的时间
-//   // 每次访问一个新的节点都会使得time++
-//   size_t back_time;
+typedef struct {
+  // 不对啊，我为什么要在这里面记录vertex
+  // 数组的下标就是vertex啊
+  // vertex_t vertex;
+  // 前驱
+  // 与广度优先搜索不同 dfs的前驱形成森林
+  vertex_t prev;
+  // 这里是两个时间戳,一个是入队的时间戳
+  // 我傻逼了，dfs哪有队列。。。
+  // 第一个时间就是visit时间，也就是第一次访问到这个节点的时间
+  // 也就是涂成灰色的时间
+  size_t visit_time;
+  // 因为是递归实现的，所以他需要回溯，第二个时间就会回溯回来的时间
+  // 每次访问一个新的节点都会使得time++
+  // 也就是变成黑色的时间
+  // 完成所有邻接节点访问的时间
+  size_t finish_time;
+  // 节点颜色
+  int color;
+} dfsforest_t;
 
-//   int color;
+void dfs_visit(spare_graph_t *graph, dfsforest_t *dfsforest, vertex_t vertex,
+               size_t *time) {
+  // 这样写是不对的 这个time必须是全局变量
+  ++(*time);
+  dfsforest[vertex].visit_time = *time;
+  dfsforest[vertex].color = gray;
 
-// } graph_dfs;
+  // 访问所有的邻接节点
+  graph_entry_t *adjacency_entry = NULL;
+  list_for_each_entry(adjacency_entry, &graph->adjacency[vertex], graph_entry_t,
+                      node) {
+    if (dfsforest[adjacency_entry->vertex].color == white) {
+      dfsforest[adjacency_entry->vertex].prev = vertex;
+      dfs_visit(graph, dfsforest, adjacency_entry->vertex, time);
+    }
+    // 这里根据邻接节点的颜色可以区分不同的边
+    // while: 说明树边
+    // gray: back 有环
+    // black: 前向边和横向边
+  }
 
-// void dfs_visit(spare_graph_t *graph, graph_dfs *df_forest, vertex_t vertex,
-//                size_t time) {
-//   ++time;
-//   df_forest[vertex].visit_time = time;
-//   df_forest[vertex].color = gray;
+  // 所有的邻接节点都访问完成之后，递归回溯到此处
+  ++(*time);
+  dfsforest[vertex].color = black;
+  dfsforest[vertex].finish_time = *time;
+}
 
-//   // 访问所有的邻接节点
-//   graph_entry_t *adjacency_entry = NULL;
-//   list_for_each_entry(adjacency_entry, &graph->vertex[vertex], graph_entry_t,
-//                       queue_) {
-//     if (df_forest[adjacency_entry->vertex].color == white) {
-//       df_forest[adjacency_entry->vertex].prev = vertex;
-//       dfs_visit(graph, df_forest, adjacency_entry->vertex, time);
-//     }
-//   }
+// depth-first search
+// O(E + V)
+dfsforest_t *dfs(spare_graph_t *graph) {
+  // 还是准备一个数组，类似广度优先那样就可以了
+  dfsforest_t *dfsforest =
+      (dfsforest_t *)malloc(graph->size * sizeof(dfsforest_t));
+  for (size_t vertex = 0; vertex < graph->size; ++vertex) {
+    dfsforest[vertex].color = white;
+    dfsforest[vertex].prev = -1;
+    dfsforest[vertex].visit_time = -1;
+    dfsforest[vertex].finish_time = -1;
+  }
 
-//   // 所有的链接节点都访问完成之后，递归回溯到此处
-//   df_forest[vertex].color = black;
-//   ++time;
-//   df_forest[vertex].back_time = time;
-// }
+  // 初始化时间戳
+  // 必须是全局的
+  // 否则时间戳因为函数的栈的特性 会不对
+  size_t time = 0;
 
-// // depth-first search
-// // O(E + V)
-// void dfs(spare_graph_t *graph) {
-//   // 还是准备一个数组，类似广度优先那样就可以了
-//   graph_dfs *df_forest = malloc(graph->size * sizeof(graph_dfs));
-//   for (size_t vertex = 0; vertex < graph->size; ++vertex) {
-//     df_forest[vertex].color = white;
-//     df_forest[vertex].prev = -1;
-//     df_forest[vertex].visit_time = -1;
-//     df_forest[vertex].back_time = -1;
-//   }
+  // 遍历所有的节点
+  for (size_t vertex = 0; vertex < graph->size; ++vertex) {
+    if (dfsforest[vertex].color == white)
+      dfs_visit(graph, dfsforest, vertex, &time);
+  }
 
-//   // 初始化时间戳
-//   size_t time = 0;
+  return dfsforest;
+}
 
-//   // 遍历所有的节点
-//   for (size_t vertex = 0; vertex < graph->size; ++vertex) {
-//     if (df_forest[vertex].color == white)
-//       dfs_visit(graph, df_forest, vertex, time);
-//   }
-// }
+// 这个深度优先实现起来要简单的多
+// 因为不涉及队列，仅仅是一个简单的递归
 
-// // 这个深度优先实现起来要简单的多
-// // 因为不涉及队列，仅仅是一个简单的递归
-
-// // 深度优先搜索提供了树的结构价值很高的信息
-// // 算法导论 图22-4, 一个典型的深度优先搜索过程, 注意时间戳
-// // 每个节点的发现时间与完成时间
+// 深度优先搜索提供了树的结构价值很高的信息
+// 算法导论 图22-4, 一个典型的深度优先搜索过程, 注意时间戳
+// 每个节点的发现时间与完成时间
 
 // // -------------------------------------------
 // // 这些实现应该放在一个单独的.c文件里面
