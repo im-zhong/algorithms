@@ -4,15 +4,10 @@ CXXFLAGS += -g
 debug: CXXFLAGS += -g
 debug: all
 
-.PHONY: container_of
-container_of: container_of.out
-container_of.out: container_of.o
-	$(CXX) -o $@ $^
-
 .PHONY: test
 test: test.out
 test.out: test.o
-	$(CXX) -o $@ $^
+	$(CC) -o $@ $^
 
 test.o:
 
