@@ -8,7 +8,21 @@
 
 std::string dot;
 void gen_graph_dot_handle(vertex_t from, vertex_t to, weight_t weight) {
-  dot += ("  " + std::to_string(from) + " -> " + std::to_string(to)) + "\n";
+  dot += (" " + std::to_string(from) + " -- " + std::to_string(to) +
+          " [label=\"" + std::to_string(weight) + "\"]\n");
+}
+
+void gen_spare_graph_dot(spare_graph_t *graph) {
+  // 遍历整张图
+  dot.clear();
+  dot += "graph {\n";
+  spare_graph_for_each_edge(graph, gen_graph_dot_handle);
+  dot += "}\n";
+
+  std::ofstream fout;
+  fout.open("spare_graph.dot");
+  fout << dot;
+  fout.close();
 }
 
 // [vertex visit_time/finish_time]
@@ -116,11 +130,7 @@ void test_mst() {
   spare_graph_insert_edge(&graph, 3, 6, 2);
   spare_graph_insert_edge(&graph, 6, 7, 5);
   assert(spare_graph_edge(&graph) == 9);
-
-  spare_graph_delete_edge(&graph, 0, 1);
-  spare_graph_delete_edge(&graph, 3, 6);
-  assert(spare_graph_edge(&graph) == 7);
-  // 这样这张无向图就是无环的了
+  gen_spare_graph_dot(&graph);
 
   list_node_t mst;
   list_init_head(&mst);
@@ -138,6 +148,42 @@ void test_mst() {
   dot += "}\n";
 
   fout.open("mst_kruskal.dot");
+  fout << dot;
+  fout.close();
+
+  assert(spare_graph_edge(&graph) == 9);
+  gen_spare_graph_dot(&graph);
+
+  // 因为这两个最小生成树的算法都是给连通无向图设计的
+  // 而邻接链表更适合有向图
+  // 但是修正的方法也非常简单
+  // 只需要将反向的边添加进去即可
+  spare_graph_insert_edge(&graph, 1, 0, 8);
+  spare_graph_insert_edge(&graph, 2, 0, 9);
+  spare_graph_insert_edge(&graph, 3, 0, 3);
+  spare_graph_insert_edge(&graph, 2, 1, 10);
+  spare_graph_insert_edge(&graph, 4, 1, 4);
+  spare_graph_insert_edge(&graph, 5, 2, 7);
+  spare_graph_insert_edge(&graph, 6, 2, 6);
+  spare_graph_insert_edge(&graph, 6, 3, 2);
+  spare_graph_insert_edge(&graph, 7, 6, 5);
+
+  list_node_t prim_mst;
+  list_init_head(&prim_mst);
+  // 测试 最小生成树
+  mst_prim(&graph, &prim_mst);
+  edge = NULL;
+  dot.clear();
+  // 这次是无向图了
+  // a -- b [label = "lable"]
+  dot += "graph {\n";
+  list_for_each_entry(edge, &prim_mst, edge_t, node) {
+    dot += (" " + std::to_string(edge->v1) + " -- " + std::to_string(edge->v2) +
+            " [label=\"" + std::to_string(edge->weight) + "\"]\n");
+  }
+  dot += "}\n";
+
+  fout.open("mst_prim.dot");
   fout << dot;
   fout.close();
 

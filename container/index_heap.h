@@ -208,6 +208,10 @@ void iheap_update(iheap_t *heap, size_t index) {
   }
 }
 
+bool iheap_contain(iheap_t *heap, size_t index) {
+  return heap->index[index] != 0;
+}
+
 // 最重要的iheap_check 最大的不同就是要检查三个数组的一致性
 void iheap_check(iheap_t *heap) {
   size_t child = 0;

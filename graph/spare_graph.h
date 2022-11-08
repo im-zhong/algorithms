@@ -45,11 +45,11 @@
 #include <assert.h>
 #include <container/disjoint_set.h>
 #include <container/heap.h>
+#include <container/index_heap.h>
 #include <container/queue.h>
 #include <cstdlib>
 #include <float.h>
 #include <limits.h>
-#include <queue>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -524,63 +524,84 @@ void mst_kruskal(spare_graph_t *graph, list_node_t *mst) {
 // 同时更新此节点的所有邻接节点的权重，如果变小了的话
 // 重复这个过程 直到V变成空集
 
-struct mst_prim_cmp {
-  bool operator()(edge_t left, edge_t right) {
-    return left.weight < right.weight;
-  }
-};
+bool weight_less(const void *lhs, const void *rhs) {
+  return *(weight_t *)lhs < *(weight_t *)rhs;
+}
 
 void mst_prim(spare_graph_t *graph, list_node_t *mst) {
-  // 直接用C++的优先队列了 不自己写了
-  std::priority_queue<edge_t, std::vector<edge_t>, mst_prim_cmp> V;
-  for (size_t v = 0; v < graph->size; ++v) {
-    edge_t edge;
-    // 用v1表示我们自己
-    edge.v1 = v;
-    // 用v2表示我们的pred
-    edge.v2 = -1;
-    // 最开始的权重是无穷大 因为mst中还没有任何点
-    edge.weight = DBL_MAX;
-    V.push(edge);
+  if (graph->size == 0) {
+    return;
   }
 
-  // 还需要一个数组来表示某个节点是在V中还是在mst中
-  // 当然在最开始的时候 所有的节点都在V中 所以初始化所有元素为false
+  // 全部重写
+  // mst使用一个index binary heap 保存V中的节点到A中的节点的最小权重
+  weight_t *weights = (weight_t *)malloc(graph->size * sizeof(weight_t));
+  // 在一开始没有节点在A中 所以所有的权重都是无穷大
+  for (size_t i = 0; i < graph->size; ++i) {
+    weights[i] = DBL_MAX;
+  }
+
+  // 还要有一个数组 用来保存那个节点已经放到mst中了
   bool *in_mst = (bool *)malloc(graph->size * sizeof(bool));
   for (size_t i = 0; i < graph->size; ++i) {
+    // 初始时 所有节点都不在mst中
     in_mst[i] = false;
   }
 
-  // 算法的一开始，任选一个节点，我们选择0
-  // 这里不用任选，因为上面在构建堆的时候，权重都是一样的
-  // 所以top出来的就挺随机的
-
-  while (!V.empty()) {
-    edge_t edge = V.top();
-    // 我要要将edge->v1 加入mst中
-    // 如果此时 edge->v2 == -1 那么表示这是第一个点 没法把边加入mst
-    // 遍历v1的邻接节点
-    graph_entry_t *adjacency = NULL;
-    list_for_each_entry(adjacency, &(graph->adjacency[edge->v1]), graph_entry_t,
-                        node) {
-      // C++ 的优先队列没有修改值的操作呀
-      // 没有这个操作是不行的 只能自己写
-      adjacency->vertex;
-      adjacency->weight;
-    }
+  // 还需要一个数组 用来表示达成最小权重的前驱是谁
+  // 指向它自己表示没有前驱
+  vertex_t *pred = (vertex_t *)malloc(graph->size * sizeof(vertex_t));
+  for (size_t i = 0; i < graph->size; ++i) {
+    pred[i] = i;
   }
 
-  vertex_t minimal_vertex = 0;
-  // Q = G.V
-  // Q是全体顶点形成的一个最小堆
-  // 这个堆是怎么构建的？？
-  // 每个节点有一个key属性，一开始vertex是0，其余是-1
-  // 最小堆根据这个key进行构建
+  // 初始化 iheap
+  iheap_t heap;
+  iheap_init(&heap, weights, graph->size, sizeof(weight_t), graph->size + 1,
+             weight_less);
 
-  // while (!bheap_is_empty(&heap)) {
-  //   minimal_vertex = bheap_top(&bheap);
-  //   // 遍历minimal_vertex的所有邻接节点
-  // }
+  // 向heap中插入初始节点
+  weights[0] = 0;
+  iheap_push(&heap, 0);
+  // 现在节点0在mst中le
+  in_mst[0] = true;
+
+  while (!iheap_is_empty(&heap)) {
+    // 从这里知道的边呀
+    vertex_t vertex = iheap_top(&heap);
+    iheap_pop(&heap);
+    // 将此边加入mst
+    // [pred[vertex], vertex]: weights[vertex]
+    // MST = MST union {edge(v1, v2)}
+    if (vertex != 0) {
+      edge_t *safe_edge = make_edge(pred[vertex], vertex, weights[vertex]);
+      list_insert_after(mst, &safe_edge->node);
+    }
+
+    in_mst[vertex] = true;
+    // 然后我们遍历此节点所有的邻接节点
+    // 如果这个节点不在mst中 则加入heap中
+    // 如果heap包含此邻接节点 还需要检查权重是否变小
+    // 如果变小 则 update
+    graph_entry_t *adjacency = NULL;
+    list_for_each_entry(adjacency, &graph->adjacency[vertex], graph_entry_t,
+                        node) {
+      if (!in_mst[adjacency->vertex]) {
+        if (iheap_contain(&heap, adjacency->vertex)) {
+          if (weights[adjacency->vertex] > adjacency->weight) {
+            // 更新权重 然后更新heap
+            weights[adjacency->vertex] = adjacency->weight;
+            pred[adjacency->vertex] = vertex;
+            iheap_update(&heap, adjacency->vertex);
+          }
+        } else {
+          weights[adjacency->vertex] = adjacency->weight;
+          pred[adjacency->vertex] = vertex;
+          iheap_push(&heap, adjacency->vertex);
+        }
+      }
+    }
+  }
 }
 
 // 这个算法理解起来就比kruskal要稍微复杂一些
