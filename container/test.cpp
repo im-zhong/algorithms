@@ -7,6 +7,7 @@
 
 #include "bheap.h"
 #include "heap.h"
+#include "index_heap.h"
 #include "queue.h"
 #include "stack.h"
 #include <cassert>
@@ -213,10 +214,66 @@ void test_bheap() {
   bheap_free(&heap);
 }
 
+// test index binary heap
+void test_iheap() {
+  iheap_t heap;
+  size_t capacity = 128;
+  // 声明一个数组 这样容易拿到int*
+  int *numbers = (int *)malloc(capacity * sizeof(int));
+  // 先测最大堆
+  iheap_init(&heap, numbers, capacity, sizeof(int), capacity, less_equal_int);
+  heap.key[0] = 0;
+
+  // 初始化numbers
+  std::default_random_engine e(
+      std::chrono::system_clock::now().time_since_epoch().count());
+  std::uniform_int_distribution<int> ui(0, 100);
+  for (size_t i = 0; i < capacity; ++i) {
+    numbers[i] = ui(e);
+  }
+
+  // 测试heap insert
+  iheap_clear(&heap);
+  assert(heap.size == 0);
+  iheap_check(&heap);
+  // 因为下标从1开始 所以实际能使用的大小是 capacity - 1
+  for (size_t i = 0; i < capacity - 1; ++i) {
+    iheap_push(&heap, i);
+    iheap_check(&heap);
+  }
+  iheap_check(&heap);
+
+  // 测试heap pop
+  while (!iheap_is_empty(&heap)) {
+    iheap_pop(&heap);
+    iheap_check(&heap);
+  }
+
+  // 解下来就要测heap_update
+  // 首先重新填充heap
+  iheap_clear(&heap);
+  assert(heap.size == 0);
+  // 因为下标从1开始 所以实际能使用的大小是 capacity - 1
+  for (size_t i = 0; i < capacity - 1; ++i) {
+    iheap_push(&heap, i);
+    iheap_check(&heap);
+  }
+
+  for (size_t i = 0; i < capacity - 1; ++i) {
+    // 对于每一个值 我们都随机切换成新的值
+    numbers[i] = ui(e);
+    iheap_update(&heap, i);
+    iheap_check(&heap);
+  }
+
+  iheap_free(&heap);
+}
+
 int main(int argc, char *argv[]) {
   test_containe_of();
   test_heap();
   test_bheap();
+  test_iheap();
 
   stack_init(stack);
 

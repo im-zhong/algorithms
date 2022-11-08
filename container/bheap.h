@@ -206,7 +206,7 @@ void bheap_check(bheap_t *heap) {
       assert(heap->predicate(heap->data[i], heap->data[left]));
     }
     size_t right = heap_right(i);
-    if (child <= heap->size) {
+    if (right <= heap->size) {
       assert(heap->predicate(heap->data[i], heap->data[right]));
     }
   }

@@ -188,7 +188,7 @@ void heap_check(heap_t *heap, cmp_fn cmp) {
       assert(cmp(heap->data[i], heap->data[left]));
     }
     size_t right = heap_right(i);
-    if (child <= heap->size) {
+    if (right <= heap->size) {
       assert(cmp(heap->data[i], heap->data[right]));
     }
   }
