@@ -1,6 +1,8 @@
 // 2022/11/7
 // zhangzhong
 
+#include "minimum_spanning_tree.h"
+#include "shortest_path.h"
 #include "spare_graph.h"
 #include <cassert>
 #include <fstream>
@@ -8,14 +10,14 @@
 
 std::string dot;
 void gen_graph_dot_handle(vertex_t from, vertex_t to, weight_t weight) {
-  dot += (" " + std::to_string(from) + " -- " + std::to_string(to) +
+  dot += (" " + std::to_string(from) + " -> " + std::to_string(to) +
           " [label=\"" + std::to_string(weight) + "\"]\n");
 }
 
 void gen_spare_graph_dot(spare_graph_t *graph) {
   // 遍历整张图
   dot.clear();
-  dot += "graph {\n";
+  dot += "digraph {\n";
   spare_graph_for_each_edge(graph, gen_graph_dot_handle);
   dot += "}\n";
 
@@ -191,8 +193,98 @@ void test_mst() {
   spare_graph_free(&graph);
 }
 
+// 根据单源最短路返回的edge list 生成dot
+void gen_sp_dot(list_node_t *spt, std::string name) {
+  std::string dot;
+  edge_t *edge = NULL;
+  dot += "digraph {\n";
+  list_for_each_entry(edge, spt, edge_t, node) {
+    dot += (" " + std::to_string(edge->v1) + " -> " + std::to_string(edge->v2) +
+            " [label=\"" + std::to_string(edge->weight) + "\"]\n");
+  }
+  dot += "}\n";
+
+  std::ofstream fout;
+  fout.open(name);
+  fout << dot;
+  fout.close();
+}
+
+void test_sp() {
+  spare_graph_t graph;
+  spare_graph_init(&graph, 8);
+
+  // 说明一点
+  // 虽然这里是有向图 但是我们的算法内部会生成一个无向图
+  // 就是将单项的边看成双向的边
+  // 然后这个weight就得随机一下了
+  spare_graph_insert_edge(&graph, 0, 1, 8);
+  spare_graph_insert_edge(&graph, 0, 2, 9);
+  spare_graph_insert_edge(&graph, 0, 3, 3);
+  spare_graph_insert_edge(&graph, 1, 2, 10);
+  spare_graph_insert_edge(&graph, 1, 4, 4);
+  spare_graph_insert_edge(&graph, 2, 5, 7);
+  spare_graph_insert_edge(&graph, 2, 6, 6);
+  spare_graph_insert_edge(&graph, 3, 6, 2);
+  spare_graph_insert_edge(&graph, 6, 7, 5);
+  assert(spare_graph_edge(&graph) == 9);
+  gen_spare_graph_dot(&graph);
+
+  list_node_t dijkstra_spt;
+  list_init_head(&dijkstra_spt);
+  weight_t *dijkstra_distance =
+      (weight_t *)malloc(graph.size * sizeof(weight_t));
+  sp_dijkstra(&graph, 0, dijkstra_distance, &dijkstra_spt);
+  gen_sp_dot(&dijkstra_spt, "dijkstra.dot");
+
+  list_node_t dag_spt;
+  list_init_head(&dag_spt);
+  weight_t *dag_distance = (weight_t *)malloc(graph.size * sizeof(weight_t));
+  sp_dijkstra(&graph, 0, dag_distance, &dag_spt);
+  gen_sp_dot(&dag_spt, "dag_spt.dot");
+
+  list_node_t bellman_ford_spt;
+  list_init_head(&bellman_ford_spt);
+  weight_t *bellman_ford_distance =
+      (weight_t *)malloc(graph.size * sizeof(weight_t));
+  sp_dijkstra(&graph, 0, bellman_ford_distance, &bellman_ford_spt);
+  gen_sp_dot(&bellman_ford_spt, "bellman_ford.dot");
+
+  free(dag_distance);
+  free(dijkstra_distance);
+  spare_graph_free(&graph);
+}
+
+void test_has_circle() {
+  spare_graph_t graph;
+  spare_graph_init(&graph, 8);
+
+  // 说明一点
+  // 虽然这里是有向图 但是我们的算法内部会生成一个无向图
+  // 就是将单项的边看成双向的边
+  // 然后这个weight就得随机一下了
+  spare_graph_insert_edge(&graph, 0, 1, 8);
+  spare_graph_insert_edge(&graph, 0, 2, 9);
+  spare_graph_insert_edge(&graph, 0, 3, 3);
+  spare_graph_insert_edge(&graph, 1, 2, 10);
+  spare_graph_insert_edge(&graph, 1, 4, 4);
+  spare_graph_insert_edge(&graph, 2, 5, 7);
+  spare_graph_insert_edge(&graph, 2, 6, 6);
+  spare_graph_insert_edge(&graph, 3, 6, 2);
+  spare_graph_insert_edge(&graph, 6, 7, 5);
+  assert(spare_graph_edge(&graph) == 9);
+  assert(!spare_graph_has_circle(&graph));
+
+  spare_graph_insert_edge(&graph, 6, 3, 2);
+  assert(spare_graph_has_circle(&graph));
+}
+
+// todo: random test
+
 int main(int argc, char *argv[]) {
   test_spare_graph();
   test_mst();
+  test_sp();
+  test_has_circle();
   return 0;
 }

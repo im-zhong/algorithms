@@ -102,6 +102,21 @@ static inline graph_entry_t *make_graph_entry(vertex_t vertex,
   return entry;
 }
 
+typedef struct {
+  vertex_t v1;
+  vertex_t v2;
+  weight_t weight;
+  list_node_t node;
+} edge_t;
+
+edge_t *make_edge(vertex_t from, vertex_t to, weight_t weight) {
+  edge_t *edge = (edge_t *)malloc(sizeof(edge_t));
+  edge->v1 = from;
+  edge->v2 = to;
+  edge->weight = weight;
+  return edge;
+}
+
 // 首先调用这个函数初始化一个图
 // 然后调用 insert_edge 和 delete_edge 来改变图
 // 但是图的节点数量一经初始化就不能在改变了
@@ -416,6 +431,17 @@ dfsforest_t *dfs(spare_graph_t *graph) {
   return dfsforest;
 }
 
+typedef struct {
+  vertex_t vertex;
+  list_node_t node;
+} vlist_entry_t;
+
+vlist_entry_t *make_vlist_entry(vertex_t vertex) {
+  vlist_entry_t *entry = (vlist_entry_t *)malloc(sizeof(vlist_entry_t));
+  entry->vertex = vertex;
+  return entry;
+}
+
 // 这个深度优先实现起来要简单的多
 // 因为不涉及队列，仅仅是一个简单的递归
 
@@ -423,304 +449,103 @@ dfsforest_t *dfs(spare_graph_t *graph) {
 // 算法导论 图22-4, 一个典型的深度优先搜索过程, 注意时间戳
 // 每个节点的发现时间与完成时间
 
+// 其实就是dfs的变种
+// 就是在节点被涂成黑色的时候插入链表头部
+void toposort_impl(spare_graph_t *graph, vertex_t vertex, int *color,
+                   list_node_t *topo_list) {
+  // 开始访问此节点
+  color[vertex] = gray;
+
+  // 递归的访问邻接节点
+  graph_entry_t *adjacency_entry = NULL;
+  list_for_each_entry(adjacency_entry, &graph->adjacency[vertex], graph_entry_t,
+                      node) {
+    // 如果邻接节点没有被访问
+    if (color[adjacency_entry->vertex] == white) {
+      toposort_impl(graph, adjacency_entry->vertex, color, topo_list);
+    }
+    // 这里根据邻接节点的颜色可以区分不同的边
+    // while: 说明树边
+    // gray: back 有环
+    // black: 前向边和横向边
+  }
+
+  // 此节点访问完成
+  color[vertex] = black;
+  // 插入链表头
+  vlist_entry_t *entry = make_vlist_entry(vertex);
+  list_insert_after(topo_list, &entry->node);
+}
+
 // 拓扑排序
-void toposort(spare_graph_t *graph) {
+void toposort(spare_graph_t *graph, list_node_t *topo_list) {
   // 拓扑排序非常简单
   // call dfs
   // 每当一个节点被涂成黑色时 也就是 finish visit时
   // 插入一个链表的头部
   // 最后从前到后输出链表就是拓扑排序
-}
 
-// -------------------------------------------
-// 这些实现应该放在一个单独的.c文件里面
-// 最小生成树 mst
-// minimal spanning tree
-// 如果采取kruskal实现的话，我可以使用disjoint_set
-// 而且最终的最小生成树应该就是一个disjoint_set
-// 重要的提示：这两个最小生成树算法都是无向连通图的
-
-typedef struct {
-  vertex_t v1;
-  vertex_t v2;
-  weight_t weight;
-  list_node_t node;
-} edge_t;
-
-edge_t *make_edge(vertex_t from, vertex_t to, weight_t weight) {
-  edge_t *edge = (edge_t *)malloc(sizeof(edge_t));
-  edge->v1 = from;
-  edge->v2 = to;
-  edge->weight = weight;
-  return edge;
-}
-
-list_node_t edge_list;
-void mst_kruskal_handle(vertex_t from, vertex_t to, weight_t weight) {
-  list_node_t *work = NULL;
-  edge_t *edge = NULL;
-  list_for_each(work, &edge_list) {
-    edge = container_of(work, edge_t, node);
-    if (edge->weight >= weight) {
-      break;
-    }
-  }
-  edge = make_edge(from, to, weight);
-  list_insert_before(work, &edge->node);
-}
-
-// 返回一个edge list head 最小生成树是边的集合
-void mst_kruskal(spare_graph_t *graph, list_node_t *mst) {
-  // 声明一个空的MST集合
-  // 这个东西应该是一个edge的集合
-
-  // 首先制造一个disjoint_set,
-  // 此时，每个节点都是独立的
-  disjoint_set djs;
-  disjoint_set_init(&djs, graph->size);
-
-  // sort the edges of G.E by weight in decreasing order
-  // 我要按照weight进行排序
-  // 然后根据排序结果, 按照顺序遍历
-  // 这要怎么实现呢？？
-  // 我要维护一个边的数组？？
-  // 这一部分实现起来应该也是比较简单, 准备一个数组，
-  // 存储所有的边，然后进行一个快速排序，即可
-  // 假设我这里已经获得了一个这样的数组
-  list_init_head(&edge_list);
-  spare_graph_for_each_edge(graph, mst_kruskal_handle);
-
-  edge_t *edge = NULL;
-  list_node_t *work = NULL;
-  list_for_each_entry(edge, &edge_list, edge_t, node) {
-    if (disjoint_set_find(&djs, edge->v1) !=
-        disjoint_set_find(&djs, edge->v2)) {
-      // 最小生成树是边的集合
-      // MST = MST union {edge(v1, v2)}
-      edge_t *safe_edge = make_edge(edge->v1, edge->v2, edge->weight);
-      list_insert_after(mst, &safe_edge->node);
-      disjoint_set_union(&djs, edge->v1, edge->v2);
-    }
-  }
-
-  // todo: free_list
-  // 最终可以返回MST
-  // 只能用一个链表来表示MST
-}
-
-// 这个实现是真的简单，就是感觉不太适合邻接链表
-
-// prim算法依赖一个最小堆
-// #include "heap.c"
-
-// 这个算法也非常的简单
-// 有两个集合
-// 一个是 mst
-// 另一个是图的点集V
-// 两者是不相交的
-// 算法维护一个最小堆:
-// 保存的是V中顶点，排序的依据是V顶点到mst中任意顶点的最短边权重
-// 每次从堆中取出最小的顶点，从V中删除，加入mst中
-// 同时更新此节点的所有邻接节点的权重，如果变小了的话
-// 重复这个过程 直到V变成空集
-
-bool weight_less(const void *lhs, const void *rhs) {
-  return *(weight_t *)lhs < *(weight_t *)rhs;
-}
-
-void mst_prim(spare_graph_t *graph, list_node_t *mst) {
-  if (graph->size == 0) {
-    return;
-  }
-
-  // 全部重写
-  // mst使用一个index binary heap 保存V中的节点到A中的节点的最小权重
-  weight_t *weights = (weight_t *)malloc(graph->size * sizeof(weight_t));
-  // 在一开始没有节点在A中 所以所有的权重都是无穷大
+  int *color = (int *)malloc(graph->size * sizeof(int));
   for (size_t i = 0; i < graph->size; ++i) {
-    weights[i] = DBL_MAX;
+    color[i] = white;
   }
 
-  // 还要有一个数组 用来保存那个节点已经放到mst中了
-  bool *in_mst = (bool *)malloc(graph->size * sizeof(bool));
-  for (size_t i = 0; i < graph->size; ++i) {
-    // 初始时 所有节点都不在mst中
-    in_mst[i] = false;
+  // 遍历所有的链表节点
+  for (size_t vertex = 0; vertex < graph->size; ++vertex) {
+    if (color[vertex] == white)
+      toposort_impl(graph, vertex, color, topo_list);
   }
+}
 
-  // 还需要一个数组 用来表示达成最小权重的前驱是谁
-  // 指向它自己表示没有前驱
-  vertex_t *pred = (vertex_t *)malloc(graph->size * sizeof(vertex_t));
-  for (size_t i = 0; i < graph->size; ++i) {
-    pred[i] = i;
-  }
+bool spare_graph_has_circle_impl(spare_graph_t *graph, vertex_t vertex,
+                                 int *color) {
+  color[vertex] = gray;
 
-  // 初始化 iheap
-  iheap_t heap;
-  iheap_init(&heap, weights, graph->size, sizeof(weight_t), graph->size + 1,
-             weight_less);
-
-  // 向heap中插入初始节点
-  weights[0] = 0;
-  iheap_push(&heap, 0);
-  // 现在节点0在mst中le
-  in_mst[0] = true;
-
-  while (!iheap_is_empty(&heap)) {
-    // 从这里知道的边呀
-    vertex_t vertex = iheap_top(&heap);
-    iheap_pop(&heap);
-    // 将此边加入mst
-    // [pred[vertex], vertex]: weights[vertex]
-    // MST = MST union {edge(v1, v2)}
-    if (vertex != 0) {
-      edge_t *safe_edge = make_edge(pred[vertex], vertex, weights[vertex]);
-      list_insert_after(mst, &safe_edge->node);
+  // 递归的访问邻接节点
+  graph_entry_t *adjacency_entry = NULL;
+  list_for_each_entry(adjacency_entry, &graph->adjacency[vertex], graph_entry_t,
+                      node) {
+    // 如果邻接节点没有被访问
+    if (color[adjacency_entry->vertex] == white) {
+      if (spare_graph_has_circle_impl(graph, adjacency_entry->vertex, color)) {
+        return true;
+      }
+    } else if (color[adjacency_entry->vertex] == gray) {
+      return true;
     }
+    // 这里根据邻接节点的颜色可以区分不同的边
+    // while: 说明树边
+    // gray: back 有环
+    // black: 前向边和横向边
+  }
 
-    in_mst[vertex] = true;
-    // 然后我们遍历此节点所有的邻接节点
-    // 如果这个节点不在mst中 则加入heap中
-    // 如果heap包含此邻接节点 还需要检查权重是否变小
-    // 如果变小 则 update
-    graph_entry_t *adjacency = NULL;
-    list_for_each_entry(adjacency, &graph->adjacency[vertex], graph_entry_t,
-                        node) {
-      if (!in_mst[adjacency->vertex]) {
-        if (iheap_contain(&heap, adjacency->vertex)) {
-          if (weights[adjacency->vertex] > adjacency->weight) {
-            // 更新权重 然后更新heap
-            weights[adjacency->vertex] = adjacency->weight;
-            pred[adjacency->vertex] = vertex;
-            iheap_update(&heap, adjacency->vertex);
-          }
-        } else {
-          weights[adjacency->vertex] = adjacency->weight;
-          pred[adjacency->vertex] = vertex;
-          iheap_push(&heap, adjacency->vertex);
-        }
+  color[vertex] = black;
+  return false;
+}
+
+// 环路判断非常简单 同样也是用dfs实现
+// 只要碰到一条back path 就直接报告有环路
+// 一个稍微复杂一点的问题是 报告环路路径
+// 我们需要记录每个节点的dfs搜索前驱 这样碰到环路是 就可以向上搜索 从而给出环路
+bool spare_graph_has_circle(spare_graph_t *graph) {
+  int *color = (int *)malloc(graph->size * sizeof(int));
+  for (size_t i = 0; i < graph->size; ++i) {
+    color[i] = white;
+  }
+
+  for (size_t vertex = 0; vertex < graph->size; ++vertex) {
+    if (color[vertex] == white) {
+      if (spare_graph_has_circle_impl(graph, vertex, color)) {
+        return true;
       }
     }
   }
+  return false;
 }
 
-// 这个算法理解起来就比kruskal要稍微复杂一些
-// 然后也需要很多额外的数组来保存一些中间信息
-// 还是算了，不实现了
-// 只要领会了思想就可以了
-
-// 还有一个问题，就是验证是否是最小生成树的问题
-// 在一篇论文中有所描述
-
-// // ---------------------------------------
-// // 单源最短路径 Single-Source Shortest Paths
-// // dijkstra
-// // 带权重的有向图
-// // 路径 path = v0, v1, v2, ... , vn
-// // w(p) = w(v0, v1) + w(v1, v2) + ...
-// // 最短路径的子路径也是最短路径
-// // 我在完成所有基础算法之后，整理的时候
-// // 可以把这些重要的结论也写在头文件里面，最好可以达到
-// // 我忘了，我看一眼，我又想起来了。。这种程度
-// //
-
-// // 负数权重的边
-// // 如果图中存在一个环路，这个环路中存在一条负数权重的边
-// // 同时，从源点s可以走到这个环路
-// // 则此图不存在从s开始的单源最短路径
-// // 最短路径不能包含权重为负值的环路
-
-// // 环路
-// // 一条最短路径不可以包含环路，如果包含环路，去掉这个环路，会更短
-// // 所以可以合理的假设，所有的最短路径都是简单路径
-
-// // 所以可以实现一个斐波那契堆，因为很明显这两个算法都用到了这个结构
-// // 感觉挺值的
-// // 不过目前还是先使用二叉堆进行实现
-
-// typedef struct {
-//   weight_t weight;
-//   vertex_t prev;
-// } sptree_t;
-
-// weight_t spares_graph_weight(spare_graph_t *graph, vertex_t lhs, vertex_t
-// rhs) {
-//   // 我们需要遍历lhs对应的链表，并得到其weight
-//   // 这个操作并不是O(1)
-//   // 这样好像不太好
-//   return 0.0;
-// }
-
-// // 1. 松弛 relaxation
-// // v.d: 最短路径权重 between s -> v
-// // 输入一条边<u, v>, 测试看看是否可以对从 s -> v的最短路径进行改善
-// // 通俗来讲，之前存在一条路径 s -> v
-// // 然后我们看看加入一个新的节点 u, 使得路径变成 s -> u -> v
-// // 看看新的路径是否权重更小，如果小的话，就更新相关的属性
-// static inline void relax(spare_graph_t *graph, sptree_t *sptree, vertex_t u,
-//                          vertex_t v, weight_t weight) {
-//   // 我们需要获取某条边的权重，这在稀疏图中并不是一个O(1)的操作
-//   // 我们需要遍历邻接链表
-//   // v.d <= u.d + w(u, v)
-//   if (sptree[v].weight > sptree[u].weight + weight) {
-//     // s -> v       : v.weight
-//     // s -> u -> v  : u.weight + weight(u, v)
-//     // 我们更新v的权重，同时v的前驱也变成了u
-//     sptree[v].weight = sptree[u].weight + weight;
-//     sptree[v].prev = u;
-//   }
-// }
-
-// // 24.2
-// // 在有向无环图中DAG中首先进行一次拓扑排序，然后遍历执行relax操作也可以得到sp
-
-// #include <limits.h>
-// // w(u, v) >= 0
-// void dijkstra(spare_graph_t *graph, vertex_t vertex) {
-//   // 我感觉很多算法都会用到的一个结构就是 生成树
-//   // spanning tree : stree
-//   // 不过不同的算法要求的结构不太一样，还是每个都重新定义一个结构好了
-
-//   // 初始化所有节点
-//   sptree_t *sptree = malloc(graph->size * sizeof(sptree_t));
-//   for (size_t i = 0; i < graph->size; ++i) {
-//     // 我们让这个权重为赋值表示正无穷
-//     // 或者我们可以用MAX来表示正无穷
-//     // 因为待会堆的构建需要历来这个weight
-//     // 所以这个weight在实现上还真就必须是MAX
-//     sptree[i].weight = 0.0; // double_max
-//     // 在节点的表示上，我们也可以使用MAX来表示
-//     sptree[i].prev = -1;
-//   }
-//   sptree[vertex].weight = 0.0;
-
-//   // S. 从源节点s到该集合S中的每个节点之间的最短路径已经被找到
-//   // 从V - S中选择一个新的节点u，将u加入集合S，对所有从u发出的边进行松弛
-
-//   // 维护一个优先队列Q = G.V,
-//   // 排序的依据是每个节点的key，也就是在这里的sptree[i].weight
-//   bheap heap;
-
-//   // Q = V - S
-//   while (!bheap_is_empty(&heap)) {
-//     // top
-//     vertex_t u;
-
-//     // S = S U u
-//     // 这个可以使用一个数组来实现，其中每个元素都有一个标志位
-
-//     // for v in adj[u]
-//     //      relax(u, v, w(u, v))
-//   }
-// }
-
-// // 算法本身非常的简单，我要分析一下为什么可以找到最短路径
-// // 算法的实现非常简单，但是说实话，我并没有完全理解它
-// // 只能很模糊去的认同它
-
-// // 所有节点对之间的单元最短路径
-// // 网络最大流问题 流问题
-// // 这两个算法都好复杂，而且不知道有什么用，就是是做题，感觉也没啥用啊
-// // 就先不弄了
+// 用于mst spt算法
+bool weight_less(const void *lhs, const void *rhs) {
+  return *(weight_t *)lhs < *(weight_t *)rhs;
+}
 
 #endif // __SPARE_GRAPH_H__
