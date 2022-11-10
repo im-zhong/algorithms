@@ -18,7 +18,7 @@ void test_sort(sort_fn sort) {
   }
 
   // case 2
-  value_t nums2[] = {1, 2};
+  value_t nums2[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
   size_t size2 = sizeof(nums2) / sizeof(value_t);
   sort(nums2, size2);
   for (size_t i = 0; i < size2 - 1; ++i) {
@@ -41,5 +41,6 @@ int main(int argc, char *argv[]) {
   test_sort(bubble_sort);
   test_sort(merge_sort);
   test_sort(quick_sort);
+  test_sort(heap_sort);
   return 0;
 }

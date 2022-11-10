@@ -10,6 +10,7 @@
 #define __SORT_H__
 
 #include <assert.h>
+#include <container/heap.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -194,7 +195,7 @@ size_t partition(value_t *key, size_t low, size_t high) {
   // 但是在下面的循环体中需要先++i 再判断 具体见算法4中的实现
   // 这里的实现是等价的
   size_t i = low + 1;
-  // 算法导论和算法4都选择将原理pivot的那边变成high+1
+  // 算法导论和算法4都选择将远离pivot的那边变成high+1
   // 为什么？ 为了对称 因为我们选择了pivot 那么i应该是从low+1开始的
   size_t j = high;
   // 两个指针同时向中间移动， 直到碰到一起
@@ -255,4 +256,35 @@ void quick_sort(value_t *key, size_t size) {
   quick_sort_impl(key, 0, size - 1);
 }
 
+// 还有堆排序 就是有一个问题 heap要求输入数组的0下标是不能使用的
+// 这是实现细节决定的 木的办法
+// 所以我们还是自己分配一个数组吧 但是堆排序是in-place的
+void heap_sort(value_t *key, size_t size) {
+
+  // 为了测试简单 还是提供一致的接口模型吧
+  value_t *data = (value_t *)malloc((size + 1) * sizeof(value_t));
+  for (size_t i = 0; i < size; ++i) {
+    data[i + 1] = key[i];
+  }
+
+  heap_t heap;
+  heap.data = data;
+  heap.size = size;
+  heap.capacity = size + 1;
+
+  // 构建最大堆
+  make_max_heap(&heap);
+
+  // for 头尾交换 fixdown
+  while (heap.size > 1) {
+    swap(data, 1, heap.size);
+    --heap.size;
+    max_fixdown(&heap, 1);
+  }
+
+  // 再拷贝回去
+  for (size_t i = 0; i < size; ++i) {
+    key[i] = data[i + 1];
+  }
+}
 #endif // __SELECTION_SORT_H__

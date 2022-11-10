@@ -1,6 +1,7 @@
 all: test.out
 
 CFLAGS = -g
+CPATH = ../
 
 test.out: test.o
 	$(CC) -o $@ $^; \
