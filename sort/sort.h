@@ -287,4 +287,13 @@ void heap_sort(value_t *key, size_t size) {
     key[i] = data[i + 1];
   }
 }
+
+// 三种线性时间排序
+// 这三个排序就不实现了 应用范围太窄
+// 不过他们的原理都非常简单 参考算法导论即可
+// counting sort
+// radix sort
+// 桶排序和哈希表非常非常的像
+// bucket sort
+
 #endif // __SELECTION_SORT_H__
