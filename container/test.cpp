@@ -6,6 +6,7 @@
 // i add some thing i do not want to commit
 
 #include "bheap.h"
+#include "c_string.h"
 #include "heap.h"
 #include "index_heap.h"
 #include "queue.h"
@@ -269,11 +270,22 @@ void test_iheap() {
   iheap_free(&heap);
 }
 
+void test_string() {
+  string_t src = make_string("hello");
+  for (int i = 0; i < 10; ++i) {
+    string_append(&src, "%d run\n", i);
+  }
+  string_append(&src, "\n");
+  printf("%s\n", src.data);
+  string_free(&src);
+}
+
 int main(int argc, char *argv[]) {
   test_containe_of();
   test_heap();
   test_bheap();
   test_iheap();
+  test_string();
 
   stack_init(stack);
 
