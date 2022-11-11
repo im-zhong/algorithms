@@ -3,6 +3,9 @@
 
 // 我需要生成一系列在指定范围内部的随机数
 
+#ifndef __C_RANDOM_H__
+#define __C_RANDOM_H__
+
 #include <assert.h>
 #include <stdlib.h>
 #include <time.h>
@@ -37,3 +40,5 @@ int crand(rand_t *r) {
   assert(y >= r->min && y <= r->max);
   return y;
 }
+
+#endif // __C_RANDOM_H__
