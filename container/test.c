@@ -6,15 +6,14 @@
 // i add some thing i do not want to commit
 
 #include "bheap.h"
+#include "c_random.h"
 #include "c_string.h"
 #include "heap.h"
 #include "index_heap.h"
 #include "queue.h"
 #include "stack.h"
-#include <cassert>
-#include <chrono>
+#include <assert.h>
 #include <malloc.h>
-#include <random>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -97,11 +96,9 @@ void test_heap() {
   // 先测最大堆
   heap_init(&heap, capacity);
   heap.data[0] = 0;
-  std::default_random_engine e(
-      std::chrono::system_clock::now().time_since_epoch().count());
-  std::uniform_int_distribution<int> ui(0, 100);
+  rand_t r = make_rand(0, 100);
   for (size_t i = 1; i < heap.capacity; ++i) {
-    heap.data[i] = ui(e);
+    heap.data[i] = crand(&r);
     heap.size++;
   }
 
@@ -117,7 +114,7 @@ void test_heap() {
   assert(heap.size == 0);
   // 因为下标从1开始 所以实际能使用的大小是 capacity - 1
   for (size_t i = 0; i < capacity - 1; ++i) {
-    max_heap_insert(&heap, ui(e));
+    max_heap_insert(&heap, crand(&r));
   }
   max_heap_check(&heap);
 
@@ -131,7 +128,7 @@ void test_heap() {
   assert(heap.size == 0);
   // 因为下标从1开始 所以实际能使用的大小是 capacity - 1
   for (size_t i = 0; i < capacity - 1; ++i) {
-    min_heap_insert(&heap, ui(e));
+    min_heap_insert(&heap, crand(&r));
   }
   min_heap_check(&heap);
 
@@ -162,11 +159,9 @@ void test_bheap() {
   // 先测最大堆
   bheap_init(&heap, capacity, less_equal_int);
   heap.data[0] = 0;
-  std::default_random_engine e(
-      std::chrono::system_clock::now().time_since_epoch().count());
-  std::uniform_int_distribution<int> ui(0, 100);
+  rand_t r = make_rand(0, 100);
   for (size_t i = 1; i < heap.capacity; ++i) {
-    numbers[i] = ui(e);
+    numbers[i] = crand(&r);
     heap.data[i] = &numbers[i];
     heap.size++;
   }
@@ -201,7 +196,7 @@ void test_bheap() {
   bheap_check(&heap);
   for (size_t i = 0; i < capacity; ++i) {
     // 对于每一个值 我们都随机切换成新的值
-    numbers[i] = ui(e);
+    numbers[i] = crand(&r);
     // 然后我们在heap中找到这个值
     for (size_t j = 1; j <= heap.size; ++j) {
       if (heap.data[j] == &numbers[i]) {
@@ -226,11 +221,9 @@ void test_iheap() {
   heap.key[0] = 0;
 
   // 初始化numbers
-  std::default_random_engine e(
-      std::chrono::system_clock::now().time_since_epoch().count());
-  std::uniform_int_distribution<int> ui(0, 100);
+  rand_t r = make_rand(0, 100);
   for (size_t i = 0; i < capacity; ++i) {
-    numbers[i] = ui(e);
+    numbers[i] = crand(&r);
   }
 
   // 测试heap insert
@@ -262,7 +255,7 @@ void test_iheap() {
 
   for (size_t i = 0; i < capacity - 1; ++i) {
     // 对于每一个值 我们都随机切换成新的值
-    numbers[i] = ui(e);
+    numbers[i] = crand(&r);
     iheap_update(&heap, i);
     iheap_check(&heap);
   }

@@ -1,7 +1,7 @@
 all: main.out
-CXXFLAGS += -g
+CFLAGS += -g
 
-debug: CXXFLAGS += -g
+debug: CFLAGS += -g
 debug: all
 
 .PHONY: test
@@ -9,7 +9,7 @@ test: test.out
 	./test.out
 
 test.out: test.o
-	$(CXX) -o $@ $^
+	$(CC) -o $@ $^
 
 # 我这样写的不对 不过某个头文件改了 那么这个是不会自动重新编译的
 # makefile 会根据后面的依赖决定会不会重新编译
