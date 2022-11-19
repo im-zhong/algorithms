@@ -2,8 +2,8 @@
 // zhangzhong
 // vector
 
-#ifndef __VECTOR_H__
-#define __VECTOR_H__
+#ifndef __VECTOR__
+#define __VECTOR__
 
 #include <stddef.h>
 #include <stdint.h>
