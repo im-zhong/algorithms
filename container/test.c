@@ -266,7 +266,8 @@ void test_iheap() {
 }
 
 void test_string() {
-  string_t src = make_string("hello");
+  // 这里传数就不对哎 为什么
+  string_t src = make_string("hello %d\n", 12345);
   for (int i = 0; i < 10; ++i) {
     string_append(&src, "%d run\n", i);
   }

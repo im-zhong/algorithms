@@ -7,6 +7,7 @@
 #define __C_RANDOM_H__
 
 #include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
@@ -31,13 +32,26 @@ rand_t make_rand(int min, int max) {
 
 int crand(rand_t *r) {
   int x = rand();
+  // printf("random: %d\n", x);
   // 0 - RAND_AMX
   // low - high
   // [a, b] -> [c, d]
   // (x - a) / (b - a) = (y - c) / (d - c)
   // y = c + (d - c) * (x - a) / (b - a)
+  // 这个式子是不对的呀，如果max -min 非常大 或者我们生成的随机数非常大
+  // 这个式子是溢出的 溢出会导致r->min + 负数 导致assert
+  // min -> max之间的可能并不是均匀分布的 i think
   int y = r->min + (r->max - r->min) * (x - 0) / (RAND_MAX - 0);
-  assert(y >= r->min && y <= r->max);
+  if (y < r->min) {
+    y = r->min;
+  }
+  if (y > r->max) {
+    y = r->max;
+  }
+  // if (!(y >= r->min && y <= r->max)) {
+  //   printf("min: %d, max: %d, random: %d, y: %d\n", r->min, r->max, x, y);
+  //   assert(false);
+  // }
   return y;
 }
 

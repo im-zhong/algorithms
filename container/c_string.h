@@ -58,6 +58,13 @@ void string_free(string_t *string) {
   string->capacity = 0;
 }
 
+void free_string(string_t *string) {
+  free(string->data);
+  string->data = NULL;
+  string->size = 0;
+  string->capacity = 0;
+}
+
 // 还有一系列的to_string 最好是包装一下
 // 然后还得有一个append函数
 
@@ -81,9 +88,21 @@ string_t make_string(const char *fmt, ...) {
   string.capacity = 0;
   va_list ap;
   va_start(ap, fmt);
-  string_append(&string, fmt, ap);
+  // 这样写不对的，append的输入参数 ... 我们不能传ap
+  // string_append(&string, fmt, ap);
+  char *data = NULL;
+  size_t size = vasprintf(&data, fmt, ap);
   va_end(ap);
+  string_concat(&string, data, size);
   return string;
+}
+
+void string_clear(string_t *string) {
+  assert(string);
+  string->size = 0;
+  if (string->capacity > 0) {
+    string->data[0] = '\0';
+  }
 }
 
 #endif // __C_STRING_H__

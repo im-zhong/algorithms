@@ -32,6 +32,8 @@ vector_t make_vector(size_t capacity) {
   return vector;
 }
 
+vector_t vector_clear(vector_t *vector) { vector->size = 0; }
+
 void realloc_vector(vector_t *vector) {
   assert(vector);
 
