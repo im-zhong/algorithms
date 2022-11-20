@@ -8,10 +8,12 @@
 #include "bheap.h"
 #include "c_random.h"
 #include "c_string.h"
+#include "def.h"
 #include "heap.h"
 #include "index_heap.h"
 #include "queue.h"
 #include "stack.h"
+#include "vector.h"
 #include <assert.h>
 #include <malloc.h>
 #include <stdio.h>
@@ -273,12 +275,25 @@ void test_string() {
   string_free(&src);
 }
 
+void test_vector() {
+  vector_t vector = make_vector(8);
+  for (int i = 0; i < 10; ++i) {
+    vector_push_back(&vector, i);
+  }
+  for (int i = 9; i >= 0; --i) {
+    assert(i == vector_back(&vector));
+    vector_pop_back(&vector);
+  }
+  free_vector(&vector);
+}
+
 int main(int argc, char *argv[]) {
   test_containe_of();
   test_heap();
   test_bheap();
   test_iheap();
   test_string();
+  test_vector();
 
   stack_init(stack);
 
