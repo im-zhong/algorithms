@@ -10,7 +10,6 @@ typedef struct __int_stack {
 } int_stack;
 
 int main(int argc, char *argv[]) {
-
   stack_init(my_stack);
   int_stack *entry = (int_stack *)malloc(sizeof(int_stack));
   stack_push(&my_stack, entry);
