@@ -168,6 +168,10 @@ static void heap_insert(heap_t *heap, value_t key, cmp_fn cmp) {
 }
 
 static void make_heap(heap_t *heap, cmp_fn cmp) {
+  // heap_parent(heap->size)其实就是最后一个元素的父节点
+  // 或者说是最后一个完全二叉树上的非叶子元素，内部节点
+  // 让该节点开始向上，每个节点进行一次下修
+  // 一直修正到根节点 就是一个堆了
   for (size_t i = heap_parent(heap->size); i >= heap_root(); --i) {
     heap_fixdown(heap, i, cmp);
   }

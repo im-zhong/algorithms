@@ -275,6 +275,7 @@ void heap_sort(value_t *key, size_t size) {
   // 构建最大堆
   make_max_heap(&heap);
 
+  // 其实就是一次pop
   // for 头尾交换 fixdown
   while (heap.size > 1) {
     swap(data, 1, heap.size);
