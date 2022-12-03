@@ -6,6 +6,7 @@
 #define __TREE_H__
 
 #include <assert.h>
+#include <limits.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -431,18 +432,28 @@ tree_node_t *tree_delete_impl(tree_node_t *root, value_t key) {
 // 搜索还有一个比较高级的 区间搜索 使用inorder traverse实现的 提供迭代器操作
 // 暂不实现 算法4中还有三个操作 select rank 需要size支持 暂不实现
 
-// 这个check是错误的
+// 二叉树要求左子树的中左右节点的值都比根节点小
+// 右子树中所有节点的值都比根节点大
+// 按照中序遍历 生成一个有序数列
+// 按照这样的思想，我们只需要中序遍历树，并在遍历的过程中使用一个int保存目前的最大值
+// 如果发现的数字越来越大 就是对的 ，一旦发现比目前的max要小的数据
+// 就说明结构不对
+void tree_check_impl(tree_node_t *root, value_t *max) {
+  if (root) {
+    tree_check_impl(root->left, max);
+    if (root->key >= *max) {
+      *max = root->key;
+    } else {
+      assert(false);
+    }
+    tree_check_impl(root->right, max);
+  }
+}
 
 void tree_check(tree_t *tree) {
   assert(tree);
-
-  // 1. 顺序: 左子树的所有节点都要小于等于根节点
-  // 右子树的所有节点都要大于等于根节点
-  // 2. size: size = left->size + right->size + 1 但是这个比较难维护呀
-  // 而且没有意义
-  // 这个检查可以使用递归实现 类似中序遍历
-
-  // 还不如遍历一遍生成一个链表 然后检查顺序呢
+  value_t max = INT_MIN; // 初值是int min
+  tree_check_impl(tree->root, &max);
 }
 
 #endif // __TREE_H__
