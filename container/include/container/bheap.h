@@ -40,8 +40,9 @@ typedef struct {
   bool (*predicate)(const void *lhs, const void *rhs);
 } bheap_t;
 
-void bheap_init(bheap_t *heap, size_t capacity,
-                bool (*predicate)(const void *lhs, const void *rhs)) {
+static inline void bheap_init(bheap_t *heap, size_t capacity,
+                              bool (*predicate)(const void *lhs,
+                                                const void *rhs)) {
   heap->size = 0;
   heap->capacity = capacity;
   heap->predicate = predicate;
@@ -49,9 +50,9 @@ void bheap_init(bheap_t *heap, size_t capacity,
   heap->data = (void **)malloc(heap->capacity * sizeof(void *));
 }
 
-void bheap_clear(bheap_t *heap) { heap->size = 0; }
+static inline void bheap_clear(bheap_t *heap) { heap->size = 0; }
 
-void bheap_free(bheap_t *heap) { free(heap->data); }
+static inline void bheap_free(bheap_t *heap) { free(heap->data); }
 
 // 二叉堆实际上是一个数组
 // 用来表示一颗近似的完全二叉树
@@ -114,7 +115,7 @@ static inline bool bheap_is_full(bheap_t *heap) {
   return heap->size == heap->capacity;
 }
 
-size_t bheap_fixdown(bheap_t *heap, size_t parent) {
+static inline size_t bheap_fixdown(bheap_t *heap, size_t parent) {
   size_t left = 0;
   size_t right = 0;
   size_t child = 0;
@@ -149,7 +150,7 @@ size_t bheap_fixdown(bheap_t *heap, size_t parent) {
 }
 
 // 我们把上滤和下滤这两个过程抽象出来
-size_t bheap_fixup(bheap_t *heap, size_t child) {
+static inline size_t bheap_fixup(bheap_t *heap, size_t child) {
   // 我们会不断的和parent去比 直到 parent, child 满足 cmp
   // 或者没有parent了
   size_t parent = 0;
@@ -171,7 +172,7 @@ size_t bheap_fixup(bheap_t *heap, size_t child) {
 // 那就选择用size表示实际的元素数量，然后我们实际占用的数组长度是size + 1,
 // 因为0未使用 数组下标是从 [1, size] 所以第一个元素是data[1],
 // 而最后一个元素是data[size]
-void bheap_pop(bheap_t *heap) {
+static inline void bheap_pop(bheap_t *heap) {
   // 其实left一定是小于right，我们可以削减判断的次数
 
   // 这个函数最好可以和fixdown结合起来，思考一下
@@ -193,7 +194,7 @@ void bheap_pop(bheap_t *heap) {
 // 还有一个操作，删除某个位置，这tm不和删除最小元是一样的？？？
 // 没什么好实现的
 
-void bheap_check(bheap_t *heap) {
+static inline void bheap_check(bheap_t *heap) {
   size_t child = 0;
   // 判断是否是一个二叉堆特别简单
   // 只需要遍历非叶子节点，然后判断一下他们的孩子是不是都比他们大或者小
@@ -214,7 +215,7 @@ void bheap_check(bheap_t *heap) {
 
 // 提供push操作
 // 还要考虑reallocate
-size_t bheap_push(bheap_t *heap, void *data) {
+static inline size_t bheap_push(bheap_t *heap, void *data) {
   // 插入一个值非常的简单
   // 就是把值放到最后一个位置
   // 然后从最后一个位置执行一次上修
@@ -228,7 +229,7 @@ size_t bheap_push(bheap_t *heap, void *data) {
 // 还需要实现一个操作 就是修改某个人的值
 // 就是说 我修改了size位置的值
 // 然后调用这个函数修正一下整个堆
-size_t bheap_update(bheap_t *heap, size_t pos) {
+static inline size_t bheap_update(bheap_t *heap, size_t pos) {
   assert(pos >= 1 && pos <= heap->size);
   size_t parent = bheap_parent(pos);
   // 不对啊 这里还要注意一些边界条件
@@ -239,7 +240,7 @@ size_t bheap_update(bheap_t *heap, size_t pos) {
   }
 }
 
-static void make_bheap(bheap_t *heap) {
+static inline void make_bheap(bheap_t *heap) {
   for (size_t i = heap_parent(heap->size); i >= heap_root(); --i) {
     bheap_fixdown(heap, i);
   }

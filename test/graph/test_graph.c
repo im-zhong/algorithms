@@ -1,39 +1,123 @@
 // 2022/11/7
 // zhangzhong
 
-#include "minimum_spanning_tree.h"
-#include "shortest_path.h"
-#include "spare_graph.h"
-#include <cassert>
-#include <fstream>
-#include <string>
+#include "graph/minimum_spanning_tree.h"
+#include "graph/shortest_path.h"
+#include "graph/spare_graph.h"
+#include "util/c_string.h"
+#include <assert.h>
+#include <stdio.h>
 
-std::string dot;
+string_t dot;
 void gen_graph_dot_handle(vertex_t from, vertex_t to, weight_t weight) {
-  dot += (" " + std::to_string(from) + " -> " + std::to_string(to) +
-          " [label=\"" + std::to_string(weight) + "\"]\n");
+  // dot += (" " + std::to_string(from) + " -> " + std::to_string(to) +
+  //         " [label=\"" + std::to_string(weight) + "\"]\n");
+  string_append(&dot, " %ld -> %ld [label=\"%g\"]\n", from, to, weight);
 }
 
 void gen_spare_graph_dot(spare_graph_t *graph) {
   // 遍历整张图
-  dot.clear();
-  dot += "digraph {\n";
-  spare_graph_for_each_edge(graph, gen_graph_dot_handle);
-  dot += "}\n";
+  // dot.clear();
+  // dot += "digraph {\n";
+  // spare_graph_for_each_edge(graph, gen_graph_dot_handle);
+  // dot += "}\n";
 
-  std::ofstream fout;
-  fout.open("spare_graph.dot");
-  fout << dot;
-  fout.close();
+  // std::ofstream fout;
+  // fout.open("spare_graph.dot");
+  // fout << dot;
+  // fout.close();
+
+  string_clear(&dot);
+  string_append(&dot, "digraph {\n");
+  spare_graph_for_each_edge(graph, gen_graph_dot_handle);
+  string_append(&dot, "}\n");
+
+  FILE *fp = fopen("spare_graph.dot", "w");
+  assert(fp);
+  fprintf(fp, "%s\n", dot.data);
+  fclose(fp);
+}
+
+void gen_bfs_dot(spare_graph_t *graph, bfs_t *bfstree) {
+  string_t dot = make_string("");
+  string_append(&dot, "digraph {\n");
+  for (size_t v = 0; v < graph->size; ++v) {
+    if (bfstree[v].visited && bfstree[v].prev >= 0) {
+      // dot += ("  " + std::to_string(bfstree[v].prev) + " -> " +
+      //         std::to_string(v) + "\n");
+      string_append(&dot, "  %ld -> %ld\n", bfstree[v].prev, v);
+    }
+  }
+  string_append(&dot, "}\n");
+
+  FILE *fp = fopen("bfstree.dot", "w");
+  assert(fp);
+  fprintf(fp, "%s\n", dot.data);
+  fclose(fp);
+  free_string(&dot);
 }
 
 // [vertex visit_time/finish_time]
 // 这里需要一个辅助函数 提供dfsforest 和 vertex
 // 你给我生成上面这个东西
-std::string dfsforest_node(dfsforest_t *dfs_forest, vertex_t vertex) {
-  return "\"" + std::to_string(vertex) + " " +
-         std::to_string(dfs_forest[vertex].visit_time) + "/" +
-         std::to_string(dfs_forest[vertex].finish_time) + "\"";
+string_t dfsforest_node(dfsforest_t *dfs_forest, vertex_t vertex) {
+  // return "\"" + std::to_string(vertex) + " " +
+  //        std::to_string(dfs_forest[vertex].visit_time) + "/" +
+  //        std::to_string(dfs_forest[vertex].finish_time) + "\"";
+  return make_string("\"%ld %ld/%ld\"", vertex, dfs_forest[vertex].visit_time,
+                     dfs_forest[vertex].finish_time);
+}
+
+void gen_dfs_dot(spare_graph_t *graph, dfsforest_t *dfsforest) {
+  string_t dot = make_string("");
+  string_append(&dot, "digraph {\n");
+  for (size_t v = 0; v < graph->size; ++v) {
+    // 深度优先搜索会访问所有节点
+    assert(dfsforest[v].color == black);
+    if (dfsforest[v].prev != -1) {
+      // from -> to
+      // prev(v) -> v
+      // dot += "  " + dfsforest_node(dfsforest, dfsforest[v].prev) + " -> " +
+      //        dfsforest_node(dfsforest, v) + "\n";
+      string_t prev = dfsforest_node(dfsforest, dfsforest[v].prev);
+      string_t next = dfsforest_node(dfsforest, v);
+      string_append(&dot, "  %s -> %s\n", prev.data, next.data);
+      free_string(&prev);
+      free_string(&next);
+    }
+  }
+  string_append(&dot, "}\n");
+
+  FILE *fp = fopen("dfsforest.dot", "w");
+  assert(fp);
+  fprintf(fp, "%s\n", dot.data);
+  fclose(fp);
+
+  free_string(&dot);
+}
+
+void gen_mst_dot(list_node_t *mst, const char *filename) {
+  edge_t *edge = NULL;
+
+  string_t dot = make_string("");
+  // 这次是无向图了
+  // a -- b [label = "lable"]
+  string_append(&dot, "graph {\n");
+  list_for_each_entry(edge, mst, edge_t, node) {
+    // dot += (" " + std::to_string(edge->v1) + " -- " +
+    // std::to_string(edge->v2) +
+    //         " [label=\"" + std::to_string(edge->weight) + "\"]\n");
+    string_append(&dot, " %ld -- %ld [label=\"%g\"]\n", edge->v1, edge->v2,
+                  edge->weight);
+  }
+  string_append(&dot, "}\n");
+
+  FILE *fp = fopen(filename, "w");
+  assert(fp);
+  fprintf(fp, "%s\n", dot.data);
+  fclose(fp);
+
+  free_string(&dot);
 }
 
 void test_spare_graph() {
@@ -56,15 +140,7 @@ void test_spare_graph() {
   assert(spare_graph_edge(&graph) == 7);
 
   // 遍历整张图
-  dot.clear();
-  dot += "digraph {\n";
-  spare_graph_for_each_edge(&graph, gen_graph_dot_handle);
-  dot += "}\n";
-
-  std::ofstream fout;
-  fout.open("spare_graph.dot");
-  fout << dot;
-  fout.close();
+  gen_spare_graph_dot(&graph);
 
   // test bfs
   vertex_t source = 0;
@@ -73,38 +149,11 @@ void test_spare_graph() {
 
   // 生成广度优先树
   // 非常简单 只需要遍历一遍bfstree 把所有visited的前驱打印一下就可以了
-  dot.clear();
-  dot += "digraph {\n";
-  for (size_t v = 0; v < graph.size; ++v) {
-    if (bfstree[v].visited && bfstree[v].prev >= 0) {
-      dot += ("  " + std::to_string(bfstree[v].prev) + " -> " +
-              std::to_string(v) + "\n");
-    }
-  }
-  dot += "}\n";
-
-  fout.open("bfstree.dot");
-  fout << dot;
-  fout.close();
+  gen_bfs_dot(&graph, bfstree);
 
   // test dfs
   dfsforest_t *dfsforest = dfs(&graph);
-  dot.clear();
-  dot += "digraph {\n";
-  for (size_t v = 0; v < graph.size; ++v) {
-    // 深度优先搜索会访问所有节点
-    assert(dfsforest[v].color == black);
-    if (dfsforest[v].prev != -1) {
-      // from -> to
-      // prev(v) -> v
-      dot += "  " + dfsforest_node(dfsforest, dfsforest[v].prev) + " -> " +
-             dfsforest_node(dfsforest, v) + "\n";
-    }
-  }
-  dot += "}\n";
-  fout.open("dfsforest.dot");
-  fout << dot;
-  fout.close();
+  gen_dfs_dot(&graph, dfsforest);
 
   free(dfsforest);
   free(bfstree);
@@ -112,9 +161,6 @@ void test_spare_graph() {
 }
 
 void test_mst() {
-
-  std::ofstream fout;
-
   spare_graph_t graph;
   spare_graph_init(&graph, 8);
 
@@ -134,24 +180,12 @@ void test_mst() {
   assert(spare_graph_edge(&graph) == 9);
   gen_spare_graph_dot(&graph);
 
-  list_node_t mst;
-  list_init_head(&mst);
+  list_node_t kruskal_mst;
+  list_init_head(&kruskal_mst);
   // 测试 最小生成树
-  mst_kruskal(&graph, &mst);
-  edge_t *edge = NULL;
-  dot.clear();
-  // 这次是无向图了
-  // a -- b [label = "lable"]
-  dot += "graph {\n";
-  list_for_each_entry(edge, &mst, edge_t, node) {
-    dot += (" " + std::to_string(edge->v1) + " -- " + std::to_string(edge->v2) +
-            " [label=\"" + std::to_string(edge->weight) + "\"]\n");
-  }
-  dot += "}\n";
+  mst_kruskal(&graph, &kruskal_mst);
 
-  fout.open("mst_kruskal.dot");
-  fout << dot;
-  fout.close();
+  gen_mst_dot(&kruskal_mst, "mst_kruskal.dot");
 
   assert(spare_graph_edge(&graph) == 9);
   gen_spare_graph_dot(&graph);
@@ -174,40 +208,32 @@ void test_mst() {
   list_init_head(&prim_mst);
   // 测试 最小生成树
   mst_prim(&graph, &prim_mst);
-  edge = NULL;
-  dot.clear();
-  // 这次是无向图了
-  // a -- b [label = "lable"]
-  dot += "graph {\n";
-  list_for_each_entry(edge, &prim_mst, edge_t, node) {
-    dot += (" " + std::to_string(edge->v1) + " -- " + std::to_string(edge->v2) +
-            " [label=\"" + std::to_string(edge->weight) + "\"]\n");
-  }
-  dot += "}\n";
-
-  fout.open("mst_prim.dot");
-  fout << dot;
-  fout.close();
+  gen_mst_dot(&prim_mst, "mst_prim.dot");
 
   // todo: free list
   spare_graph_free(&graph);
 }
 
 // 根据单源最短路返回的edge list 生成dot
-void gen_sp_dot(list_node_t *spt, std::string name) {
-  std::string dot;
+void gen_sp_dot(list_node_t *sp, const char *filename) {
+  string_t dot = make_string("");
   edge_t *edge = NULL;
-  dot += "digraph {\n";
-  list_for_each_entry(edge, spt, edge_t, node) {
-    dot += (" " + std::to_string(edge->v1) + " -> " + std::to_string(edge->v2) +
-            " [label=\"" + std::to_string(edge->weight) + "\"]\n");
+  string_append(&dot, "digraph {\n");
+  list_for_each_entry(edge, sp, edge_t, node) {
+    // dot += (" " + std::to_string(edge->v1) + " -> " +
+    // std::to_string(edge->v2) +
+    //         " [label=\"" + std::to_string(edge->weight) + "\"]\n");
+    string_append(&dot, " %ld -> %ld [label=\"%g\"]\n", edge->v1, edge->v2,
+                  edge->weight);
   }
-  dot += "}\n";
+  string_append(&dot, "}\n");
 
-  std::ofstream fout;
-  fout.open(name);
-  fout << dot;
-  fout.close();
+  FILE *fp = fopen(filename, "w");
+  assert(fp);
+  fprintf(fp, "%s\n", dot.data);
+  fclose(fp);
+
+  free_string(&dot);
 }
 
 void test_sp() {

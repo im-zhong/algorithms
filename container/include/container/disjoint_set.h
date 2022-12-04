@@ -60,7 +60,7 @@ typedef struct {
 // union(5, 6)
 //   0 0 0 0 0 5 0 0 0
 
-void disjoint_set_init(disjoint_set *djs, size_t size) {
+static inline void disjoint_set_init(disjoint_set *djs, size_t size) {
   // 将所有的元素初始化为-1 表示他是这个集合的树的根
   // 根的数值一定小于零 这样才能表示根
   // 根的数值的绝对值表示这个集合的元素数量
@@ -72,7 +72,7 @@ void disjoint_set_init(disjoint_set *djs, size_t size) {
     djs->set_forest[i] = -1;
 }
 
-void disjoint_set_free(disjoint_set *djs) {
+static inline void disjoint_set_free(disjoint_set *djs) {
   free(djs->set_forest);
   djs->set_forest = NULL;
   djs->size = 0;
@@ -83,7 +83,7 @@ void disjoint_set_free(disjoint_set *djs) {
 // find(x)， 从x到根路径上的每一个节点，都使他的父节点变成根
 // 这个find必须用递归实现
 // O(logN)
-long disjoint_set_find(disjoint_set *djs, long set) {
+static inline long disjoint_set_find(disjoint_set *djs, long set) {
   // 说明这个集合的根 直接返回
   if (djs->set_forest[set] < 0)
     return set;
@@ -95,7 +95,7 @@ long disjoint_set_find(disjoint_set *djs, long set) {
 // union by size
 // 数组的根保存的不是零，而是一个负数，表示的是子类的大小
 // O(log N)
-void disjoint_set_union(disjoint_set *djs, long lhs, long rhs) {
+static inline void disjoint_set_union(disjoint_set *djs, long lhs, long rhs) {
   lhs = disjoint_set_find(djs, lhs);
   rhs = disjoint_set_find(djs, rhs);
 

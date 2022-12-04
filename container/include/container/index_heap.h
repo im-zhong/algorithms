@@ -31,12 +31,13 @@ typedef struct {
 } iheap_t;
 
 // 他的接口和heap差不多
-void iheap_init(iheap_t *heap, void *value, size_t nvalue, size_t type_size,
-                size_t capacity,
-                bool (*predicate)(const void *lhs, const void *rhs));
+static inline void iheap_init(iheap_t *heap, void *value, size_t nvalue,
+                              size_t type_size, size_t capacity,
+                              bool (*predicate)(const void *lhs,
+                                                const void *rhs));
 
-void iheap_clear(iheap_t *heap);
-void iheap_free(iheap_t *heap);
+static inline void iheap_clear(iheap_t *heap);
+static inline void iheap_free(iheap_t *heap);
 
 // 其实这些东西是通用的呀 可以写一个共同的头文件 放在里面
 static inline size_t iheap_root() { return 1; }
@@ -54,24 +55,25 @@ static inline size_t iheap_right(size_t parent) {
 
 // 与bheap不同的是 堆的元素由外部提供
 // 并且保存在外部 所以我们返回索引就可以了
-size_t iheap_top(iheap_t *heap);
-void iheap_pop(iheap_t *heap);
-void iheap_push(iheap_t *heap, size_t index);
-void iheap_update(iheap_t *heap, size_t index);
+static inline size_t iheap_top(iheap_t *heap);
+static inline void iheap_pop(iheap_t *heap);
+static inline void iheap_push(iheap_t *heap, size_t index);
+static inline void iheap_update(iheap_t *heap, size_t index);
 
 static inline bool iheap_is_empty(iheap_t *heap) { return heap->size == 0; }
 
 static inline bool iheap_is_full(iheap_t *heap) {
   return heap->size == heap->capacity;
 }
-void iheap_fixdown(iheap_t *heap, size_t parent);
-void iheap_fixup(iheap_t *heap, size_t child);
-void iheap_check(iheap_t *heap);
+static inline void iheap_fixdown(iheap_t *heap, size_t parent);
+static inline void iheap_fixup(iheap_t *heap, size_t child);
+static inline void iheap_check(iheap_t *heap);
 
 // implementation
-void iheap_init(iheap_t *heap, void *value, size_t nvalue, size_t type_size,
-                size_t capacity,
-                bool (*predicate)(const void *lhs, const void *rhs)) {
+static inline void iheap_init(iheap_t *heap, void *value, size_t nvalue,
+                              size_t type_size, size_t capacity,
+                              bool (*predicate)(const void *lhs,
+                                                const void *rhs)) {
   heap->value = value;
   heap->nvalue = nvalue;
   heap->type_size = type_size;
@@ -88,8 +90,8 @@ void iheap_init(iheap_t *heap, void *value, size_t nvalue, size_t type_size,
   }
 }
 
-void iheap_clear(iheap_t *heap) { heap->size = 0; }
-void iheap_free(iheap_t *heap) {
+static inline void iheap_clear(iheap_t *heap) { heap->size = 0; }
+static inline void iheap_free(iheap_t *heap) {
   free(heap->key);
   free(heap->index);
 }
@@ -99,7 +101,7 @@ void iheap_free(iheap_t *heap) {
 // 也就是说 fixdown和fixup的逻辑是不知道底层是间接引用的
 // 这样实现起来就简单了
 // 然后这两个函数来隐式的处理间接引用
-void iheap_swap(iheap_t *heap, size_t left, size_t right) {
+static inline void iheap_swap(iheap_t *heap, size_t left, size_t right) {
   // !!! 应该先更新index数组 不然bug了
   // 同时更新index数组
   // 这一块比较难解释 可以看我的笔记
@@ -114,7 +116,7 @@ void iheap_swap(iheap_t *heap, size_t left, size_t right) {
 }
 
 // 处理间接索引
-bool iheap_cmp(iheap_t *heap, size_t left, size_t right) {
+static inline bool iheap_cmp(iheap_t *heap, size_t left, size_t right) {
   // 先通过间接索引拿到value数组中的索引
   size_t lhs = heap->key[left];
   size_t rhs = heap->key[right];
@@ -125,7 +127,7 @@ bool iheap_cmp(iheap_t *heap, size_t left, size_t right) {
   return heap->predicate(lptr, rptr);
 }
 
-void iheap_fixdown(iheap_t *heap, size_t parent) {
+static inline void iheap_fixdown(iheap_t *heap, size_t parent) {
   size_t left = 0;
   size_t right = 0;
   size_t child = 0;
@@ -155,7 +157,7 @@ void iheap_fixdown(iheap_t *heap, size_t parent) {
   }
 }
 
-void iheap_fixup(iheap_t *heap, size_t child) {
+static inline void iheap_fixup(iheap_t *heap, size_t child) {
   // 我们会不断的和parent去比 直到 parent, child 满足 cmp
   // 或者没有parent了
   size_t parent = 0;
@@ -168,9 +170,11 @@ void iheap_fixup(iheap_t *heap, size_t child) {
   }
 }
 
-size_t iheap_top(iheap_t *heap) { return heap->key[iheap_root()]; }
+static inline size_t iheap_top(iheap_t *heap) {
+  return heap->key[iheap_root()];
+}
 
-void iheap_pop(iheap_t *heap) {
+static inline void iheap_pop(iheap_t *heap) {
   size_t top = iheap_top(heap);
   // 头尾交换
   iheap_swap(heap, iheap_root(), heap->size);
@@ -182,7 +186,7 @@ void iheap_pop(iheap_t *heap) {
   iheap_fixdown(heap, iheap_root());
 }
 
-void iheap_push(iheap_t *heap, size_t index) {
+static inline void iheap_push(iheap_t *heap, size_t index) {
   assert(!iheap_is_full(heap));
   // 从这两句话可以非常明显的看出来 key 和 index 是相反的
   // 先放到key的最后一个
@@ -195,7 +199,7 @@ void iheap_push(iheap_t *heap, size_t index) {
 }
 
 // 这个应该重写 和之前的逻辑不太一样的
-void iheap_update(iheap_t *heap, size_t index) {
+static inline void iheap_update(iheap_t *heap, size_t index) {
   assert(index < heap->nvalue);
   size_t pos = heap->index[index];
   // 然后剩下的逻辑和之前一样
@@ -208,12 +212,12 @@ void iheap_update(iheap_t *heap, size_t index) {
   }
 }
 
-bool iheap_contain(iheap_t *heap, size_t index) {
+static inline bool iheap_contain(iheap_t *heap, size_t index) {
   return heap->index[index] != 0;
 }
 
 // 最重要的iheap_check 最大的不同就是要检查三个数组的一致性
-void iheap_check(iheap_t *heap) {
+static inline void iheap_check(iheap_t *heap) {
   size_t child = 0;
   // 判断是否是一个二叉堆特别简单
   // 只需要遍历非叶子节点，然后判断一下他们的孩子是不是都比他们大或者小

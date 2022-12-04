@@ -1,0 +1,62 @@
+[
+{
+  "directory": "/home/zhangzhong/src/cpp/algorithms/build/util",
+  "command": "/usr/bin/cc  -I/home/zhangzhong/src/cpp/algorithms/util/include -std=gnu17 -o CMakeFiles/util.dir/src/c_string.c.o -c /home/zhangzhong/src/cpp/algorithms/util/src/c_string.c",
+  "file": "/home/zhangzhong/src/cpp/algorithms/util/src/c_string.c"
+},
+{
+  "directory": "/home/zhangzhong/src/cpp/algorithms/build/util",
+  "command": "/usr/bin/cc  -I/home/zhangzhong/src/cpp/algorithms/util/include -std=gnu17 -o CMakeFiles/util.dir/src/c_random.c.o -c /home/zhangzhong/src/cpp/algorithms/util/src/c_random.c",
+  "file": "/home/zhangzhong/src/cpp/algorithms/util/src/c_random.c"
+},
+{
+  "directory": "/home/zhangzhong/src/cpp/algorithms/build/string",
+  "command": "/usr/bin/cc  -I/home/zhangzhong/src/cpp/algorithms/string/include -std=gnu17 -o CMakeFiles/string.dir/src/kmp.c.o -c /home/zhangzhong/src/cpp/algorithms/string/src/kmp.c",
+  "file": "/home/zhangzhong/src/cpp/algorithms/string/src/kmp.c"
+},
+{
+  "directory": "/home/zhangzhong/src/cpp/algorithms/build/sort",
+  "command": "/usr/bin/cc  -I/home/zhangzhong/src/cpp/algorithms/sort/include -I/home/zhangzhong/src/cpp/algorithms/container/include -std=gnu17 -o CMakeFiles/sort.dir/src/sort.c.o -c /home/zhangzhong/src/cpp/algorithms/sort/src/sort.c",
+  "file": "/home/zhangzhong/src/cpp/algorithms/sort/src/sort.c"
+},
+{
+  "directory": "/home/zhangzhong/src/cpp/algorithms/build/graph",
+  "command": "/usr/bin/cc  -I/home/zhangzhong/src/cpp/algorithms/graph/include -I/home/zhangzhong/src/cpp/algorithms/container/include -std=gnu17 -o CMakeFiles/graph.dir/src/spare_graph.c.o -c /home/zhangzhong/src/cpp/algorithms/graph/src/spare_graph.c",
+  "file": "/home/zhangzhong/src/cpp/algorithms/graph/src/spare_graph.c"
+},
+{
+  "directory": "/home/zhangzhong/src/cpp/algorithms/build/graph",
+  "command": "/usr/bin/cc  -I/home/zhangzhong/src/cpp/algorithms/graph/include -I/home/zhangzhong/src/cpp/algorithms/container/include -std=gnu17 -o CMakeFiles/graph.dir/src/shortest_path.c.o -c /home/zhangzhong/src/cpp/algorithms/graph/src/shortest_path.c",
+  "file": "/home/zhangzhong/src/cpp/algorithms/graph/src/shortest_path.c"
+},
+{
+  "directory": "/home/zhangzhong/src/cpp/algorithms/build/graph",
+  "command": "/usr/bin/cc  -I/home/zhangzhong/src/cpp/algorithms/graph/include -I/home/zhangzhong/src/cpp/algorithms/container/include -std=gnu17 -o CMakeFiles/graph.dir/src/minimum_spanning_tree.c.o -c /home/zhangzhong/src/cpp/algorithms/graph/src/minimum_spanning_tree.c",
+  "file": "/home/zhangzhong/src/cpp/algorithms/graph/src/minimum_spanning_tree.c"
+},
+{
+  "directory": "/home/zhangzhong/src/cpp/algorithms/build/test/util",
+  "command": "/usr/bin/cc  -I/home/zhangzhong/src/cpp/algorithms/util/include -std=gnu17 -o CMakeFiles/test_util.dir/test_util.c.o -c /home/zhangzhong/src/cpp/algorithms/test/util/test_util.c",
+  "file": "/home/zhangzhong/src/cpp/algorithms/test/util/test_util.c"
+},
+{
+  "directory": "/home/zhangzhong/src/cpp/algorithms/build/test/container",
+  "command": "/usr/bin/cc  -I/home/zhangzhong/src/cpp/algorithms/container/include -I/home/zhangzhong/src/cpp/algorithms/util/include -std=gnu17 -o CMakeFiles/test_container.dir/test_container.c.o -c /home/zhangzhong/src/cpp/algorithms/test/container/test_container.c",
+  "file": "/home/zhangzhong/src/cpp/algorithms/test/container/test_container.c"
+},
+{
+  "directory": "/home/zhangzhong/src/cpp/algorithms/build/test/sort",
+  "command": "/usr/bin/cc  -I/home/zhangzhong/src/cpp/algorithms/sort/include -I/home/zhangzhong/src/cpp/algorithms/container/include -std=gnu17 -o CMakeFiles/test_sort.dir/test_sort.c.o -c /home/zhangzhong/src/cpp/algorithms/test/sort/test_sort.c",
+  "file": "/home/zhangzhong/src/cpp/algorithms/test/sort/test_sort.c"
+},
+{
+  "directory": "/home/zhangzhong/src/cpp/algorithms/build/test/graph",
+  "command": "/usr/bin/cc  -I/home/zhangzhong/src/cpp/algorithms/graph/include -I/home/zhangzhong/src/cpp/algorithms/container/include -I/home/zhangzhong/src/cpp/algorithms/util/include -std=gnu17 -o CMakeFiles/test_graph.dir/test_graph.c.o -c /home/zhangzhong/src/cpp/algorithms/test/graph/test_graph.c",
+  "file": "/home/zhangzhong/src/cpp/algorithms/test/graph/test_graph.c"
+},
+{
+  "directory": "/home/zhangzhong/src/cpp/algorithms/build/test/string",
+  "command": "/usr/bin/cc  -I/home/zhangzhong/src/cpp/algorithms/string/include -std=gnu17 -o CMakeFiles/test_string.dir/test_string.c.o -c /home/zhangzhong/src/cpp/algorithms/test/string/test_string.c",
+  "file": "/home/zhangzhong/src/cpp/algorithms/test/string/test_string.c"
+}
+]

@@ -2,9 +2,6 @@
 // zhangzhong
 // spares graph, 稀疏图，边的条数|E|远远小于|V|^2
 
-#ifndef __SPARE_GRAPH_H__
-#define __SPARE_GRAPH_H__
-
 // 使用邻接链表
 // G = (V, E)
 //
@@ -42,12 +39,12 @@
 
 // 那么在这个文件里面，我将实现一个邻接矩阵表示的稀疏图
 
+#include "graph/spare_graph.h"
+#include "container/disjoint_set.h"
+#include "container/heap.h"
+#include "container/index_heap.h"
+#include "container/queue.h"
 #include <assert.h>
-#include <container/disjoint_set.h>
-#include <container/heap.h>
-#include <container/index_heap.h>
-#include <container/queue.h>
-#include <cstdlib>
 #include <float.h>
 #include <limits.h>
 #include <stddef.h>
@@ -56,43 +53,44 @@
 
 // 但是，我们的entry是什么呢？？
 
-typedef struct __spare_graph {
-  // 稀疏图实际上就是一个链表数组
+// typedef struct __spare_graph {
+//   // 稀疏图实际上就是一个链表数组
 
-  // 每一个节点应该有一个独一无二的标识，
-  // 这个标识实际上也应该由应用程序来决定，而不是库来决定
-  // 但是这里使用序号代替 也就是long或者int
-  // 这个可以使用一个typedef来定义, 就叫...叫啥好
-  // 因为这样可以直接根数组下标进行一个交互
+//   // 每一个节点应该有一个独一无二的标识，
+//   // 这个标识实际上也应该由应用程序来决定，而不是库来决定
+//   // 但是这里使用序号代替 也就是long或者int
+//   // 这个可以使用一个typedef来定义, 就叫...叫啥好
+//   // 因为这样可以直接根数组下标进行一个交互
 
-  // 图的所有节点
-  // 链表数组
-  // 如果是用链表数组来表示的话 那么我们是不能随意的增加节点的
-  // 因为节点的数量在一开始就规定好了 我们能做的就是增加和减少边
-  // 作为一个学习例子来讲是足够的 而且相对来说实现也比较简单 就酱吧
-  list_node_t *adjacency;
-  size_t size;
-} spare_graph_t;
+//   // 图的所有节点
+//   // 链表数组
+//   // 如果是用链表数组来表示的话 那么我们是不能随意的增加节点的
+//   // 因为节点的数量在一开始就规定好了 我们能做的就是增加和减少边
+//   // 作为一个学习例子来讲是足够的 而且相对来说实现也比较简单 就酱吧
+//   list_node_t *adjacency;
+//   size_t size;
+// } spare_graph_t;
 
-typedef int64_t vertex_t;
-// edge
-typedef double weight_t;
+// typedef int64_t vertex_t;
+// // edge
+// typedef double weight_t;
 
-// 广度优先搜索
-// G = (V, E) 和一个源点 s
+// // 广度优先搜索
+// // G = (V, E) 和一个源点 s
+// //
 // 按照广度进行搜索，也就是说，搜索完所有与s直接邻接的节点之后，才会搜索其他节点
-//
+// //
 
-typedef struct {
-  vertex_t vertex;
-  weight_t weight;
+// typedef struct {
+//   vertex_t vertex;
+//   weight_t weight;
 
-  // 如果这里不需要写这个 继承队列 就好了
-  // 就更加灵活
-  // 看来还是没有必要多此一举啊，越灵活越好
-  // INHERIT_QUEUE;
-  list_node_t node;
-} graph_entry_t;
+//   // 如果这里不需要写这个 继承队列 就好了
+//   // 就更加灵活
+//   // 看来还是没有必要多此一举啊，越灵活越好
+//   // INHERIT_QUEUE;
+//   list_node_t node;
+// } graph_entry_t;
 
 static inline graph_entry_t *make_graph_entry(vertex_t vertex,
                                               weight_t weight) {
@@ -102,12 +100,12 @@ static inline graph_entry_t *make_graph_entry(vertex_t vertex,
   return entry;
 }
 
-typedef struct {
-  vertex_t v1;
-  vertex_t v2;
-  weight_t weight;
-  list_node_t node;
-} edge_t;
+// typedef struct {
+//   vertex_t v1;
+//   vertex_t v2;
+//   weight_t weight;
+//   list_node_t node;
+// } edge_t;
 
 edge_t *make_edge(vertex_t from, vertex_t to, weight_t weight) {
   edge_t *edge = (edge_t *)malloc(sizeof(edge_t));
@@ -149,7 +147,7 @@ size_t spare_graph_edge(spare_graph_t *graph) {
   return edge;
 }
 
-typedef void (*handle)(vertex_t from, vertex_t to, weight_t weight);
+// typedef void (*handle)(vertex_t from, vertex_t to, weight_t weight);
 
 // 这实际上是遍历所有的边
 void spare_graph_for_each_edge(spare_graph_t *graph, handle handle) {
@@ -210,21 +208,21 @@ void spare_graph_delete_edge(spare_graph_t *graph, vertex_t from, vertex_t to) {
 // 咱们不要这个color了 实际实现是不需要的
 // enum vertex_color { white, black, gray };
 
-typedef struct {
-  // 这里的color可以变成一个bool，其实就是有没有访问的区别
-  bool visited;
-  // prev用于生成广度优先搜索树
-  vertex_t prev;
-  // distance用于生成最短路径
-  size_t distance;
-} bfs_t;
+// typedef struct {
+//   // 这里的color可以变成一个bool，其实就是有没有访问的区别
+//   bool visited;
+//   // prev用于生成广度优先搜索树
+//   vertex_t prev;
+//   // distance用于生成最短路径
+//   size_t distance;
+// } bfs_t;
 
-// vertex queue
-// 没有模板就是这么恶心
-typedef struct {
-  vertex_t vertex;
-  INHERIT_QUEUE;
-} vqueue_entry_t;
+// // vertex queue
+// // 没有模板就是这么恶心
+// typedef struct {
+//   vertex_t vertex;
+//   INHERIT_QUEUE;
+// } vqueue_entry_t;
 
 vqueue_entry_t *make_vqueue_entry(vertex_t vertex) {
   vqueue_entry_t *entry = (vqueue_entry_t *)malloc(sizeof(vqueue_entry_t));
@@ -354,28 +352,28 @@ void bfs_path(spare_graph_t *graph, vertex_t from, bfs_t *bfs) {
 // 所有的深度优先树是不相交的
 
 // 时间戳？？
-enum graph_color { white, gray, black };
+// enum graph_color { white, gray, black };
 
-typedef struct {
-  // 不对啊，我为什么要在这里面记录vertex
-  // 数组的下标就是vertex啊
-  // vertex_t vertex;
-  // 前驱
-  // 与广度优先搜索不同 dfs的前驱形成森林
-  vertex_t prev;
-  // 这里是两个时间戳,一个是入队的时间戳
-  // 我傻逼了，dfs哪有队列。。。
-  // 第一个时间就是visit时间，也就是第一次访问到这个节点的时间
-  // 也就是涂成灰色的时间
-  size_t visit_time;
-  // 因为是递归实现的，所以他需要回溯，第二个时间就会回溯回来的时间
-  // 每次访问一个新的节点都会使得time++
-  // 也就是变成黑色的时间
-  // 完成所有邻接节点访问的时间
-  size_t finish_time;
-  // 节点颜色
-  int color;
-} dfsforest_t;
+// typedef struct {
+//   // 不对啊，我为什么要在这里面记录vertex
+//   // 数组的下标就是vertex啊
+//   // vertex_t vertex;
+//   // 前驱
+//   // 与广度优先搜索不同 dfs的前驱形成森林
+//   vertex_t prev;
+//   // 这里是两个时间戳,一个是入队的时间戳
+//   // 我傻逼了，dfs哪有队列。。。
+//   // 第一个时间就是visit时间，也就是第一次访问到这个节点的时间
+//   // 也就是涂成灰色的时间
+//   size_t visit_time;
+//   // 因为是递归实现的，所以他需要回溯，第二个时间就会回溯回来的时间
+//   // 每次访问一个新的节点都会使得time++
+//   // 也就是变成黑色的时间
+//   // 完成所有邻接节点访问的时间
+//   size_t finish_time;
+//   // 节点颜色
+//   int color;
+// } dfsforest_t;
 
 void dfs_visit(spare_graph_t *graph, dfsforest_t *dfsforest, vertex_t vertex,
                size_t *time) {
@@ -431,10 +429,10 @@ dfsforest_t *dfs(spare_graph_t *graph) {
   return dfsforest;
 }
 
-typedef struct {
-  vertex_t vertex;
-  list_node_t node;
-} vlist_entry_t;
+// typedef struct {
+//   vertex_t vertex;
+//   list_node_t node;
+// } vlist_entry_t;
 
 vlist_entry_t *make_vlist_entry(vertex_t vertex) {
   vlist_entry_t *entry = (vlist_entry_t *)malloc(sizeof(vlist_entry_t));
@@ -548,4 +546,4 @@ bool weight_less(const void *lhs, const void *rhs) {
   return *(weight_t *)lhs < *(weight_t *)rhs;
 }
 
-#endif // __SPARE_GRAPH_H__
+// #endif // __SPARE_GRAPH_H__

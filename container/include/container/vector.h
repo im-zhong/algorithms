@@ -19,7 +19,7 @@ typedef struct __vector {
   size_t capacity;
 } vector_t;
 
-vector_t make_vector(size_t capacity) {
+static inline vector_t make_vector(size_t capacity) {
   vector_t vector;
   vector.data = NULL;
   vector.size = 0;
@@ -32,9 +32,9 @@ vector_t make_vector(size_t capacity) {
   return vector;
 }
 
-vector_t vector_clear(vector_t *vector) { vector->size = 0; }
+static inline vector_t vector_clear(vector_t *vector) { vector->size = 0; }
 
-void realloc_vector(vector_t *vector) {
+static inline void realloc_vector(vector_t *vector) {
   assert(vector);
 
   if (vector->capacity == 0)
@@ -45,7 +45,7 @@ void realloc_vector(vector_t *vector) {
       (value_t *)realloc(vector->data, vector->capacity * sizeof(value_t));
 }
 
-void free_vector(vector_t *vector) {
+static inline void free_vector(vector_t *vector) {
   assert(vector);
 
   free(vector->data);
@@ -54,7 +54,7 @@ void free_vector(vector_t *vector) {
   vector->capacity = 0;
 }
 
-vector_t copy_vector(vector_t *vector) {
+static inline vector_t copy_vector(vector_t *vector) {
   assert(vector);
   vector_t copy = make_vector(vector->capacity);
   copy.size = vector->size;
@@ -69,7 +69,7 @@ vector_t copy_vector(vector_t *vector) {
 // 非常难用
 // 还不如就写一个的int的vector呢
 // 虽然也没用
-void vector_push_back(vector_t *vector, value_t element) {
+static inline void vector_push_back(vector_t *vector, value_t element) {
   assert(vector);
 
   if (vector->size + 1 > vector->capacity)
@@ -79,20 +79,20 @@ void vector_push_back(vector_t *vector, value_t element) {
   ++(vector->size);
 }
 
-void vector_pop_back(vector_t *vector) {
+static inline void vector_pop_back(vector_t *vector) {
   assert(vector);
   if (vector->data == NULL && vector->size == 0)
     assert(false);
   --(vector->size);
 }
 
-value_t vector_front(vector_t *vector) {
+static inline value_t vector_front(vector_t *vector) {
   assert(vector);
   assert(vector->size > 0);
   return vector->data[0];
 }
 
-value_t vector_back(vector_t *vector) {
+static inline value_t vector_back(vector_t *vector) {
   assert(vector);
   assert(vector->data);
   assert(vector->size > 0);

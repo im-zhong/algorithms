@@ -1,10 +1,8 @@
 // 2022/11/9
 // zhangzhong
 
-#ifndef __SHORTEST_PATH_H__
-#define __SHORTEST_PATH_H__
-
-#include "spare_graph.h"
+#include "graph/shortest_path.h"
+#include "graph/spare_graph.h"
 #include <float.h>
 
 // ford算法
@@ -285,5 +283,3 @@ void sp_bellman_ford(spare_graph_t *graph, vertex_t vertex, weight_t *distance,
     }
   }
 }
-
-#endif // __SHORTEST_PATH_H__

@@ -1,10 +1,8 @@
 // 2022/11/9
 // zhangzhong
 
-#ifndef __MINIMUM_SPANNING_TREE_H__
-#define __MINIMUM_SPANNING_TREE_H__
-
-#include "spare_graph.h"
+#include "graph/minimum_spanning_tree.h"
+#include "graph/spare_graph.h"
 
 // kruskal
 // prim
@@ -168,5 +166,3 @@ void mst_prim(spare_graph_t *graph, list_node_t *mst) {
 
 // 还有一个问题，就是验证是否是最小生成树的问题
 // 在一篇论文中有所描述
-
-#endif // __MINIMUM_SPANNING_TREE_H__
