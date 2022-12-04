@@ -6,11 +6,9 @@
 // 然后找到第二小的元素 与第二个交换
 // ...
 
-#ifndef __SORT_H__
-#define __SORT_H__
-
+#include "sort/sort.h"
+#include "container/heap.h"
 #include <assert.h>
-#include <container/heap.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -20,7 +18,7 @@
 // 咱们把这个类型叫做 value_t
 
 // 我不能用这个 value_t 因为标准库已经用了
-typedef int64_t value_t;
+// typedef int64_t value_t;
 
 void swap(value_t *key, size_t i, size_t j) {
   value_t temp = key[i];
@@ -296,5 +294,3 @@ void heap_sort(value_t *key, size_t size) {
 // radix sort
 // 桶排序和哈希表非常非常的像
 // bucket sort
-
-#endif // __SELECTION_SORT_H__

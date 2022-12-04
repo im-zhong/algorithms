@@ -2,7 +2,7 @@
 // zhangzhong
 // test sort
 
-#include "sort.h"
+#include "sort/sort.h"
 #include <assert.h>
 
 typedef void (*sort_fn)(value_t *, size_t);
