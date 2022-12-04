@@ -6,6 +6,8 @@ project(Algorithms  VERSION 0.1
 
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED True)
+# generate compile_commands.json
+set(CMAKE_EXPORT_COMPILE_COMMANDS True)
 
 add_subdirectory(util)
 add_subdirectory(string)

@@ -13,3 +13,6 @@ Introduction to Algorithms, Third Edition
 9. todo: 我又寻思了一下，不好，还是用纯cmake来管理项目更好，之前我不会make，老是忘，但是自从写了acpl2e之后，忘了我也可以快速参考一下如何写make文件，非常方便。我一直学不会cmake的原因就是没有一个大型的自己写出来的cmake项目，现在花点力气改造完成，以后哪怕忘了cmake也可以快速参考。参考别人的永远都记不住。拉一个新的分支做这件事情，refactor,这样现在写的makefile也可以作为参考。
 10. todo: 学python，之后对有意思的算法做可视化
 11. 暂时就这样吧 还差search没弄，不过大同小异，cmake的基础使用算是明白了一点点
+
+# tips
+1. `cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 ..`

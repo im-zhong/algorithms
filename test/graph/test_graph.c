@@ -266,14 +266,14 @@ void test_sp() {
   list_node_t dag_spt;
   list_init_head(&dag_spt);
   weight_t *dag_distance = (weight_t *)malloc(graph.size * sizeof(weight_t));
-  sp_dijkstra(&graph, 0, dag_distance, &dag_spt);
+  sp_dag(&graph, 0, dag_distance, &dag_spt);
   gen_sp_dot(&dag_spt, "dag_spt.dot");
 
   list_node_t bellman_ford_spt;
   list_init_head(&bellman_ford_spt);
   weight_t *bellman_ford_distance =
       (weight_t *)malloc(graph.size * sizeof(weight_t));
-  sp_dijkstra(&graph, 0, bellman_ford_distance, &bellman_ford_spt);
+  sp_bellman_ford(&graph, 0, bellman_ford_distance, &bellman_ford_spt);
   gen_sp_dot(&bellman_ford_spt, "bellman_ford.dot");
 
   free(dag_distance);
