@@ -136,7 +136,11 @@ void skiplist_insert(skiplist_t *sl, value_t value) {
   sl->bottom.value = value;
   skipnode_t *work = sl->header;
   int current_level = sl->level;
-  skipnode_t *up = NULL;
+  // 没有人会关心tail的down是谁
+  // 就像没有人会关心bottom的值一样
+  // 我们让up = tail
+  // 可以省掉下面的if判断
+  skipnode_t *up = &sl->tail;
   // 一层一层的写 一个大循环就是处理一层
   // 一层一层的写从逻辑上更清晰一些
   // 外面一个大循环是一层
@@ -145,18 +149,24 @@ void skiplist_insert(skiplist_t *sl, value_t value) {
 
     // 我们首先找到value在该层合适的位置
     // 在每个循环开始 work总是指向该层链表的开始搜索的位置
+    assert(work->value < value);
     for (; value >= work->right->value; work = work->right)
       ;
+    assert(work->value <= value);
+    assert(value < work->right->value);
+    // 跳出循环时 满足下面的关系式
+    // work->value <= value < work->right->value
 
     // 如果我们找到了对应的值
     if (value == work->value) {
       // 这意味着我们不需要再向下插入了
-      if (up) {
-        // 如果此时up有效 可能是一种特殊的情况
-        // 就是待插入的值存在 但是新产生的level值比它大
-        // 所以我们再上层建立了新的索引
-        up->down = work;
-      }
+      //   if (up) {
+      //     // 如果此时up有效 可能是一种特殊的情况
+      //     // 就是待插入的值存在 但是新产生的level值比它大
+      //     // 所以我们再上层建立了新的索引
+      //     up->down = work;
+      //   }
+      up->down = work;
       return;
     }
 
@@ -178,9 +188,10 @@ void skiplist_insert(skiplist_t *sl, value_t value) {
       // 这里以防万一先写成bottom
       // new_node->down = &sl->bottom;
       // 如果上一层有索引的话 那么应该在这里更新他的down指针
-      if (up) {
-        up->down = new_node;
-      }
+      //   if (up) {
+      //     up->down = new_node;
+      //   }
+      up->down = new_node;
       up = new_node;
     }
 
