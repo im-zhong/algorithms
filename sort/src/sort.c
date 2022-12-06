@@ -8,6 +8,7 @@
 
 #include "sort/sort.h"
 #include "container/heap.h"
+#include "container/list.h"
 #include <assert.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -294,3 +295,122 @@ void heap_sort(value_t *key, size_t size) {
 // radix sort
 // 桶排序和哈希表非常非常的像
 // bucket sort
+
+value_t select_value_impl(value_t *key, size_t low, size_t high, size_t i) {
+  size_t p = partition(key, low, high);
+  // 每次partition返回的q 就是已经正确排序的
+  // 所以如果i == q
+  // 如果i < q, 就在左边找
+  // 如果i > q，就在右边找
+  if (i == p) {
+    return key[p];
+  } else if (i < p) {
+    return select_value_impl(key, low, p - 1, i);
+  } else {
+    return select_value_impl(key, p + 1, high, i);
+  }
+}
+
+// 在数组中寻找第i小的元素
+value_t select_value(value_t *key, size_t size, size_t i) {
+  return select_value_impl(key, 0, size - 1, i);
+}
+
+void counting_sort(value_t *key, size_t size, size_t max) {
+  value_t *counting = (value_t *)malloc(sizeof(value_t) * max);
+  value_t *tmp = (value_t *)malloc(sizeof(value_t) * max);
+
+  for (size_t i = 0; i < max; ++i) {
+    tmp[i] = 0;
+    counting[i] = 0;
+  }
+
+  // 遍历输入数组，将属于元素当作key
+  // 如果读到key 就++
+  for (size_t i = 0; i < size; ++i) {
+    counting[key[i]]++;
+  }
+  // 现在C数组就表示输入数组中的元素分布
+  // C[key] = 2 就表示输入数组中有两个key
+
+  // 然后遍历counting数组
+  // 遍历累加，这样counting[key] = 2 就表示 <= key 的元素有2个
+  for (size_t i = 1; i < max; ++i) {
+    counting[i] += counting[i - 1];
+  }
+
+  for (size_t i = size; i > 0; --i) {
+    // 这样的话，counting[key] = 2 就表示key的正确位置就是2
+    // 这是因为共有2个元素小于等于key
+    // 但是正确的位置是 2 - 1
+    // 因为下标是从零开始的
+    tmp[counting[key[i - 1]] - 1] = key[i - 1];
+    // 我们把一个元素拿出去之后，小于等于key的元素就应该减1
+    counting[key[i - 1]]--;
+  }
+
+  // 然后将排好序的数组复制回去
+  for (size_t i = 0; i < size; ++i) {
+    key[i] = tmp[i];
+  }
+}
+
+// 我要怎么排序呢？？
+// 创建链表，然后遍历数组的时候先进行一个hash 也就是mod
+// 然后进行一个插入链表的时候保证顺序
+// 然后遍历链表数组，按顺序输出到原输入数组即可
+
+// 我还要声明一个valueentry
+typedef struct {
+  list_node_t node;
+  value_t value;
+} ventry_t;
+
+void bucket_sort(value_t *key, size_t size, size_t max) {
+  // 有点难写 明天再写吧
+
+  // 那么我要分配多少个
+  // 要分配和size一样多的链表 不然怎么是O(n)呢
+
+  list_node_t *buckets = (list_node_t *)malloc(sizeof(list_node_t) * size);
+  // 初始化所有链表
+  for (size_t i = 0; i < size; ++i) {
+    list_init_head(&buckets[i]);
+  }
+
+  for (size_t i = 0; i < size; ++i) {
+    // 为什么需要这么算, 原来如此
+    // 从浮点数的角度理解
+    // (key[i] / max) < 1
+    // (key[i] / max) * size 最终结果就是正确的下标
+    // 0.5 * 8 = 4
+    // 但是整数除法会导致下标永远是零 所以先算了乘法
+    // 这就导致这个式子可能溢出 所以仅适用于小整数的排序
+    size_t j = key[i] * size / max;
+    // 这样算出来的下标还是对的吗
+    ventry_t *ventry = (ventry_t *)malloc(sizeof(ventry_t));
+    ventry->value = key[i];
+
+    ventry_t *entry = NULL;
+    list_for_each_entry(entry, &buckets[j], ventry_t, node) {
+      // 一直比较到一个 >= 我们的元素
+      if (entry->value >= key[i]) {
+        break;
+      }
+    }
+    // 然后在它前面插入就好
+    list_insert_before(&entry->node, &ventry->node);
+  }
+
+  // 然后遍历所有的链表 按顺序输出出来即可
+  size_t i = 0;
+  ventry_t *entry = NULL;
+  for (size_t j = 0; j < size; ++j) {
+    list_for_each_entry(entry, &buckets[j], ventry_t, node) {
+      // 我顺便输出一个下这个链表数组吧
+      // 我还是觉得这个映射非常的神奇
+      key[i] = entry->value;
+      ++i;
+    }
+  }
+}

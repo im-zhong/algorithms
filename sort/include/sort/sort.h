@@ -51,4 +51,25 @@ void heap_sort(value_t *key, size_t size);
 // 桶排序和哈希表非常非常的像
 // bucket sort
 
+// 同时得出最小值和最大值
+
+// 选择第i小的值
+value_t select_value(value_t *key, size_t size, size_t index);
+
+// 线性时间排序
+
+// 计数排序假设n个输入元素中的每一个都是在o - max-1区间内的一个整数
+void counting_sort(value_t *key, size_t size, size_t max);
+
+// 基数排序在字符串部分实现
+// void radix_sort(value_t *key, size_t size);
+
+// 桶排序假设输入数据服从均匀分布
+// 将输入数据分成n个相同大小的桶
+// 然后在桶内排序
+// 然后按次序把各个桶的元素输出出来即可
+// 算法需要假设输入数组的数据范围
+// 算法假设输入数据来自 [0, max] 均匀分布
+void bucket_sort(value_t *key, size_t size, size_t max);
+
 #endif // __SELECTION_SORT_H__
