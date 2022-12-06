@@ -1,3 +1,1 @@
-project(search)
-
-# todo
+add_subdirectory(skiplist)
