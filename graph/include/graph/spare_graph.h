@@ -255,4 +255,9 @@ bool spare_graph_has_circle(spare_graph_t *graph);
 // 用于mst spt算法
 bool weight_less(const void *lhs, const void *rhs);
 
+// todo: 我想要一个无向图判断环路的方法
+// 非常简单 和kruskal的思想一样
+// 遍历所有的边 每次碰到两个不在同一集合的边 就让两个集合合并
+// 一旦碰到一条新的边 连接了同一个集合 那么就说明无向图有环
+
 #endif // __SPARE_GRAPH_H__
