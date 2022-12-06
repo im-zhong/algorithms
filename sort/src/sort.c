@@ -296,6 +296,10 @@ void heap_sort(value_t *key, size_t size) {
 // 桶排序和哈希表非常非常的像
 // bucket sort
 
+// todo:
+// 这里会出现和快排一样的问题
+// 就是返回的p是零
+// 但是返回的p是 不会导致问题 因为 没有任何数字小于零 所以应该没问题
 value_t select_value_impl(value_t *key, size_t low, size_t high, size_t i) {
   size_t p = partition(key, low, high);
   // 每次partition返回的q 就是已经正确排序的
