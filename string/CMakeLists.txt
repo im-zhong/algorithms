@@ -3,7 +3,8 @@ project(string)
 add_library(${PROJECT_NAME} STATIC
     src/kmp.c
     src/sort.c
-    src/trie.c)
+    src/trie.c
+    src/suffix_array.c)
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC include)

@@ -6,6 +6,7 @@
 #include "container/strset.h"
 #include "string/kmp.h"
 #include "string/sort.h"
+#include "string/suffix_array.h"
 #include "string/trie.h"
 #include "util/c_random.h"
 #include "util/c_string.h"
@@ -255,13 +256,68 @@ void test_random_trie() {
   free_strset(&set);
 }
 
+void test_lrs() {
+  // 生成随机字符串
+  while (true) {
+    string_t str = random_string(256, 1024);
+
+    string_t lrs1 = lrs_slow(str.data);
+    string_t lrs2 = lrs(str.data);
+    assert(strcmp(lrs1.data, lrs2.data));
+
+    free_string(&str);
+  }
+}
+
+void test_kwic(int argc, char **argv) {
+  FILE *stream;
+  char *line = NULL;
+  size_t len = 0;
+  ssize_t nread;
+
+  if (argc == 1) {
+    stream = stdin;
+  } else if (argc == 2) {
+    stream = fopen(argv[1], "r");
+    if (stream == NULL) {
+      perror("fopen");
+      exit(EXIT_FAILURE);
+    }
+  } else {
+    fprintf(stderr, "Usage: %s [file]\n", argv[0]);
+    exit(EXIT_FAILURE);
+  }
+
+  string_t str = make_string("");
+  while ((nread = getline(&line, &len, stream)) != -1) {
+    string_concat(&str, line, nread);
+  }
+
+  free(line);
+  fclose(stream);
+
+  // 然后开始执行kwic
+  suffix_array_t *sa = make_suffix_array(str.data, str.size);
+  // 然后等待用户输入字符串
+  char input[1024] = {'\0'};
+  while (true) {
+    printf("> ");
+    scanf("%1023s", input);
+    kwic(sa, input);
+  }
+}
+
 int main(int argc, char *argv[]) {
-  test_calculate_prefix();
-  test_kmp();
-  test_lsd_sort();
-  test_msd_sort();
-  test_trie();
-  test_trie_delete_prefix();
-  test_random_trie();
+  // test_calculate_prefix();
+  // test_kmp();
+  // test_lsd_sort();
+  // test_msd_sort();
+  // test_trie();
+  // test_trie_delete_prefix();
+  // // test_random_trie();
+  // test_lrs();
+
+  test_kwic(argc, argv);
+
   return 0;
 }
