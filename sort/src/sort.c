@@ -322,7 +322,7 @@ value_t select_value(value_t *key, size_t size, size_t i) {
 
 void counting_sort(value_t *key, size_t size, size_t max) {
   value_t *counting = (value_t *)malloc(sizeof(value_t) * max);
-  value_t *tmp = (value_t *)malloc(sizeof(value_t) * max);
+  value_t *tmp = (value_t *)malloc(sizeof(value_t) * size);
 
   for (size_t i = 0; i < max; ++i) {
     tmp[i] = 0;
