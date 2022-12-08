@@ -21,4 +21,6 @@ rand_t make_rand(int min, int max);
 
 int crand(rand_t *r);
 
+int rrand(int min, int max);
+
 #endif // __C_RANDOM_H__

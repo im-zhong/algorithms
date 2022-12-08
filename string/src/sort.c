@@ -71,10 +71,15 @@ static void insertion_sort(char **str, int low, int high) {
 
 static int random_middle(char **str, int low, int high) {
   // 随机取三个数
-  rand_t r = make_rand(low, high);
-  int i = crand(&r);
-  int j = crand(&r);
-  int k = crand(&r);
+  // 这里的随机会导致问题
+  // 用新的随机数的实现
+  // rand_t r = make_rand(low, high);
+  // int i = crand(&r);
+  // int j = crand(&r);
+  // int k = crand(&r);
+  int i = rrand(low, high);
+  int j = rrand(low, high);
+  int k = rrand(low, high);
 
   // 取三个的中位数
   // 类似插入排序的方式比较他们

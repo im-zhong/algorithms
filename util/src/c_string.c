@@ -100,3 +100,13 @@ void string_clear(string_t *string) {
     string->data[0] = '\0';
   }
 }
+
+void string_pushback(string_t *string, char c) {
+  string_append(string, "%c", c);
+}
+
+void string_popback(string_t *string) {
+  assert(string->size > 0);
+  string->size--;
+  string->data[string->size] = '\0';
+}

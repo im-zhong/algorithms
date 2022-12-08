@@ -16,10 +16,12 @@ void check_array_order(value_t *data, size_t size) {
   }
 }
 
-string_t random_string(rand_t *r, size_t len) {
+// 还要给一个rand_t类型是真的扯淡 难道就不能静态吗 ？？？
+string_t random_string(size_t min, size_t max) {
+  int len = rrand(min, max);
   string_t str = make_string("");
   for (size_t i = 0; i < len; i++) {
-    string_append(&str, "%c", (char)crand(r));
+    string_append(&str, "%c", (char)rrand('a', 'g'));
   }
   return str;
 }

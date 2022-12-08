@@ -44,4 +44,9 @@ string_t make_string(const char *fmt, ...);
 
 void string_clear(string_t *string);
 
+// 实现两个函数用于支持trie
+void string_pushback(string_t *string, char c);
+
+void string_popback(string_t *string);
+
 #endif // __C_STRING_H__

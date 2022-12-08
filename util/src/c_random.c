@@ -68,3 +68,29 @@ int crand(rand_t *r) {
   }
   return y;
 }
+
+// range rand
+int rrand(int min, int max) {
+  assert(max >= min);
+  assert(min >= 0);
+  // 这里唯一的问题就是种子需要设置 怎么保证种子会被设置呢??
+  // 方法就是使用 static rand
+  static bool set_seed = false;
+  if (!set_seed) {
+    srand(time(NULL));
+    set_seed = true;
+  }
+
+  int x = rand();
+  int y = 0;
+  if (max - min != RAND_MAX) {
+    y = min + x % (max - min + 1);
+  } else {
+    y = x;
+  }
+  if (!(y >= min && y <= max)) {
+    printf("min: %d, max: %d, random: %d, y: %d\n", min, max, x, y);
+    assert(false);
+  }
+  return y;
+}
