@@ -111,6 +111,8 @@ static inline void *bheap_top(bheap_t *heap) { return heap->data[heap_root()]; }
 
 static inline bool bheap_is_empty(bheap_t *heap) { return heap->size == 0; }
 
+static inline size_t bheap_size(bheap_t *heap) { return heap->size; }
+
 static inline bool bheap_is_full(bheap_t *heap) {
   return heap->size == heap->capacity;
 }
@@ -172,7 +174,7 @@ static inline size_t bheap_fixup(bheap_t *heap, size_t child) {
 // 那就选择用size表示实际的元素数量，然后我们实际占用的数组长度是size + 1,
 // 因为0未使用 数组下标是从 [1, size] 所以第一个元素是data[1],
 // 而最后一个元素是data[size]
-static inline void bheap_pop(bheap_t *heap) {
+static inline void *bheap_pop(bheap_t *heap) {
   // 其实left一定是小于right，我们可以削减判断的次数
 
   // 这个函数最好可以和fixdown结合起来，思考一下
@@ -189,6 +191,7 @@ static inline void bheap_pop(bheap_t *heap) {
   --heap->size;
   // 然后启动一次下滤
   bheap_fixdown(heap, heap_root());
+  return value;
 }
 
 // 还有一个操作，删除某个位置，这tm不和删除最小元是一样的？？？
