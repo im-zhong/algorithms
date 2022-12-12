@@ -22,24 +22,23 @@ int main(int argc, char *argv[]) {
   if (strcmp(argv[1], "-c") == 0) {
     // 压缩
     // 不论哪种方式 我们都需要打开文件
-    FILE *stream = fopen(argv[2], "r");
-    if (stream == NULL) {
-      printf("%s: open %s failed.\n", argv[0], argv[2]);
-      exit(EXIT_FAILURE);
-    }
+    // FILE *stream = fopen(argv[2], "r");
+    // if (stream == NULL) {
+    //   printf("%s: open %s failed.\n", argv[0], argv[2]);
+    //   exit(EXIT_FAILURE);
+    // }
 
     // 我们需要顺序遍历一遍文件
-    huffman_compress(stream);
+    // 这其实是一个东西
+    // 我们用两个参数传递了一个东西
+    // 其实就是一个文件名
+    huffman_compress(argv[2]);
 
-    fclose(stream);
+    // fclose(stream);
 
   } else if (strcmp(argv[1], "-d") == 0) {
     // 解压缩
-    FILE *stream = fopen(argv[2], "r");
-    if (stream == NULL) {
-      printf("%s: open %s failed.\n", argv[0], argv[2]);
-      exit(EXIT_FAILURE);
-    }
+    huffman_decompress(argv[2]);
 
   } else {
     printf("Usage: %s -c|-d <filename>\n", argv[0]);

@@ -33,7 +33,7 @@ void test_bitbuf_write(char *filename) {
 
   bitbuf_t *bf = make_bitbuf(stream);
   for (int i = 0; i < NUM; i++) {
-    bitbuf_write(bf, bits[i]);
+    bitbuf_write_bit(bf, bits[i]);
   }
   bitbuf_flush(bf);
 
@@ -52,7 +52,7 @@ void test_bitbuf_read(char *filename) {
   bitbuf_t *bf = make_bitbuf(stream);
   int bit = 0;
   for (int i = 0; i < NUM; i++) {
-    assert(bitbuf_read(bf, &bit));
+    assert(bitbuf_read_bit(bf, &bit));
     assert(bit == bits[i]);
   }
   printf("\n");

@@ -5,11 +5,14 @@
 #ifndef __BITBUF__
 #define __BITBUF__
 
+#include "container/vector.h"
+#include "util/c_string.h"
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 
-#define BITBUF_SIZE 2
+#define BITBUF_SIZE 1024
 
 // bitbuf读写不能同时使用
 // 要么只能用读 要么只能用写
@@ -21,7 +24,7 @@ typedef struct {
 
   // 为什么要用character??
   // 因为我们从文件中读取内容是一次读一个byte吧
-  char buf[BITBUF_SIZE];
+  unsigned char buf[BITBUF_SIZE];
   // 表示现在buf中的bit数量
   // 只有read过程会用到n
   size_t n;
@@ -45,10 +48,26 @@ void free_bitbuf(bitbuf_t *bf);
 // 模仿unix的read和write返回的方式
 // bit的类型用int是不是更好一点, 这样编程可以用 write(0) write(1) 这样
 // 而不是别扭的 write(false) write(true)
-int bitbuf_read(bitbuf_t *bf, int *bit);
+int bitbuf_read_bit(bitbuf_t *bf, int *bit);
 
 // 将一个bit写入bf
-int bitbuf_write(bitbuf_t *bf, int bit);
+int bitbuf_write_bit(bitbuf_t *bf, int bit);
+
+int bitbuf_read_byte(bitbuf_t *bf, unsigned int *byte);
+
+int bitbuf_write_byte(bitbuf_t *bf, unsigned int byte);
+
+int bitbuf_read_len(bitbuf_t *bf, uint64_t *len);
+
+int bitbuf_write_len(bitbuf_t *bf, uint64_t len);
+
+// 你想读多少字节呢
+int bitbuf_read_vector(bitbuf_t *bf, vector_t *str, size_t n);
+
+// 你想写多少字节呢 对吧
+// 就算是str 有时候我们也不想把str的全部内容都写进去吧
+// 所以参数应该带着一个size
+int bitbuf_write_vector(bitbuf_t *bf, vector_t str, size_t n);
 
 int bitbuf_flush(bitbuf_t *bf);
 

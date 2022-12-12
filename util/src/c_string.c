@@ -105,8 +105,31 @@ void string_pushback(string_t *string, char c) {
   string_append(string, "%c", c);
 }
 
-void string_popback(string_t *string) {
+int string_popback(string_t *string) {
   assert(string->size > 0);
   string->size--;
+  int c = (unsigned char)string->data[string->size];
   string->data[string->size] = '\0';
+  return c;
+}
+
+bool string_is_suffix(string_t *string, char *suffix) {
+  size_t len = strlen(suffix);
+  if (len > string->size) {
+    return false;
+  }
+
+  // str + size -> '\0'
+  char *str = string->data + string->size - 1;
+  char *suf = suffix + len - 1;
+  // len <= size
+  for (size_t i = 0; i < len; i++) {
+    // 获得两个指向字符串末尾的指针
+    if (*str != *suf) {
+      return false;
+    }
+    str--;
+    suf--;
+  }
+  return true;
 }

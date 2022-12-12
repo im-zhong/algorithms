@@ -7,6 +7,7 @@
 
 #include <assert.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,6 +48,9 @@ void string_clear(string_t *string);
 // 实现两个函数用于支持trie
 void string_pushback(string_t *string, char c);
 
-void string_popback(string_t *string);
+int string_popback(string_t *string);
+
+// 检查提供的字符串是不是当前字符串的后缀
+bool string_is_suffix(string_t *string, char *suffix);
 
 #endif // __C_STRING_H__

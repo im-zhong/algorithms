@@ -23,16 +23,9 @@
 // 2. 读入编码流，从根节点开始根据0->left
 //    1->right的规则，碰到叶子就输出字符，然后返回根节点重新开始这个过程
 
-typedef struct huffman_node_t {
-  struct huffman_node_t *left;
-  struct huffman_node_t *right;
-  size_t freq;
-  int c;
-} huffman_node_t;
-
 // 提供两个接口 一个编码 一个解码
-void huffman_compress(FILE *stream);
+void huffman_compress(char *filename);
 
-void huffman_decompress(FILE *stream);
+void huffman_decompress(char *filename);
 
 #endif // __HUFFMAN__

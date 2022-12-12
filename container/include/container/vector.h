@@ -79,11 +79,12 @@ static inline void vector_push_back(vector_t *vector, value_t element) {
   ++(vector->size);
 }
 
-static inline void vector_pop_back(vector_t *vector) {
+static inline value_t vector_pop_back(vector_t *vector) {
   assert(vector);
   if (vector->data == NULL && vector->size == 0)
     assert(false);
   --(vector->size);
+  return vector->data[vector->size];
 }
 
 static inline value_t vector_front(vector_t *vector) {

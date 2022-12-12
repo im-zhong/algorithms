@@ -3,7 +3,10 @@
 // bitbuf
 
 #include "string/bitbuf.h"
+#include "container/vector.h"
+#include "util/c_string.h"
 #include <assert.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -95,31 +98,6 @@ int bitbuf_cache(bitbuf_t *bf) {
   return 0;
 }
 
-int bitbuf_read(bitbuf_t *bf, int *bit) {
-  // 从文件中读取内容到缓存也应该单独包装成一个函数
-  if (bitbuf_is_empty(bf)) {
-    if (bitbuf_cache(bf) == EOF) {
-      // 说明我们读取到了EOF
-      return EOF;
-    }
-  }
-
-  // 然后我们就可以从
-  // 怎么从正确的位置读出数据呢
-  // 或者说文字的bit流的正确位置在哪里呢??
-
-  // 然后我们怎么找到正确的读取位置呢
-  int i = bf->offset / 8;
-  // byte内部的索引是
-  int j = bf->offset % 8;
-  // 就酱
-
-  *bit = read_bit(bf->buf[i], j);
-  bf->offset++;
-  // 但是offset的最终位置在哪??
-  return 1;
-}
-
 // 将目前缓存内的bit写入底层文件中
 int bitbuf_flush(bitbuf_t *bf) {
   int i = bf->offset / 8;
@@ -147,7 +125,32 @@ int bitbuf_flush(bitbuf_t *bf) {
   return fwrite(bf->buf, sizeof(char), n, bf->stream);
 }
 
-int bitbuf_write(bitbuf_t *bf, int bit) {
+int bitbuf_read_bit(bitbuf_t *bf, int *bit) {
+  // 从文件中读取内容到缓存也应该单独包装成一个函数
+  if (bitbuf_is_empty(bf)) {
+    if (bitbuf_cache(bf) == EOF) {
+      // 说明我们读取到了EOF
+      return EOF;
+    }
+  }
+
+  // 然后我们就可以从
+  // 怎么从正确的位置读出数据呢
+  // 或者说文字的bit流的正确位置在哪里呢??
+
+  // 然后我们怎么找到正确的读取位置呢
+  int i = bf->offset / 8;
+  // byte内部的索引是
+  int j = bf->offset % 8;
+  // 就酱
+
+  *bit = read_bit(bf->buf[i], j);
+  bf->offset++;
+  // 但是offset的最终位置在哪??
+  return 1;
+}
+
+int bitbuf_write_bit(bitbuf_t *bf, int bit) {
   // 我们必须维护一个offset
   // 写入文件的时候必须按照8的倍数
   // 也就是flush的时候需要补零
@@ -161,6 +164,78 @@ int bitbuf_write(bitbuf_t *bf, int bit) {
 
   if (bitbuf_is_full(bf)) {
     bitbuf_flush(bf);
+  }
+  return 0;
+}
+
+int bitbuf_read_byte(bitbuf_t *bf, unsigned int *byte) {
+  // 这个倒是没什么难的 就是调用八次read而已
+  // 不过也要注意处理错误
+  int bit = 0;
+  *byte = 0;
+  for (int i = 0; i < 8; i++) {
+    // 如果读取到了末尾 直接返回失败
+    // 这是不应该出现的情况
+    if (!bitbuf_read_bit(bf, &bit)) {
+      return -1;
+    }
+
+    *byte = write_bit(*byte, i, bit);
+  }
+  return 0;
+}
+
+int bitbuf_write_byte(bitbuf_t *bf, unsigned int byte) {
+  for (int i = 0; i < 8; i++) {
+    bitbuf_write_bit(bf, read_bit(byte, i));
+  }
+  return 0;
+}
+
+int bitbuf_read_len(bitbuf_t *bf, uint64_t *len) {
+  // 其实就是读取八个byte
+  uint64_t l;
+  *len = 0;
+  unsigned int byte = 0;
+  for (int i = 0; i < 8; i++) {
+    bitbuf_read_byte(bf, &byte);
+    *len |= ((uint64_t)byte << (i * 8));
+  }
+  return 0;
+}
+
+int bitbuf_write_len(bitbuf_t *bf, uint64_t len) {
+  // write len其实就是write byte
+  // 我们同样按照 从低位开始写的策略
+  for (int i = 0; i < 8; i++) {
+    // 依次取低八位 写入
+    unsigned int byte = len & 0xff;
+    bitbuf_write_byte(bf, byte);
+    // 然后len右移八位 下次循环就可以取第八位了 实际是第二个byte
+    len >>= 8;
+  }
+  return 0;
+}
+
+// 不对啊 你想读多少字节呢??
+int bitbuf_read_vector(bitbuf_t *bf, vector_t *str, size_t n) {
+  int bit = 0;
+  for (size_t i = 0; i < n; i++) {
+    bitbuf_read_bit(bf, &bit);
+    assert(bit == 0 || bit == 1);
+    vector_push_back(str, bit);
+  }
+  return 0;
+}
+
+int bitbuf_write_vector(bitbuf_t *bf, vector_t str, size_t n) {
+  int bit = 0;
+  for (size_t i = 0; i < n; i++) {
+    // 傻？？为什么要pop???
+    // 不是顺序把字符写进去吗
+    bit = str.data[i];
+    assert(bit == 0 || bit == 1);
+    bitbuf_write_bit(bf, bit);
   }
   return 0;
 }
