@@ -13,3 +13,4 @@
 # tips
 1. `cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 ..`
 2. `dot -Tpng -O *.dot`
+3. reformat all code: `find . -iname *.h -o -iname *.c -o -iname *.cpp | xargs clang-format -i`
