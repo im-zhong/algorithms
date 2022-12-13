@@ -14,32 +14,32 @@
 #define MINIMUM_DEGREE 2
 
 typedef struct btree_node {
-  // 当前节点是否为叶子节点
-  bool is_leaf;
-  // 当前节点存储的关键字个数
-  size_t size;
-  // key 我们使用数字作为关键字 毕竟不是要用的 只是用来学习的
-  value_t keys[MINIMUM_DEGREE * 2 - 1];
-  struct btree_node *childs[MINIMUM_DEGREE * 2];
+    // 当前节点是否为叶子节点
+    bool is_leaf;
+    // 当前节点存储的关键字个数
+    size_t size;
+    // key 我们使用数字作为关键字 毕竟不是要用的 只是用来学习的
+    value_t keys[MINIMUM_DEGREE * 2 - 1];
+    struct btree_node* childs[MINIMUM_DEGREE * 2];
 } btree_node_t;
 
 // 用户直接接触的数据结构 代表b树
 typedef struct btree {
-  struct btree_node *root;
+    struct btree_node* root;
 } btree_t;
 
-bool btree_search(btree_t *root, value_t key);
+bool btree_search(btree_t* root, value_t key);
 
 // 创建一个空的b树
-void btree_init(btree_t *root);
+void btree_init(btree_t* root);
 
-void btree_insert(btree_t *btree, value_t key);
+void btree_insert(btree_t* btree, value_t key);
 
-void btree_free(btree_t *root);
+void btree_free(btree_t* root);
 
-void btree_delete(btree_t *btree, value_t key);
+void btree_delete(btree_t* btree, value_t key);
 
-bool btree_is_empty(btree_t *btree);
+bool btree_is_empty(btree_t* btree);
 
 // test
 // bool btree_check(btree_t *btree);

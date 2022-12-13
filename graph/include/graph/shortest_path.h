@@ -66,20 +66,20 @@
 // }
 
 // w(u, v) >= 0
-void sp_dijkstra(spare_graph_t *graph, vertex_t vertex, weight_t *distance,
-                 list_node_t *spt);
+void sp_dijkstra(spare_graph_t* graph, vertex_t vertex, weight_t* distance,
+                 list_node_t* spt);
 
 // 24.2
 // 在有向无环图中DAG中首先进行一次拓扑排序，然后遍历执行relax操作也可以得到sp
-void sp_dag(spare_graph_t *graph, vertex_t vertex, weight_t *distance,
-            list_node_t *spt);
+void sp_dag(spare_graph_t* graph, vertex_t vertex, weight_t* distance,
+            list_node_t* spt);
 
 // todo:
 // 用sp_dag可以实现最长路径 其实就是把权重变负即可
 // 用sp_dag可以实现关键路径 参考算法4 这里就不实现了
 
 // 这个算法假设输入图没有负环路
-void sp_bellman_ford(spare_graph_t *graph, vertex_t vertex, weight_t *distance,
-                     list_node_t *spt);
+void sp_bellman_ford(spare_graph_t* graph, vertex_t vertex, weight_t* distance,
+                     list_node_t* spt);
 
 #endif // __SHORTEST_PATH_H__

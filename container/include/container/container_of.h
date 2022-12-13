@@ -14,6 +14,6 @@
  * @member: struct member name
  */
 #define container_of(ptr, type, member)                                        \
-  (type *)((char *)ptr - offsetof(type, member))
+    (type*)((char*)ptr - offsetof(type, member))
 
 #endif // CONTAINER_OF_H

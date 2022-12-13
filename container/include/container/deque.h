@@ -16,10 +16,10 @@
 #define deque_init(deque) LIST_HEAD(deque)
 
 #define deque_push_first(head, entry)                                          \
-  list_insert_after(head, &(entry)->DEQUE_MEMBER)
+    list_insert_after(head, &(entry)->DEQUE_MEMBER)
 
 #define deque_push_last(head, entry)                                           \
-  list_insert_before(head, &(entry)->DEQUE_MEMBER)
+    list_insert_before(head, &(entry)->DEQUE_MEMBER)
 
 #define deque_pop_first(head) list_erase_first(head)
 

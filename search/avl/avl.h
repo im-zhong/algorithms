@@ -24,25 +24,25 @@
 // 很多底层的操作都是一样的
 // todo: 目前就不实现了吧 毕竟考试也不考 实现起来还是有一些麻烦的
 typedef struct tree_node_t {
-  struct tree_node_t *left;
-  struct tree_node_t *right;
-  value_t key;
-  // 这个height说的是他的子树的高度
-  size_t height;
+    struct tree_node_t* left;
+    struct tree_node_t* right;
+    value_t key;
+    // 这个height说的是他的子树的高度
+    size_t height;
 } tree_node_t;
 
 typedef struct {
-  tree_node_t *root;
+    tree_node_t* root;
 } avl_t;
 
 avl_t make_avl();
-void free_avl(avl_t *avl);
-void check_avl(avl_t *avl);
+void free_avl(avl_t* avl);
+void check_avl(avl_t* avl);
 
-bool avl_is_empty(avl_t *avl);
-void avl_clean(avl_t *avl);
-bool avl_search(avl_t *avl, value_t key);
-void avl_insert(avl_t *avl, value_t key);
-void avl_delete(avl_t *avl, value_t key);
+bool avl_is_empty(avl_t* avl);
+void avl_clean(avl_t* avl);
+bool avl_search(avl_t* avl, value_t key);
+void avl_insert(avl_t* avl, value_t key);
+void avl_delete(avl_t* avl, value_t key);
 
 #endif // __AVL_TREE__

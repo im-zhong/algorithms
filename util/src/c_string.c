@@ -24,112 +24,112 @@
 // 每一个函数都应该对上述两种类型给出接口
 
 // 连接两个字符串
-void string_concat(string_t *string, char *data, size_t size) {
-  assert(string);
-  // 但是string本身可能是空的
-  if (string->data) {
-    // 最小 capacity = string->size + size + 1
-    if (string->size + size >= string->capacity) {
-      // realloc
-      string->capacity = (string->size + size) * 2;
-      string->data = (char *)realloc(string->data, string->capacity);
+void string_concat(string_t* string, char* data, size_t size) {
+    assert(string);
+    // 但是string本身可能是空的
+    if (string->data) {
+        // 最小 capacity = string->size + size + 1
+        if (string->size + size >= string->capacity) {
+            // realloc
+            string->capacity = (string->size + size) * 2;
+            string->data = (char*)realloc(string->data, string->capacity);
+        }
+        // 然后将data复制到string之后
+        strncpy(string->data + string->size, data, size);
+        // 最后放置一个nullbyte
+        string->size += size;
+        string->data[string->size] = '\0';
+    } else {
+        // 否则string是空的 我们直接把data复制过去就行了
+        string->data = data;
+        string->size = size;
+        string->capacity = size + 1;
     }
-    // 然后将data复制到string之后
-    strncpy(string->data + string->size, data, size);
-    // 最后放置一个nullbyte
-    string->size += size;
-    string->data[string->size] = '\0';
-  } else {
-    // 否则string是空的 我们直接把data复制过去就行了
-    string->data = data;
-    string->size = size;
-    string->capacity = size + 1;
-  }
 }
 
-void string_free(string_t *string) {
-  free(string->data);
-  string->data = NULL;
-  string->size = 0;
-  string->capacity = 0;
+void string_free(string_t* string) {
+    free(string->data);
+    string->data = NULL;
+    string->size = 0;
+    string->capacity = 0;
 }
 
-void free_string(string_t *string) {
-  free(string->data);
-  string->data = NULL;
-  string->size = 0;
-  string->capacity = 0;
+void free_string(string_t* string) {
+    free(string->data);
+    string->data = NULL;
+    string->size = 0;
+    string->capacity = 0;
 }
 
 // 还有一系列的to_string 最好是包装一下
 // 然后还得有一个append函数
 
 // 感觉可以写成一个
-void string_append(string_t *string, const char *fmt, ...) {
-  assert(string);
-  char *data = NULL;
-  va_list ap;
-  va_start(ap, fmt);
-  // Upon successfult return, these function return the number of characters
-  // printed, excluding the null byte to end output to strings
-  size_t size = vasprintf(&data, fmt, ap);
-  va_end(ap);
-  string_concat(string, data, size);
+void string_append(string_t* string, const char* fmt, ...) {
+    assert(string);
+    char* data = NULL;
+    va_list ap;
+    va_start(ap, fmt);
+    // Upon successfult return, these function return the number of characters
+    // printed, excluding the null byte to end output to strings
+    size_t size = vasprintf(&data, fmt, ap);
+    va_end(ap);
+    string_concat(string, data, size);
 }
 
-string_t make_string(const char *fmt, ...) {
-  string_t string;
-  string.size = 0;
-  string.data = NULL;
-  string.capacity = 0;
-  va_list ap;
-  va_start(ap, fmt);
-  // 这样写不对的，append的输入参数 ... 我们不能传ap
-  // string_append(&string, fmt, ap);
-  char *data = NULL;
-  size_t size = vasprintf(&data, fmt, ap);
-  va_end(ap);
-  string_concat(&string, data, size);
-  return string;
+string_t make_string(const char* fmt, ...) {
+    string_t string;
+    string.size = 0;
+    string.data = NULL;
+    string.capacity = 0;
+    va_list ap;
+    va_start(ap, fmt);
+    // 这样写不对的，append的输入参数 ... 我们不能传ap
+    // string_append(&string, fmt, ap);
+    char* data = NULL;
+    size_t size = vasprintf(&data, fmt, ap);
+    va_end(ap);
+    string_concat(&string, data, size);
+    return string;
 }
 
-void string_clear(string_t *string) {
-  assert(string);
-  string->size = 0;
-  if (string->capacity > 0) {
-    string->data[0] = '\0';
-  }
-}
-
-void string_pushback(string_t *string, char c) {
-  string_append(string, "%c", c);
-}
-
-int string_popback(string_t *string) {
-  assert(string->size > 0);
-  string->size--;
-  int c = (unsigned char)string->data[string->size];
-  string->data[string->size] = '\0';
-  return c;
-}
-
-bool string_is_suffix(string_t *string, char *suffix) {
-  size_t len = strlen(suffix);
-  if (len > string->size) {
-    return false;
-  }
-
-  // str + size -> '\0'
-  char *str = string->data + string->size - 1;
-  char *suf = suffix + len - 1;
-  // len <= size
-  for (size_t i = 0; i < len; i++) {
-    // 获得两个指向字符串末尾的指针
-    if (*str != *suf) {
-      return false;
+void string_clear(string_t* string) {
+    assert(string);
+    string->size = 0;
+    if (string->capacity > 0) {
+        string->data[0] = '\0';
     }
-    str--;
-    suf--;
-  }
-  return true;
+}
+
+void string_pushback(string_t* string, char c) {
+    string_append(string, "%c", c);
+}
+
+int string_popback(string_t* string) {
+    assert(string->size > 0);
+    string->size--;
+    int c = (unsigned char)string->data[string->size];
+    string->data[string->size] = '\0';
+    return c;
+}
+
+bool string_is_suffix(string_t* string, char* suffix) {
+    size_t len = strlen(suffix);
+    if (len > string->size) {
+        return false;
+    }
+
+    // str + size -> '\0'
+    char* str = string->data + string->size - 1;
+    char* suf = suffix + len - 1;
+    // len <= size
+    for (size_t i = 0; i < len; i++) {
+        // 获得两个指向字符串末尾的指针
+        if (*str != *suf) {
+            return false;
+        }
+        str--;
+        suf--;
+    }
+    return true;
 }

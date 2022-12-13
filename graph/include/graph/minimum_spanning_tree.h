@@ -20,7 +20,7 @@
 // void mst_kruskal_handle(vertex_t from, vertex_t to, weight_t weight);
 
 // 返回一个edge list head 最小生成树是边的集合
-void mst_kruskal(spare_graph_t *graph, list_node_t *mst);
+void mst_kruskal(spare_graph_t* graph, list_node_t* mst);
 
 // 这个实现是真的简单，就是感觉不太适合邻接链表
 
@@ -38,7 +38,7 @@ void mst_kruskal(spare_graph_t *graph, list_node_t *mst);
 // 同时更新此节点的所有邻接节点的权重，如果变小了的话
 // 重复这个过程 直到V变成空集
 
-void mst_prim(spare_graph_t *graph, list_node_t *mst);
+void mst_prim(spare_graph_t* graph, list_node_t* mst);
 
 // 这个算法理解起来就比kruskal要稍微复杂一些
 // 然后也需要很多额外的数组来保存一些中间信息

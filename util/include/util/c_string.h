@@ -17,10 +17,11 @@
 // 数据结构的设计必须一致
 // 我可以保证这里保存的字符串一定以\0结尾 可以省很多事
 typedef struct {
-  // size不包含null byte 但是我们的capacity至少比size大1 因为我们会保存null byte
-  char *data;
-  size_t size;
-  size_t capacity;
+    // size不包含null byte 但是我们的capacity至少比size大1 因为我们会保存null
+    // byte
+    char* data;
+    size_t size;
+    size_t capacity;
 } string_t;
 
 // 区分两种类型的函数
@@ -29,28 +30,28 @@ typedef struct {
 // 每一个函数都应该对上述两种类型给出接口
 
 // 连接两个字符串
-void string_concat(string_t *string, char *data, size_t size);
+void string_concat(string_t* string, char* data, size_t size);
 
-void string_free(string_t *string);
+void string_free(string_t* string);
 
-void free_string(string_t *string);
+void free_string(string_t* string);
 
 // 还有一系列的to_string 最好是包装一下
 // 然后还得有一个append函数
 
 // 感觉可以写成一个
-void string_append(string_t *string, const char *fmt, ...);
+void string_append(string_t* string, const char* fmt, ...);
 
-string_t make_string(const char *fmt, ...);
+string_t make_string(const char* fmt, ...);
 
-void string_clear(string_t *string);
+void string_clear(string_t* string);
 
 // 实现两个函数用于支持trie
-void string_pushback(string_t *string, char c);
+void string_pushback(string_t* string, char c);
 
-int string_popback(string_t *string);
+int string_popback(string_t* string);
 
 // 检查提供的字符串是不是当前字符串的后缀
-bool string_is_suffix(string_t *string, char *suffix);
+bool string_is_suffix(string_t* string, char* suffix);
 
 #endif // __C_STRING_H__

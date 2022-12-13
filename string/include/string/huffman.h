@@ -24,8 +24,8 @@
 //    1->right的规则，碰到叶子就输出字符，然后返回根节点重新开始这个过程
 
 // 提供两个接口 一个编码 一个解码
-void huffman_compress(char *filename);
+void huffman_compress(char* filename);
 
-void huffman_decompress(char *filename);
+void huffman_decompress(char* filename);
 
 #endif // __HUFFMAN__

@@ -28,31 +28,31 @@
 #include <time.h>
 
 typedef struct {
-  // 这个是指向真正数据的指针
-  void **data;
-  size_t size;
-  size_t capacity;
+    // 这个是指向真正数据的指针
+    void** data;
+    size_t size;
+    size_t capacity;
 
-  // 用户在初始化一个堆的时候，同时传入一个该堆的比较函数
-  // 因为我们的概念是一个堆，而不是最大堆或者最小堆
-  // 我们的规则是 predicate(parent, child) is true
-  // 这样我们就可以使用heap指针来调用这个函数了，而不用用户每次调用函数都需要传入一个指针，很拉跨
-  bool (*predicate)(const void *lhs, const void *rhs);
+    // 用户在初始化一个堆的时候，同时传入一个该堆的比较函数
+    // 因为我们的概念是一个堆，而不是最大堆或者最小堆
+    // 我们的规则是 predicate(parent, child) is true
+    // 这样我们就可以使用heap指针来调用这个函数了，而不用用户每次调用函数都需要传入一个指针，很拉跨
+    bool (*predicate)(const void* lhs, const void* rhs);
 } bheap_t;
 
-static inline void bheap_init(bheap_t *heap, size_t capacity,
-                              bool (*predicate)(const void *lhs,
-                                                const void *rhs)) {
-  heap->size = 0;
-  heap->capacity = capacity;
-  heap->predicate = predicate;
-  // 我需要分配一个数组
-  heap->data = (void **)malloc(heap->capacity * sizeof(void *));
+static inline void bheap_init(bheap_t* heap, size_t capacity,
+                              bool (*predicate)(const void* lhs,
+                                                const void* rhs)) {
+    heap->size = 0;
+    heap->capacity = capacity;
+    heap->predicate = predicate;
+    // 我需要分配一个数组
+    heap->data = (void**)malloc(heap->capacity * sizeof(void*));
 }
 
-static inline void bheap_clear(bheap_t *heap) { heap->size = 0; }
+static inline void bheap_clear(bheap_t* heap) { heap->size = 0; }
 
-static inline void bheap_free(bheap_t *heap) { free(heap->data); }
+static inline void bheap_free(bheap_t* heap) { free(heap->data); }
 
 // 二叉堆实际上是一个数组
 // 用来表示一颗近似的完全二叉树
@@ -84,7 +84,7 @@ static inline size_t bheap_parent(size_t child) { return child >> 1; }
 static inline size_t bheap_left(size_t parent) { return parent << 1; }
 
 static inline size_t bheap_right(size_t parent) {
-  return bheap_left(parent) + 1;
+    return bheap_left(parent) + 1;
 }
 
 // 但是一个完全二叉树想要成为堆，还需要满族一些堆的性质
@@ -107,65 +107,66 @@ static inline size_t bheap_right(size_t parent) {
 //     return h->data + 1;
 // }
 
-static inline void *bheap_top(bheap_t *heap) { return heap->data[heap_root()]; }
+static inline void* bheap_top(bheap_t* heap) { return heap->data[heap_root()]; }
 
-static inline bool bheap_is_empty(bheap_t *heap) { return heap->size == 0; }
+static inline bool bheap_is_empty(bheap_t* heap) { return heap->size == 0; }
 
-static inline size_t bheap_size(bheap_t *heap) { return heap->size; }
+static inline size_t bheap_size(bheap_t* heap) { return heap->size; }
 
-static inline bool bheap_is_full(bheap_t *heap) {
-  return heap->size == heap->capacity;
+static inline bool bheap_is_full(bheap_t* heap) {
+    return heap->size == heap->capacity;
 }
 
-static inline size_t bheap_fixdown(bheap_t *heap, size_t parent) {
-  size_t left = 0;
-  size_t right = 0;
-  size_t child = 0;
-  while ((left = heap_left(parent)) <= heap->size) {
-    // 我首先要在left和right中找出最小的哪一个
-    // 如果只有左孩子，就只和左孩子比
-    child = left;
-    // 如果我们还有右孩子，就先比较两个孩子
-    right = left + 1;
-    if (right <= heap->size) {
-      child =
-          heap->predicate(heap->data[left], heap->data[right]) ? left : right;
-    }
+static inline size_t bheap_fixdown(bheap_t* heap, size_t parent) {
+    size_t left = 0;
+    size_t right = 0;
+    size_t child = 0;
+    while ((left = heap_left(parent)) <= heap->size) {
+        // 我首先要在left和right中找出最小的哪一个
+        // 如果只有左孩子，就只和左孩子比
+        child = left;
+        // 如果我们还有右孩子，就先比较两个孩子
+        right = left + 1;
+        if (right <= heap->size) {
+            child = heap->predicate(heap->data[left], heap->data[right])
+                        ? left
+                        : right;
+        }
 
-    // 然后比较parent和child
-    // 如果child比parent大 那么交换两者
-    // 然后继续向下
-    if (heap->predicate(heap->data[parent], heap->data[child])) {
-      // 无事发生
-      // 到这里函数就结束了呀
-      return parent;
-    } else {
-      // 交换两者
-      void *temp = heap->data[parent];
-      heap->data[parent] = heap->data[child];
-      heap->data[child] = temp;
-      // 用child替换parent继续向下修正堆
-      parent = child;
+        // 然后比较parent和child
+        // 如果child比parent大 那么交换两者
+        // 然后继续向下
+        if (heap->predicate(heap->data[parent], heap->data[child])) {
+            // 无事发生
+            // 到这里函数就结束了呀
+            return parent;
+        } else {
+            // 交换两者
+            void* temp = heap->data[parent];
+            heap->data[parent] = heap->data[child];
+            heap->data[child] = temp;
+            // 用child替换parent继续向下修正堆
+            parent = child;
+        }
     }
-  }
-  return parent;
+    return parent;
 }
 
 // 我们把上滤和下滤这两个过程抽象出来
-static inline size_t bheap_fixup(bheap_t *heap, size_t child) {
-  // 我们会不断的和parent去比 直到 parent, child 满足 cmp
-  // 或者没有parent了
-  size_t parent = 0;
-  while ((parent = heap_parent(child)) != 0 &&
-         !heap->predicate(heap->data[parent], heap->data[child])) {
-    // 交换parent和child
-    void *temp = heap->data[parent];
-    heap->data[parent] = heap->data[child];
-    heap->data[child] = temp;
-    // 继续上修
-    child = parent;
-  }
-  return child;
+static inline size_t bheap_fixup(bheap_t* heap, size_t child) {
+    // 我们会不断的和parent去比 直到 parent, child 满足 cmp
+    // 或者没有parent了
+    size_t parent = 0;
+    while ((parent = heap_parent(child)) != 0 &&
+           !heap->predicate(heap->data[parent], heap->data[child])) {
+        // 交换parent和child
+        void* temp = heap->data[parent];
+        heap->data[parent] = heap->data[child];
+        heap->data[child] = temp;
+        // 继续上修
+        child = parent;
+    }
+    return child;
 }
 
 // 现在还有一个关键的问题，就是size应该如何表示
@@ -174,79 +175,79 @@ static inline size_t bheap_fixup(bheap_t *heap, size_t child) {
 // 那就选择用size表示实际的元素数量，然后我们实际占用的数组长度是size + 1,
 // 因为0未使用 数组下标是从 [1, size] 所以第一个元素是data[1],
 // 而最后一个元素是data[size]
-static inline void *bheap_pop(bheap_t *heap) {
-  // 其实left一定是小于right，我们可以削减判断的次数
+static inline void* bheap_pop(bheap_t* heap) {
+    // 其实left一定是小于right，我们可以削减判断的次数
 
-  // 这个函数最好可以和fixdown结合起来，思考一下
-  // 我这个其实相当于
-  // bheap_fixdown(heap, bheap_root())
+    // 这个函数最好可以和fixdown结合起来，思考一下
+    // 我这个其实相当于
+    // bheap_fixdown(heap, bheap_root())
 
-  // 不对不对，我又理解错了
-  // pop之后，我们需要将最后一个位置的元素放到一个正确的位置中
-  // 那么什么是一个正确的位置呢
-  // 其实就是把最后一个元素放到root的位置
-  // 然后启动一个向下过滤的过程而已
-  void *value = heap->data[heap_root()];
-  heap->data[heap_root()] = heap->data[heap->size];
-  --heap->size;
-  // 然后启动一次下滤
-  bheap_fixdown(heap, heap_root());
-  return value;
+    // 不对不对，我又理解错了
+    // pop之后，我们需要将最后一个位置的元素放到一个正确的位置中
+    // 那么什么是一个正确的位置呢
+    // 其实就是把最后一个元素放到root的位置
+    // 然后启动一个向下过滤的过程而已
+    void* value = heap->data[heap_root()];
+    heap->data[heap_root()] = heap->data[heap->size];
+    --heap->size;
+    // 然后启动一次下滤
+    bheap_fixdown(heap, heap_root());
+    return value;
 }
 
 // 还有一个操作，删除某个位置，这tm不和删除最小元是一样的？？？
 // 没什么好实现的
 
-static inline void bheap_check(bheap_t *heap) {
-  size_t child = 0;
-  // 判断是否是一个二叉堆特别简单
-  // 只需要遍历非叶子节点，然后判断一下他们的孩子是不是都比他们大或者小
-  // 总之需要满足堆的性质
-  // 而叶子节点是没有孩子的，所以是无需判断的，因为他们都是一个堆
-  for (size_t i = heap_root(); i <= heap->size / 2; ++i) {
-    size_t left = heap_left(i);
-    if (left <= heap->size) {
-      // 有左孩子
-      assert(heap->predicate(heap->data[i], heap->data[left]));
+static inline void bheap_check(bheap_t* heap) {
+    size_t child = 0;
+    // 判断是否是一个二叉堆特别简单
+    // 只需要遍历非叶子节点，然后判断一下他们的孩子是不是都比他们大或者小
+    // 总之需要满足堆的性质
+    // 而叶子节点是没有孩子的，所以是无需判断的，因为他们都是一个堆
+    for (size_t i = heap_root(); i <= heap->size / 2; ++i) {
+        size_t left = heap_left(i);
+        if (left <= heap->size) {
+            // 有左孩子
+            assert(heap->predicate(heap->data[i], heap->data[left]));
+        }
+        size_t right = heap_right(i);
+        if (right <= heap->size) {
+            assert(heap->predicate(heap->data[i], heap->data[right]));
+        }
     }
-    size_t right = heap_right(i);
-    if (right <= heap->size) {
-      assert(heap->predicate(heap->data[i], heap->data[right]));
-    }
-  }
 }
 
 // 提供push操作
 // 还要考虑reallocate
-static inline size_t bheap_push(bheap_t *heap, void *data) {
-  // 插入一个值非常的简单
-  // 就是把值放到最后一个位置
-  // 然后从最后一个位置执行一次上修
-  // size不能超过capacity
-  assert(!bheap_is_full(heap));
-  heap->data[heap->size + 1] = data;
-  ++heap->size;
-  return bheap_fixup(heap, heap->size);
+static inline size_t bheap_push(bheap_t* heap, void* data) {
+    // 插入一个值非常的简单
+    // 就是把值放到最后一个位置
+    // 然后从最后一个位置执行一次上修
+    // size不能超过capacity
+    assert(!bheap_is_full(heap));
+    heap->data[heap->size + 1] = data;
+    ++heap->size;
+    return bheap_fixup(heap, heap->size);
 }
 
 // 还需要实现一个操作 就是修改某个人的值
 // 就是说 我修改了size位置的值
 // 然后调用这个函数修正一下整个堆
-static inline size_t bheap_update(bheap_t *heap, size_t pos) {
-  assert(pos >= 1 && pos <= heap->size);
-  size_t parent = bheap_parent(pos);
-  // 不对啊 这里还要注意一些边界条件
-  if (parent > 0 && !heap->predicate(heap->data[parent], heap->data[pos])) {
-    return bheap_fixup(heap, pos);
-  } else {
-    return bheap_fixdown(heap, pos);
-  }
+static inline size_t bheap_update(bheap_t* heap, size_t pos) {
+    assert(pos >= 1 && pos <= heap->size);
+    size_t parent = bheap_parent(pos);
+    // 不对啊 这里还要注意一些边界条件
+    if (parent > 0 && !heap->predicate(heap->data[parent], heap->data[pos])) {
+        return bheap_fixup(heap, pos);
+    } else {
+        return bheap_fixdown(heap, pos);
+    }
 }
 
-static inline void make_bheap(bheap_t *heap) {
-  for (size_t i = heap_parent(heap->size); i >= heap_root(); --i) {
-    bheap_fixdown(heap, i);
-  }
+static inline void make_bheap(bheap_t* heap) {
+    for (size_t i = heap_parent(heap->size); i >= heap_root(); --i) {
+        bheap_fixdown(heap, i);
+    }
 }
 
 #endif // __BHEAP_H__

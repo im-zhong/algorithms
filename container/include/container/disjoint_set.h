@@ -43,10 +43,10 @@
 #include <stdlib.h>
 // 这个的具体处理方法可以参考heap的实现
 typedef struct {
-  // 树的集合，也就是一个森林
-  // 这里的下标最好还是用long
-  long *set_forest;
-  size_t size;
+    // 树的集合，也就是一个森林
+    // 这里的下标最好还是用long
+    long* set_forest;
+    size_t size;
 } disjoint_set;
 
 // 还是按照 秩 rank 来union，感觉会好一点
@@ -60,22 +60,22 @@ typedef struct {
 // union(5, 6)
 //   0 0 0 0 0 5 0 0 0
 
-static inline void disjoint_set_init(disjoint_set *djs, size_t size) {
-  // 将所有的元素初始化为-1 表示他是这个集合的树的根
-  // 根的数值一定小于零 这样才能表示根
-  // 根的数值的绝对值表示这个集合的元素数量
-  // 根的下标表示集合的名字
-  // 孩子节点的值是其父节点的下标
-  djs->set_forest = (long *)malloc(size * sizeof(long));
-  djs->size = size;
-  for (size_t i = 0; i < size; ++i)
-    djs->set_forest[i] = -1;
+static inline void disjoint_set_init(disjoint_set* djs, size_t size) {
+    // 将所有的元素初始化为-1 表示他是这个集合的树的根
+    // 根的数值一定小于零 这样才能表示根
+    // 根的数值的绝对值表示这个集合的元素数量
+    // 根的下标表示集合的名字
+    // 孩子节点的值是其父节点的下标
+    djs->set_forest = (long*)malloc(size * sizeof(long));
+    djs->size = size;
+    for (size_t i = 0; i < size; ++i)
+        djs->set_forest[i] = -1;
 }
 
-static inline void disjoint_set_free(disjoint_set *djs) {
-  free(djs->set_forest);
-  djs->set_forest = NULL;
-  djs->size = 0;
+static inline void disjoint_set_free(disjoint_set* djs) {
+    free(djs->set_forest);
+    djs->set_forest = NULL;
+    djs->size = 0;
 }
 
 // path compression
@@ -83,39 +83,41 @@ static inline void disjoint_set_free(disjoint_set *djs) {
 // find(x)， 从x到根路径上的每一个节点，都使他的父节点变成根
 // 这个find必须用递归实现
 // O(logN)
-static inline long disjoint_set_find(disjoint_set *djs, long set) {
-  // 说明这个集合的根 直接返回
-  if (djs->set_forest[set] < 0)
-    return set;
-  else
-    // 因为最终递归结果会返回结合的根 所以这里就可以路径压缩 让子节点直接指向根
-    return djs->set_forest[set] = disjoint_set_find(djs, djs->set_forest[set]);
+static inline long disjoint_set_find(disjoint_set* djs, long set) {
+    // 说明这个集合的根 直接返回
+    if (djs->set_forest[set] < 0)
+        return set;
+    else
+        // 因为最终递归结果会返回结合的根 所以这里就可以路径压缩
+        // 让子节点直接指向根
+        return djs->set_forest[set] =
+                   disjoint_set_find(djs, djs->set_forest[set]);
 }
 
 // union by size
 // 数组的根保存的不是零，而是一个负数，表示的是子类的大小
 // O(log N)
-static inline void disjoint_set_union(disjoint_set *djs, long lhs, long rhs) {
-  lhs = disjoint_set_find(djs, lhs);
-  rhs = disjoint_set_find(djs, rhs);
+static inline void disjoint_set_union(disjoint_set* djs, long lhs, long rhs) {
+    lhs = disjoint_set_find(djs, lhs);
+    rhs = disjoint_set_find(djs, rhs);
 
-  if (lhs == rhs)
-    return;
+    if (lhs == rhs)
+        return;
 
-  // 就是把小的集合合并到大的集合里面
-  // 修改小的集合的根指向大的结合的根
-  // 大的集合的元素数量加起来 就可以了
-  // lhs = -1
-  // rhs = -2
-  if (djs->set_forest[lhs] < djs->set_forest[rhs]) {
-    djs->set_forest[lhs] += djs->set_forest[rhs];
-    djs->set_forest[rhs] = lhs;
-  } else {
-    // -1 >= -2
-    //
-    djs->set_forest[rhs] += djs->set_forest[lhs];
-    djs->set_forest[lhs] = rhs;
-  }
+    // 就是把小的集合合并到大的集合里面
+    // 修改小的集合的根指向大的结合的根
+    // 大的集合的元素数量加起来 就可以了
+    // lhs = -1
+    // rhs = -2
+    if (djs->set_forest[lhs] < djs->set_forest[rhs]) {
+        djs->set_forest[lhs] += djs->set_forest[rhs];
+        djs->set_forest[rhs] = lhs;
+    } else {
+        // -1 >= -2
+        //
+        djs->set_forest[rhs] += djs->set_forest[lhs];
+        djs->set_forest[lhs] = rhs;
+    }
 }
 
 // int main(int argc, char* argv[])

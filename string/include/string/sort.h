@@ -12,10 +12,10 @@
 
 // 使用计数排序的地位优先排序
 // least-significant digit sort
-void lsd_sort(char **str, size_t n, size_t len);
+void lsd_sort(char** str, size_t n, size_t len);
 
 // 使用快排的高位优先
 // most significant digit sort
-void msd_sort(char **str, int n);
+void msd_sort(char** str, int n);
 
 #endif // _STRING_SORT_H_

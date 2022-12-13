@@ -12,14 +12,14 @@
 #include <time.h>
 
 typedef struct {
-  time_t seed;
-  int min;
-  int max;
+    time_t seed;
+    int min;
+    int max;
 } rand_t;
 
 rand_t make_rand(int min, int max);
 
-int crand(rand_t *r);
+int crand(rand_t* r);
 
 int rrand(int min, int max);
 
