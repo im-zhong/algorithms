@@ -12,9 +12,9 @@ typedef struct slist_node_t {
     struct slist_node_t* next;
 } slist_node_t;
 
-#define SLIST_HEAD(head) slist_node_t head = {&head};
+#define SLIST_HEAD(head) slist_node_t head = {&(head)};
 
-#define SLIST_INIT(head) slist_node_t head = {&head}
+#define SLIST_INIT(head) slist_node_t head = {&(head)}
 
 static inline void slist_init_head(slist_node_t* head) { head->next = head; }
 
@@ -52,7 +52,7 @@ static inline bool slist_is_empty(const slist_node_t* head) {
 
 // 然后就是遍历了 真没啥了
 #define slist_for_each(node, head)                                             \
-    for (node = slist_first(head); node != (head); node = node->next)
+    for ((node) = slist_first(head); (node) != (head); (node) = (node)->next)
 
 #define slist_entry(node, type, member) container_of(node, type, member)
 
@@ -62,11 +62,11 @@ static inline bool slist_is_empty(const slist_node_t* head) {
 #define slist_next_entry(entry, type, member)                                  \
     slist_entry((entry)->member.next, type, member)
 
-#define slist_is_head_entry(entry, head, member) (&entry->member == (head))
+#define slist_is_head_entry(entry, head, member) (&(entry)->member == (head))
 
 #define slist_for_each_entry(entry, head, type, member)                        \
-    for (entry = slist_first_entry(head, type, member);                        \
+    for ((entry) = slist_first_entry(head, type, member);                      \
          !slist_is_head_entry(entry, head, member);                            \
-         entry = slist_next_entry(entry, type, member))
+         (entry) = slist_next_entry(entry, type, member))
 
 #endif // SLIST_H

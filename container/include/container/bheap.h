@@ -79,9 +79,9 @@ static inline void bheap_free(bheap_t* heap) { free(heap->data); }
 
 static inline size_t bheap_root() { return 1; }
 
-static inline size_t bheap_parent(size_t child) { return child >> 1; }
+static inline size_t bheap_parent(size_t child) { return child >> 1U; }
 
-static inline size_t bheap_left(size_t parent) { return parent << 1; }
+static inline size_t bheap_left(size_t parent) { return parent << 1U; }
 
 static inline size_t bheap_right(size_t parent) {
     return bheap_left(parent) + 1;
@@ -140,14 +140,13 @@ static inline size_t bheap_fixdown(bheap_t* heap, size_t parent) {
             // 无事发生
             // 到这里函数就结束了呀
             return parent;
-        } else {
-            // 交换两者
-            void* temp = heap->data[parent];
-            heap->data[parent] = heap->data[child];
-            heap->data[child] = temp;
-            // 用child替换parent继续向下修正堆
-            parent = child;
         }
+        // 交换两者
+        void* temp = heap->data[parent];
+        heap->data[parent] = heap->data[child];
+        heap->data[child] = temp;
+        // 用child替换parent继续向下修正堆
+        parent = child;
     }
     return parent;
 }
@@ -239,9 +238,8 @@ static inline size_t bheap_update(bheap_t* heap, size_t pos) {
     // 不对啊 这里还要注意一些边界条件
     if (parent > 0 && !heap->predicate(heap->data[parent], heap->data[pos])) {
         return bheap_fixup(heap, pos);
-    } else {
-        return bheap_fixdown(heap, pos);
     }
+    return bheap_fixdown(heap, pos);
 }
 
 static inline void make_bheap(bheap_t* heap) {

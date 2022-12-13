@@ -21,7 +21,7 @@ typedef struct {
     size_t size;
 } strset_t;
 
-typedef struct __strset_entry_t {
+typedef struct {
     char* str;
     value_t value;
     list_node_t node;

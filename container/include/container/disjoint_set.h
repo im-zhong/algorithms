@@ -68,8 +68,9 @@ static inline void disjoint_set_init(disjoint_set* djs, size_t size) {
     // 孩子节点的值是其父节点的下标
     djs->set_forest = (long*)malloc(size * sizeof(long));
     djs->size = size;
-    for (size_t i = 0; i < size; ++i)
+    for (size_t i = 0; i < size; ++i) {
         djs->set_forest[i] = -1;
+    }
 }
 
 static inline void disjoint_set_free(disjoint_set* djs) {
@@ -85,13 +86,11 @@ static inline void disjoint_set_free(disjoint_set* djs) {
 // O(logN)
 static inline long disjoint_set_find(disjoint_set* djs, long set) {
     // 说明这个集合的根 直接返回
-    if (djs->set_forest[set] < 0)
+    if (djs->set_forest[set] < 0) {
         return set;
-    else
-        // 因为最终递归结果会返回结合的根 所以这里就可以路径压缩
-        // 让子节点直接指向根
-        return djs->set_forest[set] =
-                   disjoint_set_find(djs, djs->set_forest[set]);
+    } // 因为最终递归结果会返回结合的根 所以这里就可以路径压缩
+    // 让子节点直接指向根
+    return djs->set_forest[set] = disjoint_set_find(djs, djs->set_forest[set]);
 }
 
 // union by size
@@ -101,8 +100,9 @@ static inline void disjoint_set_union(disjoint_set* djs, long lhs, long rhs) {
     lhs = disjoint_set_find(djs, lhs);
     rhs = disjoint_set_find(djs, rhs);
 
-    if (lhs == rhs)
+    if (lhs == rhs) {
         return;
+    }
 
     // 就是把小的集合合并到大的集合里面
     // 修改小的集合的根指向大的结合的根

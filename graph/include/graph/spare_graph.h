@@ -55,7 +55,7 @@
 
 // 但是，我们的entry是什么呢？？
 
-typedef struct __spare_graph {
+typedef struct {
     // 稀疏图实际上就是一个链表数组
 
     // 每一个节点应该有一个独一无二的标识，

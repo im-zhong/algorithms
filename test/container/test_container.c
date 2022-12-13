@@ -13,7 +13,6 @@
 #include "container/vector.h"
 #include "util/c_random.h"
 #include "util/c_string.h"
-
 #include <assert.h>
 #include <malloc.h>
 #include <stdio.h>

@@ -72,9 +72,9 @@ static inline bool heap_is_full(heap_t* heap) {
 // size/2 之前的都是内部节点 之后的都是叶子节点
 static inline size_t heap_root() { return 1; }
 
-static inline size_t heap_parent(size_t child) { return child >> 1; }
+static inline size_t heap_parent(size_t child) { return child >> 1U; }
 
-static inline size_t heap_left(size_t parent) { return parent << 1; }
+static inline size_t heap_left(size_t parent) { return parent << 1U; }
 
 static inline size_t heap_right(size_t parent) { return heap_left(parent) + 1; }
 
@@ -101,14 +101,13 @@ static inline void heap_fixdown(heap_t* heap, size_t parent, cmp_fn cmp) {
             // 无事发生
             // 到这里函数就结束了呀
             return;
-        } else {
-            // 交换两者
-            value_t temp = heap->data[parent];
-            heap->data[parent] = heap->data[child];
-            heap->data[child] = temp;
-            // 用child替换parent继续向下修正堆
-            parent = child;
         }
+        // 交换两者
+        value_t temp = heap->data[parent];
+        heap->data[parent] = heap->data[child];
+        heap->data[child] = temp;
+        // 用child替换parent继续向下修正堆
+        parent = child;
     }
 }
 
@@ -188,8 +187,9 @@ static inline void heap_check(heap_t* heap, cmp_fn cmp) {
     for (size_t i = heap_root(); i <= heap->size / 2; ++i) {
         size_t left = heap_left(i);
         if (left <= heap->size) {
+            bool r = cmp(heap->data[i], heap->data[left]);
             // 有左孩子
-            assert(cmp(heap->data[i], heap->data[left]));
+            assert(r);
         }
         size_t right = heap_right(i);
         if (right <= heap->size) {

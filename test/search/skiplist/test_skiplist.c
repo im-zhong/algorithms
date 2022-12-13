@@ -13,7 +13,8 @@
 string_t skipnode_name(int level, value_t value) {
     if (value == INT64_MIN) {
         return make_string("\"%d/%s\"", level, "min");
-    } else if (value == INT64_MAX) {
+    }
+    if (value == INT64_MAX) {
         return make_string("\"%d/%s\"", level, "max");
     }
     return make_string("\"%d/%ld\"", level, value);
@@ -133,12 +134,10 @@ void test_random_skiplist() {
             // insert
             set_insert(&set, num);
             skiplist_insert(&sl, num);
-        } else if (op == 2) {
+        } else {
             // delete
             set_delete(&set, num);
             skiplist_delete(&sl, num);
-        } else {
-            assert(false);
         }
         // gen_skiplist_dot(&sl);
         // printf("op: %d, num: %d\n", op, num);
@@ -146,7 +145,7 @@ void test_random_skiplist() {
     }
 }
 
-int main(int argc, char* argv[]) {
+int main() {
     test_skiplist();
     test_insert_duplicate();
     test_random_skiplist();

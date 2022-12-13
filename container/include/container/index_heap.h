@@ -42,9 +42,9 @@ static inline void iheap_free(iheap_t* heap);
 // 其实这些东西是通用的呀 可以写一个共同的头文件 放在里面
 static inline size_t iheap_root() { return 1; }
 
-static inline size_t iheap_parent(size_t child) { return child >> 1; }
+static inline size_t iheap_parent(size_t child) { return child >> 1U; }
 
-static inline size_t iheap_left(size_t parent) { return parent << 1; }
+static inline size_t iheap_left(size_t parent) { return parent << 1U; }
 
 static inline size_t iheap_right(size_t parent) {
     return iheap_left(parent) + 1;
@@ -148,12 +148,10 @@ static inline void iheap_fixdown(iheap_t* heap, size_t parent) {
             // 无事发生
             // 到这里函数就结束了呀
             return;
-        } else {
-            // 交换两者
-            iheap_swap(heap, parent, child);
-            // 用child替换parent继续向下修正堆
-            parent = child;
-        }
+        } // 交换两者
+        iheap_swap(heap, parent, child);
+        // 用child替换parent继续向下修正堆
+        parent = child;
     }
 }
 
@@ -207,9 +205,8 @@ static inline void iheap_update(iheap_t* heap, size_t index) {
     // 不对啊 这里还要注意一些边界条件
     if (parent > 0 && !iheap_cmp(heap, parent, pos)) {
         return iheap_fixup(heap, pos);
-    } else {
-        return iheap_fixdown(heap, pos);
     }
+    return iheap_fixdown(heap, pos);
 }
 
 static inline bool iheap_contain(iheap_t* heap, size_t index) {

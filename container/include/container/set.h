@@ -21,7 +21,7 @@ typedef struct {
     size_t size;
 } set_t;
 
-typedef struct __set_entry_t {
+typedef struct {
     value_t value;
     list_node_t node;
 } set_entry_t;
@@ -76,7 +76,7 @@ static inline void make_set(set_t* set) {
     set->size = 0;
     list_init_head(&set->head);
 }
-static inline void free_set(set_t* set) {
+static inline void free_set() {
     assert(set);
     // todo: free_list
 }

@@ -38,7 +38,7 @@ typedef struct list_node_t {
  * @brief create and init a list head
  * @head:   list head variable name
  */
-#define LIST_HEAD(head) list_node_t head = {&head, &head}
+#define LIST_HEAD(head) list_node_t head = {&(head), &(head)}
 
 static inline void list_init_head(list_node_t* head) {
     head->next = head;
@@ -237,10 +237,10 @@ static inline void list_splice_before(struct list_node_t* head,
 // node: list_node_t *node, use for the work ptr
 // head: list_node_t *head, list head ptr
 #define list_for_each(node, head)                                              \
-    for (node = list_first(head); node != (head); node = node->next)
+    for ((node) = list_first(head); (node) != (head); (node) = (node)->next)
 
 #define list_for_each_reverse(node, head)                                      \
-    for (node = list_last(head); node != (head); node = node->prev)
+    for ((node) = list_last(head); (node) != (head); (node) = (node)->prev)
 
 // 这两个有什么用呢
 // #define list_for_each_continue(node, head) \
@@ -254,12 +254,12 @@ static inline void list_splice_before(struct list_node_t* head,
 // head: list_node_t*, list head ptr
 // you could safely erase node when you traverse the list
 #define list_for_each_safe(node, temp, head)                                   \
-    for (node = list_first(head), temp = node->next; node != (head);           \
-         node = temp, temp = node->next)
+    for ((node) = list_first(head), (temp) = (node)->next; (node) != (head);   \
+         (node) = (temp), (temp) = (node)->next)
 
 #define list_for_each_safe_reverse(node, temp, head)                           \
-    for (node = list_last(head), temp = node->prev; node != (head);            \
-         node = temp, temp = node->prev)
+    for ((node) = list_last(head), (temp) = (node)->prev; (node) != (head);    \
+         (node) = (temp), (temp) = (node)->prev)
 
 // node: list_node_t*
 #define list_entry(node, type, member) container_of(node, type, member)
@@ -282,7 +282,7 @@ static inline void list_splice_before(struct list_node_t* head,
 // @entry: type*
 // @head: list head ptr
 // @member: list node name
-#define list_is_head_entry(entry, head, member) (&entry->member == (head))
+#define list_is_head_entry(entry, head, member) (&(entry)->member == (head))
 
 // @type: struct entry_t
 // @entry: type*, use for the worker ptr or loop cursor
@@ -290,14 +290,14 @@ static inline void list_splice_before(struct list_node_t* head,
 // @member: as usual
 
 #define list_for_each_entry(entry, head, type, member)                         \
-    for (entry = list_first_entry(head, type, member);                         \
+    for ((entry) = list_first_entry(head, type, member);                       \
          !list_is_head_entry(entry, head, member);                             \
-         entry = list_next_entry(entry, type, member))
+         (entry) = list_next_entry(entry, type, member))
 
 #define list_for_each_entry_reverse(entry, head, type, member)                 \
-    for (entry = list_last_entry(head, type, member);                          \
+    for ((entry) = list_last_entry(head, type, member);                        \
          !list_is_head_entry(entry, head, member);                             \
-         entry = list_prev_entry(entry, type, member))
+         (entry) = list_prev_entry(entry, type, member))
 
 // 还有很多宏，等用到再去实现吧
 

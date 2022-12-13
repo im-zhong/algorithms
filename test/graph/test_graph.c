@@ -308,7 +308,7 @@ void test_has_circle() {
 
 // todo: random test
 
-int main(int argc, char* argv[]) {
+int main() {
     test_spare_graph();
     test_mst();
     test_sp();

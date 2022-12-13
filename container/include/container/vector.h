@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct __vector {
+typedef struct {
     value_t* data;
     size_t size;
     size_t capacity;
@@ -32,15 +32,16 @@ static inline vector_t make_vector(size_t capacity) {
     return vector;
 }
 
-static inline vector_t vector_clear(vector_t* vector) { vector->size = 0; }
+static inline void vector_clear(vector_t* vector) { vector->size = 0; }
 
 static inline void realloc_vector(vector_t* vector) {
     assert(vector);
 
-    if (vector->capacity == 0)
+    if (vector->capacity == 0) {
         vector->capacity = 4;
+    }
 
-    vector->capacity <<= 1;
+    vector->capacity <<= 1U;
     vector->data =
         (value_t*)realloc(vector->data, vector->capacity * sizeof(value_t));
 }
@@ -72,8 +73,9 @@ static inline vector_t copy_vector(vector_t* vector) {
 static inline void vector_push_back(vector_t* vector, value_t element) {
     assert(vector);
 
-    if (vector->size + 1 > vector->capacity)
+    if (vector->size + 1 > vector->capacity) {
         realloc_vector(vector);
+    }
 
     (vector->data)[vector->size] = element;
     ++(vector->size);
@@ -81,8 +83,9 @@ static inline void vector_push_back(vector_t* vector, value_t element) {
 
 static inline value_t vector_pop_back(vector_t* vector) {
     assert(vector);
-    if (vector->data == NULL && vector->size == 0)
+    if (vector->data == NULL && vector->size == 0) {
         assert(false);
+    }
     --(vector->size);
     return vector->data[vector->size];
 }

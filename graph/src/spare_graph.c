@@ -151,7 +151,7 @@ size_t spare_graph_edge(spare_graph_t* graph) {
 
 // 这实际上是遍历所有的边
 void spare_graph_for_each_edge(spare_graph_t* graph, handle handle) {
-    graph_entry_t* entry;
+    graph_entry_t* entry = NULL;
     for (size_t vertex = 0; vertex < graph->size; ++vertex) {
         // 遍历该顶点所有的邻接顶点
         size_t adjacency_size = 0;
@@ -165,8 +165,8 @@ void spare_graph_for_each_edge(spare_graph_t* graph, handle handle) {
 
 // 我就想知道某条边的weight
 weight_t spare_graph_weight(spare_graph_t* graph, vertex_t from, vertex_t to) {
-    graph_entry_t* entry;
-    list_node_t* work;
+    graph_entry_t* entry = NULL;
+    list_node_t* work = NULL;
     list_for_each(work, &graph->adjacency[from]) {
         entry = container_of(work, graph_entry_t, node);
         if (entry->vertex == to) {
@@ -193,7 +193,7 @@ void spare_graph_delete_edge(spare_graph_t* graph, vertex_t from, vertex_t to) {
     assert(from < graph->size);
     assert(to < graph->size);
     graph_entry_t* entry = NULL;
-    list_node_t* work;
+    list_node_t* work = NULL;
     list_for_each(work, &graph->adjacency[from]) {
         entry = container_of(work, graph_entry_t, node);
         if (entry->vertex == to) {
@@ -422,8 +422,9 @@ dfsforest_t* dfs(spare_graph_t* graph) {
 
     // 遍历所有的节点
     for (size_t vertex = 0; vertex < graph->size; ++vertex) {
-        if (dfsforest[vertex].color == white)
+        if (dfsforest[vertex].color == white) {
             dfs_visit(graph, dfsforest, vertex, &time);
+        }
     }
 
     return dfsforest;
@@ -490,8 +491,9 @@ void toposort(spare_graph_t* graph, list_node_t* topo_list) {
 
     // 遍历所有的链表节点
     for (size_t vertex = 0; vertex < graph->size; ++vertex) {
-        if (color[vertex] == white)
+        if (color[vertex] == white) {
             toposort_impl(graph, vertex, color, topo_list);
+        }
     }
 }
 

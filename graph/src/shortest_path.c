@@ -173,7 +173,7 @@ void sp_dag(spare_graph_t* graph, vertex_t vertex, weight_t* distance,
     // for each vlist
     // 然后对每一个vertex做relax操作
     // 就可以在线性时间内拿到spt
-    vlist_entry_t* entry;
+    vlist_entry_t* entry = NULL;
     list_for_each_entry(entry, &topo_list, vlist_entry_t, node) {
         vertex_t v = entry->vertex;
         // 对于每一个节点执行一次relax操作

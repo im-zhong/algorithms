@@ -270,10 +270,10 @@ void test_lrs() {
 }
 
 void test_kwic(int argc, char** argv) {
-    FILE* stream;
+    FILE* stream = NULL;
     char* line = NULL;
     size_t len = 0;
-    ssize_t nread;
+    ssize_t nread = 0;
 
     if (argc == 1) {
         stream = stdin;
