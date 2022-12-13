@@ -233,7 +233,8 @@ size_t partition(value_t* key, size_t low, size_t high) {
 
 void quick_sort_impl(value_t* key, size_t low, size_t high) {
     // 递归结束条件
-    if (high <= low) {
+    // 就是说我们的high可能是-1 但是-1 实际上是 nopos
+    if (high == (size_t)-1 || high <= low) {
         return;
     }
 
@@ -247,11 +248,12 @@ void quick_sort_impl(value_t* key, size_t low, size_t high) {
     // 就是数据的范围大了一点 但是我从来都用不上大的哪一点数据
     // 但是编程的复杂度确实增加了 无符号数有太多的容易出现bug的地方
     // 我应该重新审视自己了 应该放弃对size_t的执着
-    if (p == 0) {
-        quick_sort_impl(key, low, 0);
-    } else {
-        quick_sort_impl(key, low, p - 1);
-    }
+    // if (p == 0) {
+    //     quick_sort_impl(key, low, 0);
+    // } else {
+    //     quick_sort_impl(key, low, p - 1);
+    // }
+    quick_sort_impl(key, low, p - 1);
     quick_sort_impl(key, p + 1, high);
 }
 
@@ -328,9 +330,12 @@ void counting_sort(value_t* key, size_t size, size_t max) {
     value_t* counting = (value_t*)malloc(sizeof(value_t) * max);
     value_t* tmp = (value_t*)malloc(sizeof(value_t) * size);
 
+    // bug fix: valgrind yyds!
     for (size_t i = 0; i < max; ++i) {
-        tmp[i] = 0;
         counting[i] = 0;
+    }
+    for (size_t i = 0; i < size; i++) {
+        tmp[i] = 0;
     }
 
     // 遍历输入数组，将属于元素当作key
@@ -421,4 +426,10 @@ void bucket_sort(value_t* key, size_t size, size_t max) {
             ++i;
         }
     }
+
+    // 释放资源
+    for (size_t i = 0; i < size; i++) {
+        free_list(&buckets[i]);
+    }
+    free(buckets);
 }

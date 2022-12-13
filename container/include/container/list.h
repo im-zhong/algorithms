@@ -45,6 +45,9 @@ static inline void list_init_head(list_node_t* head) {
     head->prev = head;
 }
 
+// 释放head指向的链表 但是head本身不会被释放掉
+static inline void free_list(list_node_t* head) {}
+
 // 但是这里的顺序又是prev next
 static inline void list_insert_between(list_node_t* prev, list_node_t* next,
                                        list_node_t* node) {

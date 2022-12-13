@@ -57,7 +57,7 @@ void test_counting_sort() {
     // 随机生成序列就好
     const size_t size = 128;
     value_t nums[size];
-    const value_t max = 256;
+    int max = 256;
 
     rand_t rand = make_rand(0, max - 1);
 
@@ -75,7 +75,7 @@ void test_bucket_sort() {
     // 随机生成序列就好
     const size_t size = 16;
     value_t nums[size];
-    const value_t max = 16;
+    int max = 16;
 
     rand_t rand = make_rand(0, max - 1);
 
@@ -89,7 +89,7 @@ void test_bucket_sort() {
     check_array_order(nums, size);
 }
 
-int main(int argc, char* argv[]) {
+int main() {
     test_sort(selection_sort);
     test_sort(insertion_sort);
     test_sort(shell_sort);

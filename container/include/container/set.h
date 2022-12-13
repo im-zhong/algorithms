@@ -76,7 +76,7 @@ static inline void make_set(set_t* set) {
     set->size = 0;
     list_init_head(&set->head);
 }
-static inline void free_set() {
+static inline void free_set(set_t* set) {
     assert(set);
     // todo: free_list
 }
