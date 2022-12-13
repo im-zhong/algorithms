@@ -86,11 +86,13 @@ static int partition(suffix_t* suffix, int low, int high) {
     int i = low + 1;
     int j = high;
     while (true) {
-        while (i < high && strcmp(suffix[i].str, pivot->str) <= 0)
+        while (i < high && strcmp(suffix[i].str, pivot->str) <= 0) {
             i++;
+        }
 
-        while (j > low && strcmp(suffix[j].str, pivot->str) >= 0)
+        while (j > low && strcmp(suffix[j].str, pivot->str) >= 0) {
             j--;
+        }
 
         if (i < j) {
             swap(suffix, i, j);

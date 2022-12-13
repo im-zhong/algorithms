@@ -88,8 +88,9 @@ void shell_sort(value_t* key, size_t size) {
     // 来自算法4 具体是为什么就不知道了
     // h sequence: 1, 4, 13, 40, 121, 364
     size_t h = 1;
-    while (h < size / 3)
+    while (h < size / 3) {
         h = 3 * h + 1;
+    }
 
     // h 从大到小 直到1 h=1 就是insertion sort
     while (h >= 1) {
@@ -206,12 +207,14 @@ size_t partition(value_t* key, size_t low, size_t high) {
         // 首先从左边找到一个大于枢纽的元素
         // 只是这么写可能会导致越界 如果pivot就是最大的元素呢
         // 所以需要边界检测
-        while (i < high && key[i] <= pivot)
+        while (i < high && key[i] <= pivot) {
             ++i;
+        }
 
         // 然后从右边找到一个小于枢纽的元素
-        while (j > low && key[j] >= pivot)
+        while (j > low && key[j] >= pivot) {
             --j;
+        }
 
         if (i < j) {
             // 交换两者

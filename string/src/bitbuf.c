@@ -47,7 +47,7 @@ static inline bool bitbuf_is_full(bitbuf_t* bf) {
     // offset = bf->n * 8
     // 不对 这里思考错了 is_full只会在写
     // 读流程和写流程不会同时发生
-    return bf->offset == BITBUF_SIZE * 8;
+    return bf->offset == BITBUF_SIZE * 8UL;
 }
 
 // n = 0 - 7
@@ -57,7 +57,7 @@ static inline bool bitbuf_is_full(bitbuf_t* bf) {
 static inline int read_bit(unsigned char c, size_t n) {
     assert(n < 8);
     // 使用 & 操作读取一个bit吧
-    return (c & (1 << n)) >> n;
+    return (c & (1U << n)) >> n;
 }
 
 static inline int write_bit(unsigned char c, size_t n, int bit) {
@@ -67,12 +67,11 @@ static inline int write_bit(unsigned char c, size_t n, int bit) {
     if (bit) {
         // bit = 1
         // 用或操作
-        return c | (1 << n);
-    } else {
-        // bit = 0
-        // 用与操作
-        return c & ~(1 << n);
+        return c | (1U << n);
     }
+    // bit = 0
+    // 用与操作
+    return c & ~(1U << n);
 }
 
 int bitbuf_cache(bitbuf_t* bf) {
@@ -108,7 +107,7 @@ int bitbuf_flush(bitbuf_t* bf) {
         // 最后一位的前面补零
         // 怎么补??
         // 其实就是 0 | 低j位
-        unsigned int mask = 1 << (j + 1);
+        unsigned int mask = 1U << (j + 1U);
         mask--;
         // 现在mask就是 j个1
         bf->buf[i] = bf->buf[i] & mask;

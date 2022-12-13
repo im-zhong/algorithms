@@ -124,11 +124,13 @@ static int partition(char** str, int low, int high) {
     int i = low + 1;
     int j = high;
     while (true) {
-        while (i < high && strcmp(str[i], pivot) <= 0)
+        while (i < high && strcmp(str[i], pivot) <= 0) {
             i++;
+        }
 
-        while (j > low && strcmp(str[j], pivot) >= 0)
+        while (j > low && strcmp(str[j], pivot) >= 0) {
             j--;
+        }
 
         if (i < j) {
             swap(str, i, j);

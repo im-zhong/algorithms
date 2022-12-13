@@ -110,7 +110,7 @@ huffman_node_t* read_huffman_tree_from_file(bitbuf_t* inbf) {
         node->left = read_huffman_tree_from_file(inbf);
         node->right = read_huffman_tree_from_file(inbf);
         return node;
-    } else {
+    } else { // NOLINT
         // 我们读到了一个叶子节点
         // 读取一个byte到
         unsigned int byte = 0;
@@ -350,15 +350,14 @@ void huffman_decompress(char* filename) {
                 // 那么我们就输出叶子对应的字符就好
                 fputc(work->c, out);
                 break;
+            }
+            bitbuf_read_bit(inbf, &bit);
+            if (bit == 0) {
+                work = work->left;
+            } else if (bit == 1) {
+                work = work->right;
             } else {
-                bitbuf_read_bit(inbf, &bit);
-                if (bit == 0) {
-                    work = work->left;
-                } else if (bit == 1) {
-                    work = work->right;
-                } else {
-                    assert(false);
-                }
+                assert(false);
             }
         }
     }
