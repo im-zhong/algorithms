@@ -2,8 +2,8 @@
 // zhangzhong
 // container_of.h
 
-#ifndef CONTAINER_OF_H
-#define CONTAINER_OF_H
+#ifndef _CONTAINER_OF_H_
+#define _CONTAINER_OF_H_
 
 #include <stddef.h>
 
@@ -16,4 +16,4 @@
 #define container_of(ptr, type, member)                                        \
     (type*)((char*)ptr - offsetof(type, member))
 
-#endif // CONTAINER_OF_H
+#endif // _CONTAINER_OF_H_

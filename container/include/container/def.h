@@ -2,8 +2,8 @@
 // zhangzhong
 // def
 
-#ifndef __DEF__
-#define __DEF__
+#ifndef _DEF_H_
+#define _DEF_H_
 
 #include <stdint.h>
 
@@ -17,4 +17,4 @@ typedef int64_t value_t;
 // 我们还可以定义一些debug函数
 #define debug
 
-#endif // __DEF__
+#endif // _DEF_H_

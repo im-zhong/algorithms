@@ -2,8 +2,8 @@
 // zhangzhong
 // string set
 
-#ifndef __STRSET__
-#define __STRSET__
+#ifndef _STRSET_H_
+#define _STRSET_H_
 
 #include "def.h"
 #include "list.h"
@@ -87,6 +87,7 @@ static inline void strset_delete(strset_t* set, char* str) {
     }
 }
 static inline bool strset_is_empty(strset_t* set) { return set->size == 0; }
+
 static inline void strset_clean(strset_t* set) {
     // free list
 }
@@ -102,4 +103,4 @@ static inline void free_strset(strset_t* set) {
     // todo: free_list
 }
 
-#endif // __STRSET__
+#endif // _STRSET_H_

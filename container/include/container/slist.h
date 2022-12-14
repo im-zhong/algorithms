@@ -2,8 +2,8 @@
 // zhangzhong
 // slist.h
 
-#ifndef SLIST_H
-#define SLIST_H
+#ifndef _SLIST_H_
+#define _SLIST_H_
 
 #include "container_of.h"
 #include <stdbool.h>
@@ -69,4 +69,4 @@ static inline bool slist_is_empty(const slist_node_t* head) {
          !slist_is_head_entry(entry, head, member);                            \
          (entry) = slist_next_entry(entry, type, member))
 
-#endif // SLIST_H
+#endif // _SLIST_H_

@@ -2,8 +2,8 @@
 // zhangzhong
 // queue.h
 
-#ifndef QUEUE_H
-#define QUEUE_H
+#ifndef _QUEUE_H_
+#define _QUEUE_H_
 
 #include "list.h"
 
@@ -21,4 +21,4 @@
 
 #define queue_is_empty(head) list_is_empty(head)
 
-#endif // QUEUE_H
+#endif // _QUEUE_H_

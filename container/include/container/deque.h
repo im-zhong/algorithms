@@ -2,8 +2,8 @@
 // zhangzhong
 // deque.h
 
-#ifndef DEQUE_H
-#define DEQUE_H
+#ifndef _DEQUE_H_
+#define _DEQUE_H_
 
 #include "list.h"
 
@@ -31,4 +31,4 @@
 
 #define deque_is_empty(head) list_is_empty(head)
 
-#endif // DEQUE_H
+#endif // _DEQUE_H_

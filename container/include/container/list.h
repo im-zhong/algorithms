@@ -2,8 +2,8 @@
 // zhangzhong
 // list.h
 
-#ifndef LIST_H
-#define LIST_H
+#ifndef _LIST_H_
+#define _LIST_H_
 
 #include "container_of.h"
 #include <stdbool.h>
@@ -304,4 +304,4 @@ static inline void list_splice_before(struct list_node_t* head,
 
 // 还有很多宏，等用到再去实现吧
 
-#endif // LIST_H
+#endif // _LIST_H_

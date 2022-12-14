@@ -16,8 +16,8 @@
 
 // 用户仍然希望在堆中存在一种类型 T
 // 同时用户也必须提供一个可以比较T类型的比较函数
-#ifndef __BHEAP_H__
-#define __BHEAP_H__
+#ifndef _BHEAP_H_
+#define _BHEAP_H_
 
 #include "heap.h"
 #include <assert.h>
@@ -248,4 +248,4 @@ static inline void make_bheap(bheap_t* heap) {
     }
 }
 
-#endif // __BHEAP_H__
+#endif // _BHEAP_H_

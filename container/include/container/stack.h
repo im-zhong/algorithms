@@ -2,8 +2,8 @@
 // zhangzhong
 // stack.h
 
-#ifndef STACK_H
-#define STACK_H
+#ifndef _STACK_H_
+#define _STACK_H_
 
 #include "slist.h"
 
@@ -27,4 +27,4 @@
 
 #define stack_is_empty(head) slist_is_empty(head)
 
-#endif // STACK_H
+#endif // _STACK_H_

@@ -2,8 +2,8 @@
 // zhangzhong
 // set
 
-#ifndef __SET_H__
-#define __SET_H__
+#ifndef _SET_H_
+#define _SET_H_
 
 // 定义set interface
 
@@ -81,4 +81,4 @@ static inline void free_set(set_t* set) {
     // todo: free_list
 }
 
-#endif // __SET_H__
+#endif // _SET_H_

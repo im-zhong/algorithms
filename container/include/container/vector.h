@@ -2,8 +2,8 @@
 // zhangzhong
 // vector
 
-#ifndef __VECTOR__
-#define __VECTOR__
+#ifndef _VECTOR_H_
+#define _VECTOR_H_
 
 #include "def.h"
 #include <assert.h>
@@ -32,9 +32,18 @@ static inline vector_t make_vector(size_t capacity) {
     return vector;
 }
 
+static inline void free_vector(vector_t* vector) {
+    assert(vector);
+
+    free(vector->data);
+    vector->data = NULL;
+    vector->size = 0;
+    vector->capacity = 0;
+}
+
 static inline void vector_clear(vector_t* vector) { vector->size = 0; }
 
-static inline void realloc_vector(vector_t* vector) {
+static inline void vector_realloc(vector_t* vector) {
     assert(vector);
 
     if (vector->capacity == 0) {
@@ -44,15 +53,6 @@ static inline void realloc_vector(vector_t* vector) {
     vector->capacity <<= 1U;
     vector->data =
         (value_t*)realloc(vector->data, vector->capacity * sizeof(value_t));
-}
-
-static inline void free_vector(vector_t* vector) {
-    assert(vector);
-
-    free(vector->data);
-    vector->data = NULL;
-    vector->size = 0;
-    vector->capacity = 0;
 }
 
 static inline vector_t copy_vector(vector_t* vector) {
@@ -74,7 +74,7 @@ static inline void vector_push_back(vector_t* vector, value_t element) {
     assert(vector);
 
     if (vector->size + 1 > vector->capacity) {
-        realloc_vector(vector);
+        vector_realloc(vector);
     }
 
     (vector->data)[vector->size] = element;
@@ -103,4 +103,4 @@ static inline value_t vector_back(vector_t* vector) {
     return vector->data[vector->size - 1];
 }
 
-#endif // __VECTOR_H__
+#endif // _VECTOR_H_

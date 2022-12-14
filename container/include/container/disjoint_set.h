@@ -36,8 +36,8 @@
 // 只需要让 find(a) == find(b)即可
 //
 
-#ifndef __DISJOINT_SET_H__
-#define __DISJOINT_SET_H__
+#ifndef _DISJOINT_SET_H_
+#define _DISJOINT_SET_H_
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -130,4 +130,4 @@ static inline void disjoint_set_union(disjoint_set* djs, long lhs, long rhs) {
 
 // }
 
-#endif // __DISJOINT_SET_H__
+#endif // _DISJOINT_SET_H_

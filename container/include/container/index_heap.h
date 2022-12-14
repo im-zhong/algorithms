@@ -5,8 +5,8 @@
 // 跟普通的二项堆不同 他提供一个额外的索引功能
 // 实现prim算法时非常有效
 
-#ifndef __INDEX_HEAP_H__
-#define __INDEX_HEAP_H__
+#ifndef _INDEX_HEAP_H_
+#define _INDEX_HEAP_H_
 
 #include <assert.h>
 #include <stdbool.h>
@@ -245,4 +245,4 @@ static inline void iheap_check(iheap_t* heap) {
     assert(size == heap->size);
 }
 
-#endif // __INDEX_HEAP_H__
+#endif // _INDEX_HEAP_
