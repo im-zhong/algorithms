@@ -51,8 +51,10 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-# cmake
+# cmake & conan
 build/*
+CMakeUserPresets.json
+compile_commands.json
 
 # clangd cache
 .cache/*
