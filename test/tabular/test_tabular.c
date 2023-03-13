@@ -1,9 +1,11 @@
 // 2023/3/13
 // zhanzhong
 
+#include "tabular/longest_common_subsequence.h"
 #include "tabular/matrix_chain_multiplication.h"
 #include "tabular/rod_cutting.h"
 #include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 void test_rod_cutting() {
@@ -44,8 +46,14 @@ void test_matrix_chain_multiplication() {
     assert(matrix_chain_multiplication(matrix2, size2) == 30 * 35 * 15);
 }
 
+void test_longest_common_subsequence() {
+    assert(longest_common_subsequence("AB", "A") == 1);
+    assert(longest_common_subsequence("ABCBDAB", "BDCABA") == 4);
+}
+
 int main() {
     test_rod_cutting();
     test_matrix_chain_multiplication();
+    test_longest_common_subsequence();
     return 0;
 }
