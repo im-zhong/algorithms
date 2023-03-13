@@ -3,6 +3,7 @@
 // dynamic programming: matrix chain multiplication
 
 #include "tabular/matrix_chain_multiplication.h"
+#include "container/array2d.h"
 #include <assert.h>
 #include <limits.h>
 #include <pthread.h>
@@ -24,35 +25,35 @@ static int matrix_multiplication_cost(const int* matrix, size_t n, size_t i,
 }
 
 // 二维数组
-struct array_t {
-    int* data;
-    size_t row;
-    size_t col;
-};
+// struct array_t {
+//     int* data;
+//     size_t row;
+//     size_t col;
+// };
 
-struct array_t make_array(size_t row, size_t col, int initial) {
-    int* data = malloc(row * col * sizeof(int));
-    memset(data, initial, row * col * sizeof(int));
-    struct array_t array = {
-        data,
-        row,
-        col,
-    };
-    return array;
-}
+// struct array_t make_array(size_t row, size_t col, int initial) {
+//     int* data = malloc(row * col * sizeof(int));
+//     memset(data, initial, row * col * sizeof(int));
+//     struct array_t array = {
+//         data,
+//         row,
+//         col,
+//     };
+//     return array;
+// }
 
-void free_array(struct array_t* array) {
-    if (array) {
-        free(array->data);
-        array->data = NULL;
-        array->row = 0;
-        array->col = 0;
-    }
-}
+// void free_array(struct array_t* array) {
+//     if (array) {
+//         free(array->data);
+//         array->data = NULL;
+//         array->row = 0;
+//         array->col = 0;
+//     }
+// }
 
-int* at(struct array_t* array, size_t i, size_t j) {
-    return array->data + i * array->row + j;
-}
+// int* at(struct array_t* array, size_t i, size_t j) {
+//     return array->data + i * array->row + j;
+// }
 
 // 模拟一个二维数组
 // int* cost(int i, int j) {
@@ -77,7 +78,7 @@ static void check(const int* matrix, size_t size) {
 
 // 输出序列 (Ai ... Aj)
 // 当且仅当 j - i > 1时 才会输出括号
-static void print_impl(struct array_t* cuts, size_t i, size_t j) {
+static void print_impl(struct array2d_t* cuts, size_t i, size_t j) {
     assert(i <= j);
     if (i == j) {
         printf("A%zu", i);
@@ -94,7 +95,7 @@ static void print_impl(struct array_t* cuts, size_t i, size_t j) {
     }
 }
 
-static void print_solution(struct array_t* cuts) {
+static void print_solution(struct array2d_t* cuts) {
     size_t n = cuts->row;
 
     // 序列 A0 A1 A2 ... An-1
@@ -120,8 +121,8 @@ int matrix_chain_multiplication(int* matrix, size_t size) {
 
     // 矩阵的个数是 n = size - 1
     size_t n = size - 1;
-    struct array_t costs = make_array(n, n, 0);
-    struct array_t cuts = make_array(n, n, 0);
+    struct array2d_t costs = make_array(n, n, 0);
+    struct array2d_t cuts = make_array(n, n, 0);
 
     // step = 0 没有意义 不需要计算 因为都被初始化为零了
     // 这样修改下面就不依赖cost的默认值为零了

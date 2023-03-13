@@ -3,6 +3,7 @@
 // dynamic programming: longest common subsequence
 
 #include "tabular/longest_common_subsequence.h"
+#include "container/array2d.h"
 #include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -12,35 +13,35 @@
 static int min(int x, int y) { return x < y ? x : y; }
 static int max(int x, int y) { return x > y ? x : y; }
 
-struct array_t {
-    int* data;
-    size_t row;
-    size_t col;
-};
+// struct array_t {
+//     int* data;
+//     size_t row;
+//     size_t col;
+// };
 
-static struct array_t make_array(size_t row, size_t col, int initial) {
-    int* data = malloc(row * col * sizeof(int));
-    memset(data, initial, row * col * sizeof(int));
-    struct array_t array = {
-        data,
-        row,
-        col,
-    };
-    return array;
-}
+// static struct array_t make_array(size_t row, size_t col, int initial) {
+//     int* data = malloc(row * col * sizeof(int));
+//     memset(data, initial, row * col * sizeof(int));
+//     struct array_t array = {
+//         data,
+//         row,
+//         col,
+//     };
+//     return array;
+// }
 
-static void free_array(struct array_t* array) {
-    if (array) {
-        free(array->data);
-        array->data = NULL;
-        array->row = 0;
-        array->col = 0;
-    }
-}
+// static void free_array(struct array_t* array) {
+//     if (array) {
+//         free(array->data);
+//         array->data = NULL;
+//         array->row = 0;
+//         array->col = 0;
+//     }
+// }
 
-static int* at(const struct array_t* array, size_t i, size_t j) {
-    return array->data + i * array->col + j;
-}
+// static int* at(const struct array_t* array, size_t i, size_t j) {
+//     return array->data + i * array->col + j;
+// }
 
 // 定义三个方向
 // 1 = left up
@@ -53,7 +54,7 @@ enum Direction {
     UP,
 };
 
-void print_lcs(const struct array_t* direction, const char* x, const char* y,
+void print_lcs(const struct array2d_t* direction, const char* x, const char* y,
                size_t i, size_t j) {
     int d = *at(direction, i, j);
     if (d == LEFT_UP) {
@@ -74,7 +75,7 @@ void print_lcs(const struct array_t* direction, const char* x, const char* y,
     }
 }
 
-void print_solution(const struct array_t* direction, const char* x,
+void print_solution(const struct array2d_t* direction, const char* x,
                     const char* y) {
     size_t row = strlen(x);
     size_t col = strlen(y);
@@ -102,8 +103,8 @@ size_t longest_common_subsequence(const char* x, const char* y) {
     // 只不过我们现在必须要多分配一行一列
     size_t row = strlen(x);
     size_t col = strlen(y);
-    struct array_t lcs = make_array(row + 1, col + 1, 0);
-    struct array_t direction = make_array(row + 1, col + 1, 0);
+    struct array2d_t lcs = make_array(row + 1, col + 1, 0);
+    struct array2d_t direction = make_array(row + 1, col + 1, 0);
 
     // 计算顺序 按照行序进行计算即可
     // 只不过下标从1开始

@@ -5,3 +5,4 @@ add_library(tabular STATIC
     src/matrix_chain_multiplication.c
     src/longest_common_subsequence.c)
 target_include_directories(tabular PUBLIC include)
+target_link_libraries(tabular PUBLIC container)
