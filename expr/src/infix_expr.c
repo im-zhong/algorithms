@@ -35,21 +35,26 @@ enum {
 static int get_expr_type(const char* str) {
     if (str[0] == '(') {
         return EXPR_LBRACKET;
-    } else if (str[0] == ')') {
-        return EXPR_RBRACKET;
-    } else if (str[0] == '+') {
-        return EXPR_OP_ADD;
-    } else if (str[0] == '-') {
-        return EXPR_OP_SUB;
-    } else if (str[0] == '*') {
-        return EXPR_OP_MUL;
-    } else if (str[0] == '/') {
-        return EXPR_OP_DIV;
-    } else if (str[0] == '\0') {
-        return EXPR_END;
-    } else {
-        return EXPR_NUM;
     }
+    if (str[0] == ')') {
+        return EXPR_RBRACKET;
+    }
+    if (str[0] == '+') {
+        return EXPR_OP_ADD;
+    }
+    if (str[0] == '-') {
+        return EXPR_OP_SUB;
+    }
+    if (str[0] == '*') {
+        return EXPR_OP_MUL;
+    }
+    if (str[0] == '/') {
+        return EXPR_OP_DIV;
+    }
+    if (str[0] == '\0') {
+        return EXPR_END;
+    }
+    return EXPR_NUM;
 }
 
 static value_t str_to_value(const char* str) {
@@ -75,7 +80,6 @@ static value_t eval(int op, value_t lhs, value_t rhs) {
 }
 
 static void eval_top(slist_node_t* num_stack, slist_node_t* op_stack) {
-
     assert(!stack_is_empty(op_stack));
     expr_t* op = stack_top(op_stack, expr_t);
     stack_pop(op_stack);
@@ -115,7 +119,7 @@ static void eval_top(slist_node_t* num_stack, slist_node_t* op_stack) {
     }
 }
 
-int get_op_priority(int op) {
+static int get_op_priority(int op) {
     switch (op) {
     case EXPR_END:
         return 0;
@@ -132,7 +136,7 @@ int get_op_priority(int op) {
     }
 }
 
-bool need_eval_top(int top_op, int curr_op) {
+static bool need_eval_top(int top_op, int curr_op) {
     // 当 top >= curr 的时候 我们就需要eval top
     // 右括号的优先级需要额外考虑
     if (top_op >= curr_op) {
