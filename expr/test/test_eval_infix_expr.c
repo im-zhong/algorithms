@@ -15,8 +15,8 @@ void expr_push(list_node_t* expr, const char* str) {
     list_insert_before(expr, &entry->node);
 }
 
-int main() {
-    // ((1 + 2) * 3 + 4) * 5 = 65
+void test_eval_infix_expr_case_1() {
+    // case 1: ((1 + 2) * 3 + 4) * 5 = 65
     list_node_t expr;
     list_init_head(&expr);
     expr_push(&expr, "(");
@@ -32,8 +32,56 @@ int main() {
     expr_push(&expr, ")");
     expr_push(&expr, "*");
     expr_push(&expr, "5");
+    // 特殊的结束符号
+    expr_push(&expr, "\0");
 
     value_t result = eval_infix_expr(&expr);
     assert(result == 65);
+}
+
+void test_eval_infix_expr_case_2() {
+    // case 2: 1 + 2 * 3 + 4 * 5 = 27
+    list_node_t expr;
+    list_init_head(&expr);
+    expr_push(&expr, "1");
+    expr_push(&expr, "+");
+    expr_push(&expr, "2");
+    expr_push(&expr, "*");
+    expr_push(&expr, "3");
+    expr_push(&expr, "+");
+    expr_push(&expr, "4");
+    expr_push(&expr, "*");
+    expr_push(&expr, "5");
+    expr_push(&expr, "\0");
+
+    value_t result = eval_infix_expr(&expr);
+    assert(result == 27);
+}
+
+void test_eval_infix_expr_case_3() {
+    // case 3: (1 + 2 * 3) * 4 + 5 = 33
+    list_node_t expr;
+    list_init_head(&expr);
+    expr_push(&expr, "(");
+    expr_push(&expr, "1");
+    expr_push(&expr, "+");
+    expr_push(&expr, "2");
+    expr_push(&expr, "*");
+    expr_push(&expr, "3");
+    expr_push(&expr, ")");
+    expr_push(&expr, "*");
+    expr_push(&expr, "4");
+    expr_push(&expr, "+");
+    expr_push(&expr, "5");
+    expr_push(&expr, "\0");
+
+    value_t result = eval_infix_expr(&expr);
+    assert(result == 33);
+}
+
+int main() {
+    test_eval_infix_expr_case_1();
+    test_eval_infix_expr_case_2();
+    test_eval_infix_expr_case_3();
     return 0;
 }

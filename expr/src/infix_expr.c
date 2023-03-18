@@ -45,6 +45,8 @@ static int get_expr_type(const char* str) {
         return EXPR_OP_MUL;
     } else if (str[0] == '/') {
         return EXPR_OP_DIV;
+    } else if (str[0] == '\0') {
+        return EXPR_END;
     } else {
         return EXPR_NUM;
     }
@@ -142,6 +144,8 @@ bool need_eval_top(int top_op, int curr_op) {
 }
 
 value_t eval_infix_expr(list_node_t* expr) {
+    // 像expr中插入一个end符号
+    // 让测试代码来加吧
 
     // 我们需要两个栈
     // 一个用来存储操作数
@@ -179,12 +183,15 @@ value_t eval_infix_expr(list_node_t* expr) {
             break;
         }
         default: {
-            if (!stack_is_empty(&op_stack)) {
+            while (!stack_is_empty(&op_stack)) {
+                // 这里需要一直计算
                 // 拿到栈顶操作符
                 expr_t* top_op = stack_top(&op_stack, expr_t);
                 // 拿到当前操作符
                 if (need_eval_top(top_op->type, op_type)) {
                     eval_top(&num_stack, &op_stack);
+                } else {
+                    break;
                 }
             }
             // 然后再把我们push进去
@@ -197,9 +204,13 @@ value_t eval_infix_expr(list_node_t* expr) {
     }
 
     // 最后eval top
-    eval_top(&num_stack, &op_stack);
+    // eval_top(&num_stack, &op_stack);
 
     // op stack 应该是空的
+    assert(!stack_is_empty(&op_stack));
+    expr_t* end = stack_top(&op_stack, expr_t);
+    stack_pop(&op_stack);
+    assert(end->type == EXPR_END);
     assert(stack_is_empty(&op_stack));
 
     // 最后的结果存放再num stack中
