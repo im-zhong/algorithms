@@ -33,7 +33,7 @@ int main() {
     expr_push(&expr, "*");
     expr_push(&expr, "5");
 
-    value_t result = infix_expr_eval(&expr);
+    value_t result = eval_infix_expr(&expr);
     assert(result == 65);
     return 0;
 }

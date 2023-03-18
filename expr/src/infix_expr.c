@@ -141,7 +141,7 @@ bool need_eval_top(int top_op, int curr_op) {
     return top_op == EXPR_RBRACKET;
 }
 
-value_t infix_expr_eval(list_node_t* expr) {
+value_t eval_infix_expr(list_node_t* expr) {
 
     // 我们需要两个栈
     // 一个用来存储操作数

@@ -30,7 +30,7 @@ int main() {
     expr_push(&expr, "5");
     expr_push(&expr, "*");
 
-    value_t result = suffix_expr_eval(&expr);
+    value_t result = eval_suffix_expr(&expr);
     assert(result == 65);
     return 0;
 }

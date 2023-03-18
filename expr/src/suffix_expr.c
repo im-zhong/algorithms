@@ -55,7 +55,7 @@ static value_t eval(char op, value_t lhs, value_t rhs) {
     }
 }
 
-value_t suffix_expr_eval(list_node_t* expr) {
+value_t eval_suffix_expr(list_node_t* expr) {
     stack_init(stack);
 
     // 我们要遍历这个链表

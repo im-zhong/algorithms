@@ -17,8 +17,8 @@ typedef struct {
     char* str;
 } strlist_t;
 
-value_t infix_expr_eval(list_node_t* expr);
+value_t eval_infix_expr(list_node_t* expr);
 
-value_t suffix_expr_eval(list_node_t* expr);
+value_t eval_suffix_expr(list_node_t* expr);
 
 #endif // EXPR_EVAL_H
