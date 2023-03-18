@@ -7,6 +7,7 @@
 
 #include "container/array2d.h"
 #include "container/bheap.h"
+#include "container/circular_queue.h"
 #include "container/heap.h"
 #include "container/index_heap.h"
 #include "container/queue.h"
@@ -312,6 +313,22 @@ void test_symmetric_matrix() {
     free_symmetric_matrix(&m);
 }
 
+void test_circular_queue() {
+    size_t capacity = 8;
+    circular_queue_t queue = make_circular_queue(capacity);
+    assert(circular_queue_empty(&queue));
+    for (size_t i = 0; i < capacity; ++i) {
+        circular_queue_push(&queue, (value_t)i);
+    }
+    assert(circular_queue_full(&queue));
+    for (size_t i = 0; i < capacity; ++i) {
+        assert(circular_queue_top(&queue) == (value_t)i);
+        circular_queue_pop(&queue);
+    }
+    assert(circular_queue_empty(&queue));
+    free_circular_queue(&queue);
+}
+
 int main(int argc, char* argv[]) {
     test_containe_of();
     test_heap();
@@ -320,6 +337,7 @@ int main(int argc, char* argv[]) {
     test_string();
     test_vector();
     test_symmetric_matrix();
+    test_circular_queue();
 
     stack_init(stack);
 
