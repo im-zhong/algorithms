@@ -21,3 +21,12 @@ target_link_libraries(test_eval_suffix_expr
     PUBLIC expr
     PUBLIC container
 )
+
+#2 test infix expression evaluation
+add_executable(test_eval_infix_expr
+    test/test_eval_infix_expr.c
+)
+target_link_libraries(test_eval_infix_expr
+    PUBLIC expr
+    PUBLIC container
+)
