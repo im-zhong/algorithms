@@ -54,9 +54,9 @@ enum Direction {
     UP,
 };
 
-void print_lcs(const struct array2d_t* direction, const char* x, const char* y,
+void print_lcs(const array2d_t* direction, const char* x, const char* y,
                size_t i, size_t j) {
-    int d = *at(direction, i, j);
+    int d = *array2d_at(direction, i, j);
     if (d == LEFT_UP) {
         // 向坐上移动
         print_lcs(direction, x, y, i - 1, j - 1);
@@ -75,8 +75,7 @@ void print_lcs(const struct array2d_t* direction, const char* x, const char* y,
     }
 }
 
-void print_solution(const struct array2d_t* direction, const char* x,
-                    const char* y) {
+void print_solution(const array2d_t* direction, const char* x, const char* y) {
     size_t row = strlen(x);
     size_t col = strlen(y);
 
@@ -103,8 +102,8 @@ size_t longest_common_subsequence(const char* x, const char* y) {
     // 只不过我们现在必须要多分配一行一列
     size_t row = strlen(x);
     size_t col = strlen(y);
-    struct array2d_t lcs = make_array(row + 1, col + 1, 0);
-    struct array2d_t direction = make_array(row + 1, col + 1, 0);
+    array2d_t lcs = make_array2d(row + 1, col + 1, 0);
+    array2d_t direction = make_array2d(row + 1, col + 1, 0);
 
     // 计算顺序 按照行序进行计算即可
     // 只不过下标从1开始
@@ -115,29 +114,29 @@ size_t longest_common_subsequence(const char* x, const char* y) {
                 // 还需要记录方向
                 // 这样我们后面可以输出这个lcs
                 // 这里的长度需要加上1 因为我们已经找到了两个相同的符号
-                *at(&lcs, i + 1, j + 1) = *at(&lcs, i, j) + 1;
-                *at(&direction, i + 1, j + 1) = LEFT_UP;
+                *array2d_at(&lcs, i + 1, j + 1) = *array2d_at(&lcs, i, j) + 1;
+                *array2d_at(&direction, i + 1, j + 1) = LEFT_UP;
             } else {
                 // 向左
-                int left = *at(&lcs, i + 1, j);
+                int left = *array2d_at(&lcs, i + 1, j);
                 // 向上
-                int up = *at(&lcs, i, j + 1);
+                int up = *array2d_at(&lcs, i, j + 1);
                 // 我们看看谁长
                 if (left > up) {
                     // 选择left
-                    *at(&direction, i + 1, j + 1) = LEFT;
+                    *array2d_at(&direction, i + 1, j + 1) = LEFT;
                 } else {
                     // 选择up
-                    *at(&direction, i + 1, j + 1) = UP;
+                    *array2d_at(&direction, i + 1, j + 1) = UP;
                 }
-                *at(&lcs, i + 1, j + 1) = max(left, up);
+                *array2d_at(&lcs, i + 1, j + 1) = max(left, up);
             }
         }
     }
 
-    int len = *at(&lcs, row, col);
+    int len = *array2d_at(&lcs, row, col);
     print_solution(&direction, x, y);
-    free_array(&lcs);
-    free_array(&direction);
+    free_array2d(&lcs);
+    free_array2d(&direction);
     return len;
 }

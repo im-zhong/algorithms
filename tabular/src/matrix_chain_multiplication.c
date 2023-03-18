@@ -78,7 +78,7 @@ static void check(const int* matrix, size_t size) {
 
 // 输出序列 (Ai ... Aj)
 // 当且仅当 j - i > 1时 才会输出括号
-static void print_impl(struct array2d_t* cuts, size_t i, size_t j) {
+static void print_impl(array2d_t* cuts, size_t i, size_t j) {
     assert(i <= j);
     if (i == j) {
         printf("A%zu", i);
@@ -87,7 +87,7 @@ static void print_impl(struct array2d_t* cuts, size_t i, size_t j) {
     //     printf("(A%zuA%zu)", i, j);
     // }
     else {
-        int cut = *at(cuts, i, j);
+        int cut = *array2d_at(cuts, i, j);
         printf("(");
         print_impl(cuts, i, cut);
         print_impl(cuts, cut + 1, j);
@@ -95,7 +95,7 @@ static void print_impl(struct array2d_t* cuts, size_t i, size_t j) {
     }
 }
 
-static void print_solution(struct array2d_t* cuts) {
+static void print_solution(array2d_t* cuts) {
     size_t n = cuts->row;
 
     // 序列 A0 A1 A2 ... An-1
@@ -121,8 +121,8 @@ int matrix_chain_multiplication(int* matrix, size_t size) {
 
     // 矩阵的个数是 n = size - 1
     size_t n = size - 1;
-    struct array2d_t costs = make_array(n, n, 0);
-    struct array2d_t cuts = make_array(n, n, 0);
+    array2d_t costs = make_array2d(n, n, 0);
+    array2d_t cuts = make_array2d(n, n, 0);
 
     // step = 0 没有意义 不需要计算 因为都被初始化为零了
     // 这样修改下面就不依赖cost的默认值为零了
@@ -146,7 +146,7 @@ int matrix_chain_multiplication(int* matrix, size_t size) {
                 //                 matrix_multiplication_cost(matrix, n, i, j,
                 //                 k);
                 int curr_cost =
-                    *at(&costs, i, k) + *at(&costs, k + 1, j) +
+                    *array2d_at(&costs, i, k) + *array2d_at(&costs, k + 1, j) +
                     matrix_multiplication_cost(matrix, size, i, j, k);
                 // 这里的cost默认都是零
                 // 但是默认是零是有用的 A00 这样的计算是依赖默认值的
@@ -157,13 +157,13 @@ int matrix_chain_multiplication(int* matrix, size_t size) {
             }
 
             // 最终在这里计算出了 cost(i, j)
-            *at(&costs, i, j) = cost;
-            *at(&cuts, i, j) = cut;
+            *array2d_at(&costs, i, j) = cost;
+            *array2d_at(&cuts, i, j) = cut;
         }
     }
 
     print_solution(&cuts);
-    int cost = *at(&costs, 0, n - 1);
-    free_array(&costs);
+    int cost = *array2d_at(&costs, 0, n - 1);
+    free_array2d(&costs);
     return cost;
 }

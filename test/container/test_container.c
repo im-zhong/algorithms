@@ -5,11 +5,13 @@
 // to test git restore
 // i add some thing i do not want to commit
 
+#include "container/array2d.h"
 #include "container/bheap.h"
 #include "container/heap.h"
 #include "container/index_heap.h"
 #include "container/queue.h"
 #include "container/stack.h"
+#include "container/symmetric_matrix.h"
 #include "container/vector.h"
 #include "util/c_random.h"
 #include "util/c_string.h"
@@ -287,6 +289,29 @@ void test_vector() {
     free_vector(&vector);
 }
 
+void test_symmetric_matrix() {
+    const size_t dim = 8;
+    // 实际上这样的测试是不充分的
+    // 我们应该以一个完整的二维数组来测试
+    // 也就是 array2d_t
+    symmetric_matrix_t m = make_symmetric_matrix(dim);
+    array2d_t array = make_array2d(dim, dim, 0);
+    for (size_t i = 0; i < dim; ++i) {
+        for (size_t j = i; j < dim; ++j) {
+            *symmetric_matrix_at(&m, i, j) = (value_t)(i * j);
+            *array2d_at(&array, i, j) = (int)(i * j);
+        }
+    }
+    for (size_t i = 0; i < dim; ++i) {
+        for (size_t j = i; j < dim; ++j) {
+            assert(*symmetric_matrix_at(&m, i, j) == (value_t)(i * j));
+            assert(*array2d_at(&array, i, j) == (int)(i * j));
+            assert(*symmetric_matrix_at(&m, i, j) == *array2d_at(&array, i, j));
+        }
+    }
+    free_symmetric_matrix(&m);
+}
+
 int main(int argc, char* argv[]) {
     test_containe_of();
     test_heap();
@@ -294,6 +319,7 @@ int main(int argc, char* argv[]) {
     test_iheap();
     test_string();
     test_vector();
+    test_symmetric_matrix();
 
     stack_init(stack);
 
