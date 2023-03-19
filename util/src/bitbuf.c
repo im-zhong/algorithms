@@ -175,7 +175,7 @@ int bitbuf_read_byte(bitbuf_t* bf, unsigned int* byte) {
     for (int i = 0; i < 8; i++) {
         // 如果读取到了末尾 直接返回失败
         // 这是不应该出现的情况
-        if (!bitbuf_read_bit(bf, &bit)) {
+        if (bitbuf_read_bit(bf, &bit) == EOF) {
             return -1;
         }
 
