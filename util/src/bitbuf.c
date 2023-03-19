@@ -2,7 +2,7 @@
 // zhangzhong
 // bitbuf
 
-#include "string/bitbuf.h"
+#include "util/bitbuf.h"
 #include "container/vector.h"
 #include "util/c_string.h"
 #include <assert.h>

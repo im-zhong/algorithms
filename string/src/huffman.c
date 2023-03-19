@@ -5,7 +5,7 @@
 #include "string/huffman.h"
 #include "container/bheap.h"
 #include "container/vector.h"
-#include "string/bitbuf.h"
+#include "util/bitbuf.h"
 #include "util/c_string.h"
 #include <assert.h>
 #include <stdint.h>

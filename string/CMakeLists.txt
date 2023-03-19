@@ -6,7 +6,7 @@ add_library(${PROJECT_NAME} STATIC
     src/trie.c
     src/suffix_array.c
     src/huffman.c
-    src/bitbuf.c)
+)
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC include)

@@ -2,7 +2,7 @@
 // zhangzhong
 // test bit buffer
 
-#include "string/bitbuf.h"
+#include "util/bitbuf.h"
 #include "util/c_random.h"
 #include <assert.h>
 #include <stdio.h>

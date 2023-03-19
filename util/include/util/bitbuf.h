@@ -5,8 +5,8 @@
 #ifndef __BITBUF__
 #define __BITBUF__
 
+#include "c_string.h"
 #include "container/vector.h"
-#include "util/c_string.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
