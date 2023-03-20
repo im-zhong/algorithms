@@ -7,6 +7,7 @@
 #include "container/vector.h"
 #include "util/bitbuf.h"
 #include "util/c_string.h"
+#include "util/file.h"
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -43,25 +44,25 @@ static bool is_leaf(huffman_node_t* node) {
     return node->left == NULL && node->right == NULL;
 }
 
-// open file for read
-// 如果打开失败 就退出程序即可
-FILE* open_file_for_read(char* filename) {
-    FILE* stream = fopen(filename, "r");
-    if (stream == NULL) {
-        printf("open %s failed.\n", filename);
-        exit(EXIT_FAILURE);
-    }
-    return stream;
-}
+// // open file for read
+// // 如果打开失败 就退出程序即可
+// FILE* open_file_for_read(char* filename) {
+//     FILE* stream = fopen(filename, "r");
+//     if (stream == NULL) {
+//         printf("open %s failed.\n", filename);
+//         exit(EXIT_FAILURE);
+//     }
+//     return stream;
+// }
 
-FILE* open_file_for_write(char* filename) {
-    FILE* stream = fopen(filename, "w");
-    if (stream == NULL) {
-        printf("open %s failed.\n", filename);
-        exit(EXIT_FAILURE);
-    }
-    return stream;
-}
+// FILE* open_file_for_write(char* filename) {
+//     FILE* stream = fopen(filename, "w");
+//     if (stream == NULL) {
+//         printf("open %s failed.\n", filename);
+//         exit(EXIT_FAILURE);
+//     }
+//     return stream;
+// }
 
 // 不对不对 我们这里应该输出一个二进制bit
 // 而不是一个字符 0 或者 1啊

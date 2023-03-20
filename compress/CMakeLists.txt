@@ -10,6 +10,7 @@ target_include_directories(new_compress
 target_link_libraries(new_compress 
     PUBLIC container
     PUBLIC util
+    PUBLIC string
 )
 
 #1 test run length encoding
