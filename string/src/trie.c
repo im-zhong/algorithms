@@ -161,5 +161,109 @@ void trie_foreach(trie_t* trie, trie_handle fn) {
     free_string(&str);
 }
 
+void trie_insert_sequence(trie_t* trie, const char* str, size_t size,
+                          value_t value) {
+    assert(trie);
+    assert(str);
+    // 插入也非常简单
+    // 和查找差不多 只不过查找在没有的时候
+    // search会跳出循环 二insert会插入数据
+    if (!trie->root) {
+        // 创建root节点
+        // 可以在一开始的时候就创建root节点 这样insert就不需要做检查了
+        trie->root = make_trie_node();
+    }
+
+    // 我们让root节点一定有效 可以省略掉一些if判断
+    trie_node_t* work = trie->root;
+    for (size_t i = 0; i < size; i++) {
+        unsigned char c = str[i];
+        if (work->child[c] == NULL) {
+            work->child[c] = make_trie_node();
+        }
+        work = work->child[c];
+    }
+
+    // 给work赋值即可
+    assert(work);
+    work->value = value;
+    work->has_value = true;
+}
+
+bool trie_search_sequence(trie_t* trie, const char* str, size_t size,
+                          value_t* value) {
+    assert(trie);
+    assert(str);
+
+    // 从根目录开始找
+    trie_node_t* work = trie->root;
+    if (!work) {
+        return false;
+    }
+
+    for (size_t i = 0; i < size; i++) {
+        unsigned char c = str[i];
+        if (work->child[c] == NULL) {
+            return false;
+        }
+        work = work->child[c];
+    }
+
+    // 此时work可能是空指针啊
+    if (work && work->has_value) {
+        // 说明我们找到了
+        if (value) {
+            *value = work->value;
+        }
+        return true;
+    }
+    return false;
+}
+
+static trie_node_t* trie_delete_sequence_impl(trie_node_t* root,
+                                              const char* str, size_t size) {
+    // 递归结束条件
+    // 字符串已经没有了 或者root指针为空
+    // 不对  str == '\0' 表示我们已经找到了这个节点
+    // 有两种情况应该停止递归 一种是字符串到头了 一种是root是空指针
+
+    if (root == NULL) {
+        // 如果root为空 那么在下面检查has_child就会出错
+        // 所以root为空 应该返回null
+        return NULL;
+    } else if (size == 0) {
+        // 现在我们已经找到了节点
+        // 如果root非空 我们就要删掉它
+        root->has_value = false;
+    } else {
+        // 这个必须一层一层的写
+        unsigned char c = *str;
+        root->child[*str] =
+            trie_delete_sequence_impl(root->child[c], str + 1, size - 1);
+    }
+
+    // 如果我们还有孩子 我们就返回我们自己的指针
+    // bug case
+    // 考虑这样一种情况
+    // insert(a)
+    // delete(ab)
+    // 我们再递归的查找b的节点失败之后，因为我们没有b
+    // 递归回到a节点，此时a是没有孩子的 但是a是不能删掉的 因为a有值
+    if (root->has_value || has_child(root)) {
+        return root;
+    } else {
+        // 如果我们没有孩子了 我们就需要把自己释放掉
+        // 然后返回空指针 这样上层的child指针就被正确的设置了
+        free(root);
+        return NULL;
+    }
+}
+
+void trie_delete_sequence(trie_t* trie, const char* str, size_t size) {
+    assert(trie);
+    assert(str);
+    trie->root = trie_delete_sequence_impl(trie->root, str, size);
+}
+
 // 有了顺序遍历，prefix相关的操作会非常简单的实现
 // todo: 还差一种range操作

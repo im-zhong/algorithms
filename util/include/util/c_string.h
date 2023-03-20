@@ -54,4 +54,6 @@ int string_popback(string_t* string);
 // 检查提供的字符串是不是当前字符串的后缀
 bool string_is_suffix(string_t* string, char* suffix);
 
+bool string_empty(string_t* string);
+
 #endif // __C_STRING_H__

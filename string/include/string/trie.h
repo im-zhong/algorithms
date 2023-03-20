@@ -32,9 +32,16 @@ void free_trie(trie_t* trie);
 
 void trie_clear(trie_t* trie);
 
+// 我们应该将输入字符串当作序列来看待
 bool trie_search(trie_t* trie, char* str, value_t* value);
 void trie_insert(trie_t* trie, char* str, value_t value);
 void trie_delete(trie_t* trie, char* str);
+
+bool trie_search_sequence(trie_t* trie, const char* str, size_t size,
+                          value_t* value);
+void trie_insert_sequence(trie_t* trie, const char* str, size_t size,
+                          value_t value);
+void trie_delete_sequence(trie_t* trie, const char* str, size_t size);
 
 // 单词查找树含有key str吗
 // bool trie_contain(trie_t *trie, const char *str);

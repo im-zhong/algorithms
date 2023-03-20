@@ -69,6 +69,12 @@ int bitbuf_read_vector(bitbuf_t* bf, vector_t* str, size_t n);
 // 所以参数应该带着一个size
 int bitbuf_write_vector(bitbuf_t* bf, vector_t str, size_t n);
 
+// 新增两个接口
+// 读取任意个数的bit 并且组成一个整数
+// 返回的类型应该是 uint64_t 所以任意个数的bit应该 <= 64
+int bitbuf_read_integer(bitbuf_t* bf, uint64_t* integer, size_t len);
+int bitbuf_write_integer(bitbuf_t* bf, uint64_t integer, size_t len);
+
 int bitbuf_flush(bitbuf_t* bf);
 
 #endif // __BITBUF__

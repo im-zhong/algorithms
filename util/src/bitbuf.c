@@ -74,6 +74,13 @@ static inline int write_bit(unsigned char c, size_t n, int bit) {
     return c & ~(1U << n);
 }
 
+// 这两个函数应该扩展一下
+// 以支持64bit
+static inline int read_bit64(uint64_t c, size_t n) {
+    assert(n < 64);
+    return (int)((c & (1UL << n)) >> n);
+}
+
 int bitbuf_cache(bitbuf_t* bf) {
     // 从stream中读取内容填充缓存
     // 还是读char更好处理一些
@@ -232,9 +239,51 @@ int bitbuf_write_vector(bitbuf_t* bf, vector_t str, size_t n) {
     for (size_t i = 0; i < n; i++) {
         // 傻？？为什么要pop???
         // 不是顺序把字符写进去吗
-        bit = str.data[i];
+        bit = (int)(str.data[i]);
         assert(bit == 0 || bit == 1);
         bitbuf_write_bit(bf, bit);
     }
     return 0;
+}
+
+int bitbuf_read_integer(bitbuf_t* bf, uint64_t* integer, size_t len) {
+    assert(bf);
+    // 不对 如果没提供integer的指针 就不读就可以了
+    // assert(integer);
+    if (len > 64) {
+        return -1;
+    }
+
+    vector_t bits = make_vector(0);
+    if (bitbuf_read_vector(bf, &bits, len) != 0) {
+        return -1;
+    }
+
+    if (integer) {
+        *integer = 0;
+        for (size_t i = 0; i < len; i++) {
+            *integer |= ((uint64_t)bits.data[i] << i);
+        }
+    }
+
+    free_vector(&bits);
+    return 0;
+}
+
+int bitbuf_write_integer(bitbuf_t* bf, uint64_t integer, size_t len) {
+    assert(bf);
+    assert(len <= 64);
+    // vector的存储顺序必须是从低位到高位
+    vector_t bits = make_vector(0);
+    for (size_t i = 0; i < len; i++) {
+        int bit = read_bit64(integer, i);
+        assert(bit == 0 || bit == 1);
+        vector_push_back(&bits, bit);
+    }
+
+    if (bitbuf_write_vector(bf, bits, len) != 0) {
+        return -1;
+    }
+    free_vector(&bits);
+    return -1;
 }

@@ -133,3 +133,5 @@ bool string_is_suffix(string_t* string, char* suffix) {
     }
     return true;
 }
+
+bool string_empty(string_t* string) { return string->size == 0; }

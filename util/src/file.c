@@ -29,7 +29,7 @@ FILE* open_file_for_write(const char* filename) {
 int generate_random_file(const char* filename, size_t size) {
     FILE* outfp = open_file_for_write(filename);
     for (size_t i = 0; i < size; i++) {
-        char byte = (char)rrand(0, INT_MAX);
+        char byte = (char)rrand('a', 'z');
         if (fwrite(&byte, 1, 1, outfp) != 1) {
             (void)fprintf(stderr, "write to %s failed.\n", filename);
             return -1;

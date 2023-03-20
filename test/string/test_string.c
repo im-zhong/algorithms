@@ -73,6 +73,7 @@ void test_trie() {
     trie_t trie;
     make_trie(&trie);
 
+    trie_insert(&trie, "", 0);
     trie_insert(&trie, "hello", 1);
     trie_insert(&trie, "world", 2);
 
@@ -256,6 +257,65 @@ void test_random_trie() {
     free_strset(&set);
 }
 
+void test_random_trie_sequence() {
+    trie_t trie;
+    make_trie(&trie);
+    strset_t set;
+    make_strset(&set);
+
+    size_t minlen = 1;
+    size_t maxlen = 7;
+
+    value_t v1 = 0;
+    value_t v2 = 0;
+    bool r1 = false;
+    bool r2 = false;
+    int num = 0;
+    int op = 0;
+    while (true) {
+        string_t str = random_string(minlen, maxlen);
+        op = rrand(0, 2);
+        num = rrand(0, 1000000);
+        v1 = 0;
+        v2 = 0;
+        r1 = false;
+        r2 = false;
+        printf("op: %d, key: %s, value: %d\n", op, str.data, num);
+
+        if (op == 0) {
+            // search
+            r1 = strset_search(&set, str.data, &v1);
+            r2 = trie_search_sequence(&trie, str.data, str.size, &v2);
+            if (r1 != r2) {
+                printf("strset: %s, trie: %s\n", r1 ? "true" : "false",
+                       r2 ? "true" : "false");
+                assert(false);
+            }
+            if (v1 != v2) {
+                printf("v1: %ld, v2: %ld\n", v1, v2);
+                assert(false);
+            }
+        } else if (op == 1) {
+            // insert
+            strset_insert(&set, str.data, num);
+            trie_insert_sequence(&trie, str.data, str.size, num);
+        } else if (op == 2) {
+            // delete
+            strset_delete(&set, str.data);
+            trie_delete_sequence(&trie, str.data, str.size);
+        } else {
+            assert(false);
+        }
+        free_string(&str);
+
+        test_random_trie_helper(&trie, &set);
+        test_trie_foreach(&trie, &set);
+    }
+
+    free_trie(&trie);
+    free_strset(&set);
+}
+
 void test_lrs() {
     // 生成随机字符串
     while (true) {
@@ -314,10 +374,11 @@ int main(int argc, char* argv[]) {
     // test_msd_sort();
     // test_trie();
     // test_trie_delete_prefix();
-    // // test_random_trie();
+    // test_random_trie();
     // test_lrs();
+    test_random_trie_sequence();
 
-    test_kwic(argc, argv);
+    // test_kwic(argc, argv);
 
     return 0;
 }
