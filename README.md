@@ -16,3 +16,6 @@
 1. `cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 ..`
 2. `dot -Tpng -O *.dot`
 3. reformat all code: `find . -iname *.h -o -iname *.c -o -iname *.cpp | xargs clang-format -i`
+
+这是用lvim写的 现在他的刷新还是有点问题
+
