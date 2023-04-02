@@ -25,11 +25,14 @@ vector_t* make_vector(size_t capacity, size_t type_size) {
 void free_vector(vector_t* vector) {
     assert(vector);
 
-    free(vector->data);
+    if (vector->data) {
+        free(vector->data);
+    }
     vector->data = NULL;
     vector->type_size = 0;
     vector->size = 0;
     vector->capacity = 0;
+    free(vector);
 }
 
 inline void vector_clear(vector_t* vector) { vector->size = 0; }
