@@ -41,8 +41,8 @@ void* list_front(list_node_t* head);
 void* list_back(list_node_t* head);
 void list_push_front(list_node_t* head, void* entry);
 void list_push_back(list_node_t* head, void* entry);
-void* list_pop_front(list_node_t* head);
-void* list_pop_back(list_node_t* head);
+void list_pop_front(list_node_t* head);
+void list_pop_back(list_node_t* head);
 bool list_empty(list_node_t* head);
 
 bool list_is_head(list_node_t* head, void* entry);

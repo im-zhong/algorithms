@@ -66,3 +66,14 @@ void* list_back(list_node_t* head) { return head->prev; }
 void* list_next_entry(void* entry) { return ((list_node_t*)entry)->next; }
 
 void* list_prev_entry(void* entry) { return ((list_node_t*)entry)->prev; }
+
+bool list_empty(list_node_t* head) { return head->next == head; }
+
+void list_push_front(list_node_t* head, void* entry) {
+    list_insert_after(head, entry);
+}
+void list_push_back(list_node_t* head, void* entry) {
+    list_insert_before(head, entry);
+}
+void list_pop_front(list_node_t* head) { list_erase(head, head->next); }
+void list_pop_back(list_node_t* head) { list_erase(head->prev, head); }
