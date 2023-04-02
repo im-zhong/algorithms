@@ -17,7 +17,8 @@ void test_random_lzw() {
 }
 
 int main() {
+    // file scoped tests
     test_lzw();
+    // module scoped tests
     test_random_lzw();
-    return 0;
 }
