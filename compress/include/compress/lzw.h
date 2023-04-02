@@ -8,4 +8,6 @@
 int lzw_compression(const char* input, const char* output);
 int lzw_expansion(const char* input, const char* output);
 
+void test_lzw();
+
 #endif // COMPRESS_LZW_H

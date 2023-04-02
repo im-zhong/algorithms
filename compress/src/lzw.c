@@ -14,7 +14,7 @@
 static vector_t vector;
 
 // csapp: datalab how many bits 提供了一个二分搜索的思路
-int minimum_bits(uint64_t n) {
+static int minimum_bits(uint64_t n) {
     int bits = 0;
     while (n != 0) {
         bits++;
@@ -269,3 +269,15 @@ int lzw_expansion(const char* input, const char* output) {
     free_vector(&codings);
     return 0;
 }
+
+// file scope tests
+
+static void test_minimum_bits() {
+    assert(minimum_bits(0) == 0);
+    assert(minimum_bits(1) == 1);
+    assert(minimum_bits(2) == 2);
+    assert(minimum_bits(3) == 2);
+    assert(minimum_bits(4) == 3);
+}
+
+void test_lzw() { test_minimum_bits(); }

@@ -87,3 +87,5 @@ int run_length_decompress(const char* input, const char* output) {
     (void)fclose(outfp);
     return 0;
 }
+
+void test_run_length_encoding() {}

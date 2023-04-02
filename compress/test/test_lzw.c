@@ -6,7 +6,7 @@
 #include <assert.h>
 #include <stdbool.h>
 
-void test_lzw() {
+void test_random_lzw() {
     const char* file = "lzw.txt";
     const char* compressed_file = "lzw.txt.compress";
     const char* decompressed_file = "lzw.txt.decompress";
@@ -16,7 +16,8 @@ void test_lzw() {
     assert(lzw_expansion(compressed_file, decompressed_file) == 0);
 }
 
-int main(int argc, char* argv[]) {
+int main() {
     test_lzw();
+    test_random_lzw();
     return 0;
 }

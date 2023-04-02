@@ -11,4 +11,6 @@
 int run_length_compress(const char* input, const char* output);
 int run_length_decompress(const char* input, const char* output);
 
+void test_run_length_encoding();
+
 #endif // COMPRESS_RUN_LENGTH_ENCODING_H
