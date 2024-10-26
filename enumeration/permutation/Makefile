@@ -1,6 +1,6 @@
 all: permutation.out
 
-CXXFLAGS = -std=c++11 -Wall
+CXXFLAGS = -std=c++11 -Wall -g
 
 permutation.out: permutation.cpp
 	c++ $(CXXFLAGS) -o $@ $^

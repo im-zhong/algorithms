@@ -13,7 +13,8 @@ Checks: "*,
   -readability-magic-numbers,
   -modernize-use-trailing-return-type,
   -fuchsia-default-arguments-calls,
-  -fuchsia-overloaded-operator"
+  -fuchsia-overloaded-operator,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic"
 
 WarningsAsErrors: "*"
 
